@@ -1,9 +1,12 @@
 #include <qcodecmanager.h>
+#include <qlamecodec.h>
+#include <qflaccodec.h>
 #include <QDir>
 
 QCodecManager::QCodecManager()
 {
 	mSupportedCodecs.append(new QLameCodec);
+	mSupportedCodecs.append(new QFlacCodec);
 
 	initializeSearchPaths();
 	testLibraries();
@@ -101,6 +104,7 @@ void QCodecManager::initializeSearchPaths()
 		paths.append(QString("") + QDir::separator() + "lib");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib" + QDir::separator() + "i386-linux-gnu");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib");
 	#endif
 

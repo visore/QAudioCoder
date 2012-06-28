@@ -191,7 +191,7 @@ void QAudioCoder::convert(const QString inputFilePath, const QString outputFileP
 	else
 	{
 		mThread->setCodec(codecs[0]);
-		mThread->start();
+		//mThread->start();
 		while(!mThread->isFinished());
 	}
 }

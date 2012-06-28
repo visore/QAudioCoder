@@ -11,8 +11,8 @@ class QLameCodec : public QAbstractCodec
 
 		QLameCodec();
 
-		void initialize();
-		void finalize();
+		bool initialize();
+		bool finalize();
 
 		int encode(const qint8 input[], int inputSize, qint8 output[], int outputSize);
 		int encode(const qint16 input[], int inputSize, qint8 output[], int outputSize);

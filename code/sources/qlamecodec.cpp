@@ -9,8 +9,10 @@ QLameCodec::QLameCodec()
 	addFileName("lame");
 }
 
-void QLameCodec::initialize()
+bool QLameCodec::initialize()
 {
+	mError = QAbstractCodec::NoError;
+
 	mLame = m_lame_init();
 
 	m_lame_set_in_samplerate(mLame, mInputFormat.sampleRate());
@@ -49,11 +51,15 @@ void QLameCodec::initialize()
 	}
 
 	m_lame_init_params(mLame);
+
+	return true;
 }
 
-void QLameCodec::finalize()
+bool QLameCodec::finalize()
 {
 	m_lame_close(mLame);
+
+	return true;
 }
 
 int QLameCodec::encode(const qint8 input[], int inputSize, qint8 output[], int outputSize)

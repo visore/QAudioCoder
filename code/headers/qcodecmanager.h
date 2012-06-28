@@ -2,7 +2,7 @@
 #define QCODECMANAGER_H
 
 #include <qcodecinfo.h>
-#include <qlamecodec.h>
+#include <qabstractcodec.h>
 
 class QCodecManager
 {

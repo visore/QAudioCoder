@@ -5,6 +5,7 @@ QAbstractCodec::QAbstractCodec()
 {
 	mName = "undefined";
 	mVersion = "undefined";
+	mError = QAbstractCodec::NoError;
 
 	addFileExtension("");
 	addFileExtension(".a");
@@ -37,7 +38,8 @@ QAbstractCodec::Error QAbstractCodec::load()
 		QFile file(filePath());
 		if(!file.exists())
 		{
-			return QAbstractCodec::PathError;
+			mError = QAbstractCodec::PathError;
+			return mError;
 		}
 		if(mLibrary.load())
 		{
@@ -46,14 +48,17 @@ QAbstractCodec::Error QAbstractCodec::load()
 			{
 				unload();
 			}
-			return error;
+			mError = error;
+			return mError;
 		}
 		else
 		{
-			return QAbstractCodec::FileError;
+			mError = QAbstractCodec::FileError;
+			return mError;
 		}
 	}
-	return QAbstractCodec::NoError;
+	mError = QAbstractCodec::NoError;
+	return mError;
 }
 
 QAbstractCodec::Error QAbstractCodec::load(QString filePath)
@@ -130,6 +135,11 @@ void QAbstractCodec::addFileName(QString name)
 void QAbstractCodec::addFileExtension(QString extension)
 {
 	mFileExtensions.append(extension);
+}
+
+QAbstractCodec::Error QAbstractCodec::error()
+{
+	return mError;
 }
 
 bool QAbstractCodec::operator == (const QAbstractCodec &other) const

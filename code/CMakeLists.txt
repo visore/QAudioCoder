@@ -80,7 +80,7 @@ INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 #Create example cases
 ADD_EXECUTABLE(example1 ${EXAMPLES}/example1.cpp)
-TARGET_LINK_LIBRARIES(example1 qaudiocoder "/home/visore/Project/QAudioCoder/QAudioCoder/code/external/lame/library/libmp3lame.so.0.0.0")
+TARGET_LINK_LIBRARIES(example1 qaudiocoder)
 
 #Packaging
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
