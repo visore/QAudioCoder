@@ -142,6 +142,22 @@ QAbstractCodec::Error QAbstractCodec::error()
 	return mError;
 }
 
+bool QAbstractCodec::hasChunk()
+{
+	return !mChunks.isEmpty();
+}
+
+QCodecChunk QAbstractCodec::takeChunk()
+{
+	mChunks.dequeue();
+}
+
+void QAbstractCodec::addChunk(QCodecChunk chunk)
+{
+	mChunks.enqueue(chunk);
+	emit encoded();
+}
+
 bool QAbstractCodec::operator == (const QAbstractCodec &other) const
 {
 	return mName != "" && mName == other.mName;

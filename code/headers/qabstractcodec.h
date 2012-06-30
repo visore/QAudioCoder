@@ -1,18 +1,27 @@
 #ifndef QABSTRACTCODEC_H
 #define QABSTRACTCODEC_H
 
+#include <QQueue>
 #include <QByteArray>
 #include <QStringList>
 #include <QLibrary>
 #include <qaudio.h>
 #include <qcodecformat.h>
-
+#include <qcodecchunk.h>
 
 #include <iostream>
 using namespace std;
 
-class QAbstractCodec
+
+
+class QAbstractCodec : public QObject
 {
+
+	Q_OBJECT
+
+	signals:
+
+		void encoded();
 
 	public:
 
@@ -41,9 +50,9 @@ class QAbstractCodec
 		virtual bool initialize() = 0;
 		virtual bool finalize() = 0;
 
-		virtual int encode(const qint8 input[], int inputSize, qint8 output[], int outputSize) = 0;
-		virtual int encode(const qint16 input[], int inputSize, qint8 output[], int outputSize) = 0;
-		virtual int encode(const qint32 input[], int inputSize, qint8 output[], int outputSize) = 0;
+		virtual int encode(const qint8 input[], int inputSize) = 0;
+		virtual int encode(const qint16 input[], int inputSize) = 0;
+		virtual int encode(const qint32 input[], int inputSize) = 0;
 
 		QAbstractCodec::Error load();
 		QAbstractCodec::Error load(QString filePath);
@@ -64,9 +73,14 @@ class QAbstractCodec
 
 		QAbstractCodec::Error error();
 
+		bool hasChunk();
+		QCodecChunk takeChunk();
+
 		bool operator == (const QAbstractCodec &other) const;
 
 	protected:
+
+		void addChunk(QCodecChunk chunk);
 
 		virtual QAbstractCodec::Error initializeLibrary() = 0;
 
@@ -83,6 +97,8 @@ class QAbstractCodec
 
 		QCodecFormat mInputFormat;
 		QCodecFormat mOutputFormat;
+
+		QQueue<QCodecChunk> mChunks;
 
 };
 

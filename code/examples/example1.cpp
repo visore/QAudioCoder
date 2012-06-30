@@ -10,13 +10,13 @@ int main()
 {
 
 QCodecFormat format;
-format.setChannelCount(1);
+format.setChannelCount(2);
 format.setSampleRate(44100);
-format.setSampleSize(32);
+format.setSampleSize(16);
 format.setBitrate(128);
 
 QAudioCoder coder;
-coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);
+coder.convert("/home/visore/a.wav", "/home/visore/meee.flac", format);
 
 	/*int read, write;
 
