@@ -1,7 +1,7 @@
 #ifndef QAUDIOHUNK_H
 #define QAUDIOHUNK_H
 
-#include <qaudioresampler.h>
+#include <qsampleconverter.h>
 
 class QAudioChunk
 {

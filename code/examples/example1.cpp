@@ -1,5 +1,6 @@
 #include <qaudiocoder.h>
 
+
 #include <iostream>
 using namespace std;
 
@@ -23,7 +24,8 @@ unsigned int a = g;
 
 cout<<(int)qbyte8s(qbyte16s(-32765))<<endl;
 
-QAudioResampler::test();
+
+QSampleConverter::test();
 
 	/*int read, write;
 
