@@ -147,12 +147,12 @@ bool QAbstractCodec::hasChunk()
 	return !mChunks.isEmpty();
 }
 
-QCodecChunk QAbstractCodec::takeChunk()
+QAudioChunk QAbstractCodec::takeChunk()
 {
 	mChunks.dequeue();
 }
 
-void QAbstractCodec::addChunk(QCodecChunk chunk)
+void QAbstractCodec::addChunk(QAudioChunk chunk)
 {
 	mChunks.enqueue(chunk);
 	emit encoded();

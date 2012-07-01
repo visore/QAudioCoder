@@ -11,9 +11,13 @@ class QWaveCodec : public QAbstractCodec
 		bool initialize();
 		bool finalize();
 
-		int encode(const qint8 input[], int inputSize);
-		int encode(const qint16 input[], int inputSize);
-		int encode(const qint32 input[], int inputSize);
+		void encode8(const qbyte input[], int samples);
+		void encode16(const qbyte input[], int samples);
+		void encode32(const qbyte input[], int samples);
+
+		void decode8(const qbyte input[], int size);
+		void decode16(const qbyte input[], int size);
+		void decode32(const qbyte input[], int size);
 
 	protected:
 

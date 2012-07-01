@@ -1,12 +1,12 @@
 #include <qcodecmanager.h>
-#include <qlamecodec.h>
-#include <qflaccodec.h>
+//#include <qlamecodec.h>
+//#include <qflaccodec.h>
 #include <QDir>
 
 QCodecManager::QCodecManager()
 {
-	mSupportedCodecs.append(new QLameCodec);
-	mSupportedCodecs.append(new QFlacCodec);
+	//mSupportedCodecs.append(new QLameCodec);
+	//mSupportedCodecs.append(new QFlacCodec);
 
 	initializeSearchPaths();
 	testLibraries();

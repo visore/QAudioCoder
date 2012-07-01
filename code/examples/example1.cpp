@@ -18,6 +18,13 @@ format.setBitrate(128);
 QAudioCoder coder;
 coder.convert("/home/visore/a.wav", "/home/visore/meee.flac", format);
 
+signed int g = 40000;
+unsigned int a = g;
+
+cout<<(int)qbyte8s(qbyte16s(-32765))<<endl;
+
+QAudioResampler::test();
+
 	/*int read, write;
 
     FILE *pcm = fopen("/home/visore/a.wav", "rb");

@@ -3,13 +3,7 @@
 QAudioCoder::QAudioCoder()
 	: QObject()
 {
-	QObject::connect(&mCodecExecutor, SIGNAL(finished()), this, SIGNAL(finished()));
-}
-
-QAudioCoder::~QAudioCoder()
-{
-	delete mThread;
-	mThread = NULL;
+	//QObject::connect(&mCodecExecutor, SIGNAL(finished()), this, SIGNAL(finished()));
 }
 
 void QAudioCoder::encode(const QByteArray *data, const QString filePath)

@@ -20,12 +20,12 @@ void QCodecExecutor::setCodec(QAbstractCodec *codec)
 	mCodec = codec;
 }
 
-QCodecFormat QCodecExecutor::format(QAudio::Mode mode)
+QCodecFormat QCodecExecutor::format()
 {
 	return mFormat;
 }
 
-void QCodecExecutor::setFormat(QAudio::Mode mode, QCodecFormat format)
+void QCodecExecutor::setFormat(QCodecFormat format)
 {
 	mFormat = format;
 }

@@ -7,12 +7,10 @@
 #include <QLibrary>
 #include <qaudio.h>
 #include <qcodecformat.h>
-#include <qcodecchunk.h>
+#include <qaudiochunk.h>
 
 #include <iostream>
 using namespace std;
-
-
 
 class QAbstractCodec : public QObject
 {
@@ -50,9 +48,13 @@ class QAbstractCodec : public QObject
 		virtual bool initialize() = 0;
 		virtual bool finalize() = 0;
 
-		virtual int encode(const qint8 input[], int inputSize) = 0;
-		virtual int encode(const qint16 input[], int inputSize) = 0;
-		virtual int encode(const qint32 input[], int inputSize) = 0;
+		virtual void encode8(const qbyte input[], int samples) = 0;
+		virtual void encode16(const qbyte input[], int samples) = 0;
+		virtual void encode32(const qbyte input[], int samples) = 0;
+
+		virtual void decode8(const qbyte input[], int size) = 0;
+		virtual void decode16(const qbyte input[], int size) = 0;
+		virtual void decode32(const qbyte input[], int size) = 0;
 
 		QAbstractCodec::Error load();
 		QAbstractCodec::Error load(QString filePath);
@@ -74,13 +76,13 @@ class QAbstractCodec : public QObject
 		QAbstractCodec::Error error();
 
 		bool hasChunk();
-		QCodecChunk takeChunk();
+		QAudioChunk takeChunk();
 
 		bool operator == (const QAbstractCodec &other) const;
 
 	protected:
 
-		void addChunk(QCodecChunk chunk);
+		void addChunk(QAudioChunk chunk);
 
 		virtual QAbstractCodec::Error initializeLibrary() = 0;
 
@@ -98,7 +100,7 @@ class QAbstractCodec : public QObject
 		QCodecFormat mInputFormat;
 		QCodecFormat mOutputFormat;
 
-		QQueue<QCodecChunk> mChunks;
+		QQueue<QAudioChunk> mChunks;
 
 };
 

@@ -11,17 +11,39 @@ bool QWaveCodec::finalize()
 	return true;
 }
 
-int QWaveCodec::encode(const qint8 input[], int inputSize)
+void QWaveCodec::encode8(const qbyte input[], int samples)
 {
-	//QCodecChunk chunk(input);
+	QAudioChunk chunk(input, samples, samples);
+	addChunk(chunk);
 }
 
-int QWaveCodec::encode(const qint16 input[], int inputSize)
+void QWaveCodec::encode16(const qbyte input[], int samples)
 {
+	QAudioChunk chunk(input, samples, samples * 2);
+	addChunk(chunk);
 }
 
-int QWaveCodec::encode(const qint32 input[], int inputSize)
+void QWaveCodec::encode32(const qbyte input[], int samples)
 {
+	QAudioChunk chunk(input, samples, samples * 4);
+	addChunk(chunk);
+}
+
+void QWaveCodec::decode8(const qbyte input[], int size)
+{
+	QAudioChunk chunk(input, size, size);
+	addChunk(chunk);
+}
+
+void QWaveCodec::decode16(const qbyte input[], int size)
+{
+	QAudioChunk chunk(input, inputSize);
+	addChunk(chunk);
+}
+void QWaveCodec::decode32(const qbyte input[], int size)
+{
+	QAudioChunk chunk(input, inputSize);
+	addChunk(chunk);
 }
 
 QAbstractCodec::Error QWaveCodec::initializeLibrary()

@@ -16,7 +16,6 @@ class QAudioCoder : public QObject
 	public:
 
 		QAudioCoder();
-		~QAudioCoder();
 
 		void addSearchPath(QString path);
 		void addFileName(QString codec, QString name);
@@ -27,7 +26,7 @@ class QAudioCoder : public QObject
 
 	private:
 
-		QCodecExecutor mCodecExecutor;
+		//QCodecExecutor mCodecExecutor;
 		QCodecManager mCodecManager;
 
 };
