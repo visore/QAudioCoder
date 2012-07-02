@@ -23,6 +23,8 @@ void QCodingChain::execute()
 {
 	if(mInput != NULL && mOutput != NULL)
 	{
-		QObject::connect(mInput, SIGNAL(), &mDecoder, SLOT());
+		QObject::connect(mInput, SIGNAL(available(QAudioChunk)), &mDecoder, SLOT(addChunk(QAudioChunk)));
+		QObject::connect(&mDecoder, SIGNAL(available(QAudioChunk)), &mEncoder, SLOT(addChunk(QAudioChunk)));
+		QObject::connect(&mEncoder, SIGNAL(available(QAudioChunk)), mOutput, SLOT(addChunk(QAudioChunk)));
 	}
 }
