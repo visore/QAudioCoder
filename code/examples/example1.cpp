@@ -22,10 +22,7 @@ coder.convert("/home/visore/a.wav", "/home/visore/meee.flac", format);
 signed int g = 40000;
 unsigned int a = g;
 
-cout<<(int)qbyte8s(qbyte16s(-32765))<<endl;
 
-
-QSampleConverter::test();
 
 	/*int read, write;
 

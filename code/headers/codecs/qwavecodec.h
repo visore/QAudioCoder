@@ -8,20 +8,23 @@ class QWaveCodec : public QAbstractCodec
 
 	public:
 
-		bool initialize();
-		bool finalize();
+		bool initializeEncode();
+		bool finalizeEncode();
+		void encode(const void *input, int samples);
 
-		void encode8(const qbyte input[], int samples);
-		void encode16(const qbyte input[], int samples);
-		void encode32(const qbyte input[], int samples);
-
-		void decode8(const qbyte input[], int size);
-		void decode16(const qbyte input[], int size);
-		void decode32(const qbyte input[], int size);
+		bool initializeDecode();
+		bool finalizeDecode();
+		void decode(const void *input, int size);
 
 	protected:
 
 		QAbstractCodec::Error initializeLibrary();
+
+	private:
+
+		void (*convert)(const void*, void*, int);
+
+		int mOuputSizeDifference;
 
 };
 

@@ -2,7 +2,6 @@
 #define QAUDIOCODER_H
 
 #include <qcodecmanager.h>
-#include <qcodecexecutor.h>
 
 class QAudioCoder : public QObject
 {
@@ -24,9 +23,13 @@ class QAudioCoder : public QObject
 		void encode(const QByteArray *data, const QString filePath);
 		void convert(const QString inputFilePath, const QString outputFilePath, QCodecFormat outputFormat);
 
+	protected:
+
+		void startDecoder(QAbstractCodec *codec, QCodecFormat format);
+		void startEncoder(QAbstractCodec *codec, QCodecFormat format);
+
 	private:
 
-		//QCodecExecutor mCodecExecutor;
 		QCodecManager mCodecManager;
 
 };

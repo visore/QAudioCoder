@@ -19,7 +19,8 @@ class QAbstractCodec : public QObject
 
 	signals:
 
-		void encoded();
+		void decoded(QAudioChunk chunk);
+		void encoded(QAudioChunk chunk);
 
 	public:
 
@@ -38,24 +39,22 @@ class QAbstractCodec : public QObject
 			BufferError = 8,
 
 			SampleSizeError = 9,
-			SampleRateError = 10,
-			NumberOfChannelsError = 11
+			SampleTypeError = 10,
+			SampleRateError = 11,
+			NumberOfChannelsError = 12
 		};
 
 		QAbstractCodec();
 		~QAbstractCodec();
 
-		virtual bool initialize() = 0;
-		virtual bool finalize() = 0;
+		virtual bool initializeDecode() = 0;
+		virtual bool finalizeDecode() = 0;
+		virtual void decode(const void *input, int size) = 0;
 
-		virtual void encode8(const qbyte input[], int samples) = 0;
-		virtual void encode16(const qbyte input[], int samples) = 0;
-		virtual void encode32(const qbyte input[], int samples) = 0;
-
-		virtual void decode8(const qbyte input[], int size) = 0;
-		virtual void decode16(const qbyte input[], int size) = 0;
-		virtual void decode32(const qbyte input[], int size) = 0;
-
+		virtual bool initializeEncode() = 0;
+		virtual bool finalizeEncode() = 0;
+		virtual void encode(const void *input, int samples) = 0;
+		
 		QAbstractCodec::Error load();
 		QAbstractCodec::Error load(QString filePath);
 		bool unload();
@@ -74,9 +73,6 @@ class QAbstractCodec : public QObject
 		void addFileExtension(QString extension);
 
 		QAbstractCodec::Error error();
-
-		bool hasChunk();
-		QAudioChunk takeChunk();
 
 		bool operator == (const QAbstractCodec &other) const;
 
@@ -99,8 +95,6 @@ class QAbstractCodec : public QObject
 
 		QCodecFormat mInputFormat;
 		QCodecFormat mOutputFormat;
-
-		QQueue<QAudioChunk> mChunks;
 
 };
 
