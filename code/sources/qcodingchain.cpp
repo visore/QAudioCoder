@@ -10,13 +10,13 @@ QCodingChain::QCodingChain()
 void QCodingChain::setInputFilePath(QString filePath)
 {
 	mFileInput.setFilePath(filePath);
-	mInput = mFileInput;
+	mInput = &mFileInput;
 }
 
 void QCodingChain::setOutputFilePath(QString filePath)
 {
 	mFileOutput.setFilePath(filePath);
-	mOutput = mFileOutput;
+	mOutput = &mFileOutput;
 }
 
 void QCodingChain::execute()

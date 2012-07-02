@@ -1,7 +1,7 @@
 #ifndef QCODINGCHAIN_H
 #define QCODINGCHAIN_H
 
-#include <qcodingchaincomponents.h>
+#include <qcodingchaincomponent.h>
 
 class QCodingChain : public QObject
 {
