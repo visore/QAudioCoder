@@ -12,67 +12,24 @@ QCodingChainComponent::QCodingChainComponent()
 {
 }
 
-bool QCodingChainComponent::hasInputChunk()
+bool QCodingChainComponent::hasChunk()
 {
-	mMutex.lock();
-	bool result = !mInputChunks.isEmpty();
-	mMutex.unlock();
-	return result;
+	return !mChunks.isEmpty();
 }
 
-bool QCodingChainComponent::hasOutputChunk()
+void QCodingChainComponent::addChunk(QAudioChunk chunk)
 {
-	mMutex.lock();
-	bool result = !mOutputChunks.isEmpty();
-	mMutex.unlock();
-	return result;
+	mChunks.enqueue(chunk);
 }
 
-void QCodingChainComponent::addInputChunk(QAudioChunk chunk)
+QAudioChunk QCodingChainComponent::takeChunk()
 {
-	mMutex.lock();
-	mInputChunks.enqueue(chunk);
-	mMutex.unlock();
+	return mInputChunks.dequeue();
 }
 
-void QCodingChainComponent::addOutputChunk(QAudioChunk chunk)
+int QCodingChainComponent::numberOfChunks()
 {
-	mMutex.lock();
-	mOutputChunks.enqueue(chunk);
-	mMutex.unlock();
-	emit chunkAvailable();
-}
-
-QAudioChunk QCodingChainComponent::takeInputChunk()
-{
-	mMutex.lock();
-	QAudioChunk chunk = mInputChunks.dequeue();
-	mMutex.unlock();
-	return chunk;
-}
-
-QAudioChunk QCodingChainComponent::takeOutputChunk()
-{
-	mMutex.lock();
-	QAudioChunk chunk = mOutputChunks.dequeue();
-	mMutex.unlock();
-	return chunk;
-}
-
-int QCodingChainComponent::numberOfInputChunks()
-{
-	mMutex.lock();
-	int size = mInputChunks.size();
-	mMutex.unlock();
-	return size;
-}
-
-int QCodingChainComponent::numberOfOutputChunks()
-{
-	mMutex.lock();
-	int size = mOutputChunks.size();
-	mMutex.unlock();
-	return size;
+	return mInputChunks.size();
 }
 
 /**********************************************************

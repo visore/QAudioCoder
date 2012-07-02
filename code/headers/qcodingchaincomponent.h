@@ -2,7 +2,6 @@
 #define QCODINGCHAINCOMPONENT_H
 
 #include <QThread>
-#include <QMutex>
 #include <QFile>
 #include <qabstractcodec.h>
 
@@ -17,31 +16,25 @@ class QCodingChainComponent : public QThread
 
 	signals:
 
-		void chunkAvailable();
+		void available(QAudioChunk chunk);
 
 	public slots:
 
 		virtual bool initialize() = 0;
 		virtual bool finalize() = 0;
-		void addInputChunk(QAudioChunk chunk);
-		void addOutputChunk(QAudioChunk chunk);
+		void addChunk(QAudioChunk chunk);
 
 	public:
 
 		QCodingChainComponent();
-		bool hasInputChunk();
-		bool hasOutputChunk();
-		int numberOfInputChunks();
-		int numberOfOutputChunks();
-		QAudioChunk takeInputChunk();
-		QAudioChunk takeOutputChunk();
+		bool hasChunk();
+		int numberOfChunks();
+		QAudioChunk takeChunk();
 		virtual void run() = 0;
 
 	private:
 
-		QMutex mMutex;
-		QQueue<QAudioChunk> mInputChunks;
-		QQueue<QAudioChunk> mOutputChunks;
+		QQueue<QAudioChunk> mChunks;
 
 };
 
