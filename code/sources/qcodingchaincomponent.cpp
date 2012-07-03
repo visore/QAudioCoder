@@ -268,5 +268,6 @@ void QCodingChainFileOutput::run()
 	{
 		chunk = takeChunk();
 		mFile.write((char*) chunk->data(), chunk->bytes());
+		delete chunk;
 	}
 }

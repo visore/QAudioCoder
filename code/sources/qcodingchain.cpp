@@ -55,9 +55,9 @@ void QCodingChain::run()
 			format.setSampleSize(16);
 			format.setSampleType(QAudioFormat::SignedInt);
 			format.setSampleRate(44100);
-			format.setChannelCount(2);
+			format.setChannelCount(1);
 
-			format.setSampleSize(8);
+			
 			codec->setFormat(QAudio::AudioOutput, format);
 
 			mDecoder.setCodec(codec);

@@ -49,39 +49,58 @@ QSampleChannelConverter::QSampleChannelConverter()
 	convert = NULL;
 }
 
-QSampleChannelConverter::QSampleChannelConverter(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize)
+QSampleChannelConverter::QSampleChannelConverter(int inputChannels, int outputChannels, QAudio::SampleType sampleType, int sampleSize)
 {
 	QSampleChannelConverter();
 	initialize(inputChannels, outputChannels, sampleType, sampleSize);
 }
 
-bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize)
+bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, QAudio::SampleType sampleType, int sampleSize)
 {
-	//////////////////////////////////////////////////////
-	// Add support for all formats (eg: double)
-	// Assign function pointer even if channels are same
-
 	convert = NULL;
 
 	if(inputChannels == 1)
 	{
 		if(outputChannels == 1)
 		{
-			return 0;
+			if(sampleType == QAudio::Float)
+			{
+				convert = &QSampleChunkChannelConverter<qfloat>::convert1To1;
+			}
+			else if(sampleType == QAudio::Real)
+			{
+				convert = &QSampleChunkChannelConverter<qreal>::convert1To1;
+			}
+			else if(sampleType == QAudio::SignedInt)
+			{
+				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8s>::convert1To1;
+				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16s>::convert1To1;
+				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32s>::convert1To1;
+			}
+			else if(sampleType == QAudio::UnSignedInt)
+			{
+				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8u>::convert1To1;
+				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16u>::convert1To1;
+				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32u>::convert1To1;
+			}
 		}
 		else if(outputChannels == 2)
 		{
-			if(sampleType == QAudioFormat::Float)
+			if(sampleType == QAudio::Float)
 			{
-				convert = &QSampleChunkChannelConverter<float>::convert1To2;
+				convert = &QSampleChunkChannelConverter<qfloat>::convert1To2;
 			}
-			else if(sampleType == QAudioFormat::SignedInt)
+			else if(sampleType == QAudio::Real)
+			{
+				convert = &QSampleChunkChannelConverter<qreal>::convert1To2;
+			}
+			else if(sampleType == QAudio::SignedInt)
 			{
 				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8s>::convert1To2;
 				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16s>::convert1To2;
 				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32s>::convert1To2;
 			}
-			else if(sampleType == QAudioFormat::UnSignedInt)
+			else if(sampleType == QAudio::UnSignedInt)
 			{
 				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8u>::convert1To2;
 				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16u>::convert1To2;
@@ -93,17 +112,21 @@ bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, 
 	{
 		if(outputChannels == 1)
 		{
-			if(sampleType == QAudioFormat::Float)
+			if(sampleType == QAudio::Float)
 			{
-				convert = &QSampleChunkChannelConverter<float>::convert2To1;
+				convert = &QSampleChunkChannelConverter<qfloat>::convert2To1;
 			}
-			else if(sampleType == QAudioFormat::SignedInt)
+			else if(sampleType == QAudio::Real)
+			{
+				convert = &QSampleChunkChannelConverter<qreal>::convert2To1;
+			}
+			else if(sampleType == QAudio::SignedInt)
 			{
 				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8s>::convert2To1;
 				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16s>::convert2To1;
 				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32s>::convert2To1;
 			}
-			else if(sampleType == QAudioFormat::UnSignedInt)
+			else if(sampleType == QAudio::UnSignedInt)
 			{
 				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8u>::convert2To1;
 				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16u>::convert2To1;
@@ -112,7 +135,26 @@ bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, 
 		}
 		else if(outputChannels == 2)
 		{
-			return 0;
+			if(sampleType == QAudio::Float)
+			{
+				convert = &QSampleChunkChannelConverter<qfloat>::convert2To2;
+			}
+			else if(sampleType == QAudio::Real)
+			{
+				convert = &QSampleChunkChannelConverter<qreal>::convert2To2;
+			}
+			else if(sampleType == QAudio::SignedInt)
+			{
+				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8s>::convert2To2;
+				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16s>::convert2To2;
+				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32s>::convert2To2;
+			}
+			else if(sampleType == QAudio::UnSignedInt)
+			{
+				if(sampleSize == 8) convert = &QSampleChunkChannelConverter<qbyte8u>::convert2To2;
+				else if(sampleSize == 16) convert = &QSampleChunkChannelConverter<qbyte16u>::convert2To2;
+				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32u>::convert2To2;
+			}
 		}
 	}
 

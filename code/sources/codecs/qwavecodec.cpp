@@ -179,8 +179,6 @@ bool QWaveCodec::initializeEncode()
 		return false;
 	}
 
-	mOuputSizeDifference = outSize / 8.0;
-
 	if(!mConverter.initialize(mInputFormat, mOutputFormat))
 	{
 		mError = QAbstractCodec::InitializationError;
@@ -198,10 +196,9 @@ bool QWaveCodec::finalizeEncode()
 
 void QWaveCodec::encode(const void *input, int samples)
 {
-	qbyte *output;
-	mConverter.convert(input, output, samples);
-	//int outputSize = samples * mOuputSizeDifference;
-	//emit encoded(new QAudioChunk(output, samples, outputSize));
+	int bytes;
+	qbyte *output = (qbyte*) mConverter.convert(input, samples, bytes);
+	emit encoded(new QAudioChunk(output, samples, bytes));
 }
 
 QAbstractCodec::Error QWaveCodec::initializeLibrary()

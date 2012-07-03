@@ -36,8 +36,6 @@ class QWaveCodec : public QAbstractCodec
 
 		QSampleConverter mConverter;
 
-		qreal mOuputSizeDifference;
-
 };
 
 #endif

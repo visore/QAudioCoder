@@ -28,6 +28,8 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 	int outputSize = outputFormat.sampleSize();
 	int inputChannels = inputFormat.channelCount();
 	int outputChannels = outputFormat.channelCount();
+	QAudio::SampleType inputType = QAudio::toAudioSampleType(inputFormat.sampleType());
+	QAudio::SampleType outputType = QAudio::toAudioSampleType(outputFormat.sampleType());
 
 	if(inputFormat.sampleType() == QAudioFormat::Float)
 	{
@@ -38,7 +40,7 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 		outputSize = 32;
 	}
 
-	if(mChannelConverter.initialize(inputChannels, outputChannels, inputFormat.sampleType(), inputSize))
+	if(mChannelConverter.initialize(inputChannels, outputChannels, inputType, inputSize))
 	{
 		mChannelSampleSize = inputSize / 8;
 		mChannelDifference = outputChannels / qreal(inputChannels);
@@ -48,9 +50,9 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 		return false;
 	}
 
-	if(mSizeConverter.initialize(inputSize, QAudio::toAudioSampleType(inputFormat.sampleType()), outputSize, QAudio::toAudioSampleType(outputFormat.sampleType())))
+	if(mSizeConverter.initialize(inputSize, inputType, outputSize, outputType))
 	{
-		mSizeSampleSize = outputSize / 8;
+		mSizeSampleSize = inputSize / 8;
 		mSizeDifference = outputSize / qreal(inputSize);
 	}
 	else
@@ -60,16 +62,17 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 
 	return true;
 }
-
-void QSampleConverter::convert(const void *input, void *output, int &samples)
-{	
-	qbyte *channelData = new qbyte[int(samples * mChannelDifference * mChannelSampleSize)];
+void* QSampleConverter::convert(const void *input, int &samples, int &size)
+{
+	size = int(samples * mChannelDifference * mChannelSampleSize);
+	qbyte *channelData = new qbyte[size];
 	mChannelConverter.convert(input, channelData, samples);
-	//samples *= mChannelSampleSize;
+	samples *= mChannelDifference;
 
-	/*qbyte *sizeData = new qbyte[int(samples * mSizeDifference * mSizeSampleSize)];
+	size = int(samples * mSizeDifference * mSizeSampleSize);
+	qbyte *sizeData = new qbyte[size];
 	mSizeConverter.convert(channelData, sizeData, samples);
-	delete [] channelData;*/
+	delete [] channelData;
 
-	output = channelData;// sizeData;
+	return sizeData;
 }

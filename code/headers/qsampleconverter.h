@@ -13,7 +13,7 @@ class QSampleConverter
 		QSampleConverter();
 		QSampleConverter(QCodecFormat inputFormat, QCodecFormat outputFormat);
 		bool initialize(QCodecFormat inputFormat, QCodecFormat outputFormat);
-		void convert(const void *input, void *output, int &samples);
+		void* convert(const void *input, int &samples, int &size);
 
 	private:
 
