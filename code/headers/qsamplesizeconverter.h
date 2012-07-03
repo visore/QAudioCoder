@@ -8,6 +8,11 @@ class QSampleSizeConverter
 
 	public:
 
+		QSampleSizeConverter(){}
+		QSampleSizeConverter(int inputSize, int outputSize){}
+		void setSampleSize(int inputSize, int outputSize){}
+		void (*convert)(void *input, void output, int samples);
+
 		/**********************************************************************
 		Value conversion - unsigned 8
 		**********************************************************************/
