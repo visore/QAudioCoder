@@ -1,7 +1,7 @@
 #ifndef QAUDIOCODER_H
 #define QAUDIOCODER_H
 
-#include <qcodecmanager.h>
+#include <qcodingchain.h>
 
 class QAudioCoder : public QObject
 {
@@ -30,7 +30,7 @@ class QAudioCoder : public QObject
 
 	private:
 
-		QCodecManager mCodecManager;
+		QCodingChain mChain;
 
 };
 

@@ -19,8 +19,8 @@ class QAbstractCodec : public QObject
 
 	signals:
 
-		void decoded(QAudioChunk chunk);
-		void encoded(QAudioChunk chunk);
+		void decoded(QAudioChunk *chunk);
+		void encoded(QAudioChunk *chunk);
 
 	public:
 
@@ -55,9 +55,9 @@ class QAbstractCodec : public QObject
 		virtual bool finalizeEncode() = 0;
 		virtual void encode(const void *input, int samples) = 0;
 		
-		QAbstractCodec::Error load();
-		QAbstractCodec::Error load(QString filePath);
-		bool unload();
+		virtual QAbstractCodec::Error load();
+		virtual QAbstractCodec::Error load(QString filePath);
+		virtual bool unload();
 
 		QString filePath();
 		void setFilePath(QString filePath);

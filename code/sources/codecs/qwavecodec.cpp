@@ -1,5 +1,27 @@
 #include <qwavecodec.h>
 
+QWaveCodec::QWaveCodec()
+	: QAbstractCodec()
+{
+	mName = "Wave";
+	addFileName("");
+}
+
+QAbstractCodec::Error QWaveCodec::load()
+{
+	return QAbstractCodec::NoError;
+}
+
+QAbstractCodec::Error QWaveCodec::load(QString filePath)
+{
+	return QAbstractCodec::NoError;
+}
+
+bool QWaveCodec::unload()
+{
+	return true;
+}
+
 bool QWaveCodec::initializeDecode()
 {
 	mError = QAbstractCodec::NoError;
@@ -15,8 +37,7 @@ void QWaveCodec::decode(const void *input, int size)
 {
 	qbyte *output = new qbyte[size];
 	memcpy(output, input, size);
-	QAudioChunk chunk(output, size, size / (mInputFormat.sampleSize() / 8));
-	emit decoded(chunk);
+	emit decoded(new QAudioChunk(output, size / (mInputFormat.sampleSize() / 8), size));
 }
 
 bool QWaveCodec::initializeEncode()
@@ -26,7 +47,7 @@ bool QWaveCodec::initializeEncode()
 	QAudioFormat::SampleType inType = mInputFormat.sampleType();
 	QAudioFormat::SampleType outType = mOutputFormat.sampleType();
 
-	if((inSize != 8 || inSize != 16 || inSize != 32) && (outSize != 8 || outSize != 16 || outSize != 32))
+	if(!(inSize == 8 || inSize == 16 || inSize == 32) && !(outSize == 8 || outSize == 16 || outSize == 32))
 	{
 		mError = QAbstractCodec::SampleSizeError;
 		return false;
@@ -38,7 +59,7 @@ bool QWaveCodec::initializeEncode()
 		return false;
 	}
 
-	mOuputSizeDifference = outSize / inSize;
+	mOuputSizeDifference = outSize / 8.0;
 
 	if(inType == QAudioFormat::SignedInt)
 	{
@@ -176,10 +197,8 @@ void QWaveCodec::encode(const void *input, int samples)
 	int outputSize = samples * mOuputSizeDifference;
 	qbyte *output = new qbyte[outputSize];
 	(*convert)(input, output, samples);
-	QAudioChunk chunk(output, samples, outputSize);
-	emit encoded(chunk);
+	emit encoded(new QAudioChunk(output, samples, outputSize));
 }
-
 
 QAbstractCodec::Error QWaveCodec::initializeLibrary()
 {

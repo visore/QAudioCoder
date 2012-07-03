@@ -18,7 +18,7 @@ QAudioChunk::~QAudioChunk()
 {
 	if(mData != 0)
 	{
-		delete mData;
+		delete [] mData;
 		mData = 0;
 	}
 }

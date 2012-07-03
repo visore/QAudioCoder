@@ -6,7 +6,7 @@ QAudioCoder::QAudioCoder()
 	/*mDecoder = NULL;
 	mEncoder = NULL;*/
 	
-	//QObject::connect(&mCodecExecutor, SIGNAL(finished()), this, SIGNAL(finished()));
+	QObject::connect(&mChain, SIGNAL(finished()), this, SIGNAL(finished()));
 }
 
 void QAudioCoder::encode(const QByteArray *data, const QString filePath)
@@ -16,6 +16,12 @@ void QAudioCoder::encode(const QByteArray *data, const QString filePath)
 
 void QAudioCoder::convert(const QString inputFilePath, const QString outputFilePath, QCodecFormat outputFormat)
 {
+	mChain.setInputFilePath(inputFilePath);
+	mChain.setOutputFilePath(outputFilePath);
+
+	mChain.start();
+
+
 	//mCodecExecutor.setFormat(QAudio::AudioOutput, outputFormat);
 	//mCodecExecutor.setData(inputFilePath, outputFilePath);
 

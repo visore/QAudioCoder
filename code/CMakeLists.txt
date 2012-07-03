@@ -41,7 +41,7 @@ INCLUDE(Macros)
 
 #Setup Qt
 SET(QT5BASE /home/visore/Qt5/qt5/qtbase)
-FIND_PACKAGE(Qt5 COMPONENTS Core Multimedia)
+FIND_PACKAGE(Qt5 COMPONENTS Core Multimedia Widgets Gui)
 
 #Include common headers
 HEADER_DIRECTORIES(GLOBAL_HEADERS)
@@ -80,7 +80,7 @@ INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 #Create example cases
 ADD_EXECUTABLE(example1 ${EXAMPLES}/example1.cpp)
-TARGET_LINK_LIBRARIES(example1 qaudiocoder)
+TARGET_LINK_LIBRARIES(example1 qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
 
 #Packaging
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

@@ -2,22 +2,36 @@
 #define QCODINGCHAIN_H
 
 #include <qcodingchaincomponent.h>
+#include <qcodecmanager.h>
 
-class QCodingChain : public QObject
+class QCodingChain : public QThread
 {
 
 	Q_OBJECT
+
+	signals:
+
+		void finished();
+
+	private slots:
+
+		void inputFinished();
+		void checkFinished();
 
 	public:
 
 		QCodingChain();
 
+		bool isFinished();
+
 		void setInputFilePath(QString filePath);
 		void setOutputFilePath(QString filePath);
 
-		void execute();
+		void run();
 
 	private:
+
+		QCodecManager mCodecManager;
 
 		QCodingChainInput *mInput;
 		QCodingChainOutput *mOutput;
@@ -27,6 +41,8 @@ class QCodingChain : public QObject
 
 		QCodingChainDecoder mDecoder;
 		QCodingChainEncoder mEncoder;
+
+		bool mInputAtEnd;
 
 };
 
