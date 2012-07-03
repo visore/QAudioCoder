@@ -46,18 +46,30 @@ template class QSampleChunkChannelConverter<qreal>;
 
 QSampleChannelConverter::QSampleChannelConverter()
 {
+	convert = NULL;
 }
 
 QSampleChannelConverter::QSampleChannelConverter(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize)
 {
+	QSampleChannelConverter();
 	initialize(inputChannels, outputChannels, sampleType, sampleSize);
 }
 
-void QSampleChannelConverter::initialize(int inputChannels, int outputChannels,QAudioFormat::SampleType sampleType, int sampleSize)
+bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize)
 {
+	//////////////////////////////////////////////////////
+	// Add support for all formats (eg: double)
+	// Assign function pointer even if channels are same
+
+	convert = NULL;
+
 	if(inputChannels == 1)
 	{
-		if(outputChannels == 2)
+		if(outputChannels == 1)
+		{
+			return 0;
+		}
+		else if(outputChannels == 2)
 		{
 			if(sampleType == QAudioFormat::Float)
 			{
@@ -98,5 +110,11 @@ void QSampleChannelConverter::initialize(int inputChannels, int outputChannels,Q
 				else if(sampleSize == 32) convert = &QSampleChunkChannelConverter<qbyte32u>::convert2To1;
 			}
 		}
+		else if(outputChannels == 2)
+		{
+			return 0;
+		}
 	}
+
+	return convert != NULL;
 }

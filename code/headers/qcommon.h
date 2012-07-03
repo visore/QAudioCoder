@@ -2,6 +2,8 @@
 #define QCOMMON_H
 
 #include <QtGlobal>
+#include <QAudioFormat>
+#include <qaudio.h>
 #include <string.h>
 #include <math.h>
 
@@ -23,5 +25,23 @@ typedef qbyte32u qbyte32;
 typedef qbyte8 qbyte;
 
 typedef float qfloat;
+
+namespace QAudio
+{
+
+	enum SampleType
+	{
+		Unknown = 0,
+		SignedInt = 1,
+		UnSignedInt = 2,
+		Float = 3,
+		Double = 4,
+		Real = Double
+	};
+
+	QAudioFormat::SampleType toFormatSampleType(QAudio::SampleType type);
+	QAudio::SampleType toAudioSampleType(QAudioFormat::SampleType type);
+
+}
 
 #endif

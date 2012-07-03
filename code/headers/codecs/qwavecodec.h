@@ -2,6 +2,7 @@
 #define QWAVECODEC_H
 
 #include <qabstractcodec.h>
+#include <qsampleconverter.h>
 
 class QWaveCodec : public QAbstractCodec
 {
@@ -33,7 +34,7 @@ class QWaveCodec : public QAbstractCodec
 
 	private:
 
-		void (*convert)(const void*, void*, int);
+		QSampleConverter mConverter;
 
 		qreal mOuputSizeDifference;
 

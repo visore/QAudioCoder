@@ -8,10 +8,10 @@ class QSampleSizeConverter
 
 	public:
 
-		QSampleSizeConverter(){}
-		QSampleSizeConverter(int inputSize, int outputSize){}
-		void setSampleSize(int inputSize, int outputSize){}
-		void (*convert)(void *input, void output, int samples);
+		QSampleSizeConverter();
+		QSampleSizeConverter(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType);
+		bool initialize(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType);
+		void (*convert)(const void *input, void *output, int samples);
 
 		/**********************************************************************
 		Value conversion - unsigned 8
@@ -220,110 +220,6 @@ class QSampleSizeConverter
 		static void convertRealTo32s(const void *input, void *output, const int samples);
 		static void convertRealToFloat(const void *input, void *output, const int samples);
 		static void convertRealToReal(const void *input, void *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - unsigned 8
-		**********************************************************************/
-
-		static void convert(const qbyte8u *input, qbyte8u *output, const int samples);
-		static void convert(const qbyte8u *input, qbyte16u *output, const int samples);
-		static void convert(const qbyte8u *input, qbyte32u *output, const int samples);
-		static void convert(const qbyte8u *input, qbyte8s *output, const int samples);
-		static void convert(const qbyte8u *input, qbyte16s *output, const int samples);
-		static void convert(const qbyte8u *input, qbyte32s *output, const int samples);
-		static void convert(const qbyte8u *input, qfloat *output, const int samples);
-		static void convert(const qbyte8u *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - unsigned 16
-		**********************************************************************/
-
-		static void convert(const qbyte16u *input, qbyte8u *output, const int samples);
-		static void convert(const qbyte16u *input, qbyte16u *output, const int samples);
-		static void convert(const qbyte16u *input, qbyte32u *output, const int samples);
-		static void convert(const qbyte16u *input, qbyte8s *output, const int samples);
-		static void convert(const qbyte16u *input, qbyte16s *output, const int samples);
-		static void convert(const qbyte16u *input, qbyte32s *output, const int samples);
-		static void convert(const qbyte16u *input, qfloat *output, const int samples);
-		static void convert(const qbyte16u *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - unsigned 32
-		**********************************************************************/
-
-		static void convert(const qbyte32u *input, qbyte8u *output, const int samples);
-		static void convert(const qbyte32u *input, qbyte16u *output, const int samples);
-		static void convert(const qbyte32u *input, qbyte32u *output, const int samples);
-		static void convert(const qbyte32u *input, qbyte8s *output, const int samples);
-		static void convert(const qbyte32u *input, qbyte16s *output, const int samples);
-		static void convert(const qbyte32u *input, qbyte32s *output, const int samples);
-		static void convert(const qbyte32u *input, qfloat *output, const int samples);
-		static void convert(const qbyte32u *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - signed 8
-		**********************************************************************/
-
-		static void convert(const qbyte8s *input, qbyte8u *output, const int samples);
-		static void convert(const qbyte8s *input, qbyte16u *output, const int samples);
-		static void convert(const qbyte8s *input, qbyte32u *output, const int samples);
-		static void convert(const qbyte8s *input, qbyte8s *output, const int samples);
-		static void convert(const qbyte8s *input, qbyte16s *output, const int samples);
-		static void convert(const qbyte8s *input, qbyte32s *output, const int samples);
-		static void convert(const qbyte8s *input, qfloat *output, const int samples);
-		static void convert(const qbyte8s *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - signed 16
-		**********************************************************************/
-
-		static void convert(const qbyte16s *input, qbyte8u *output, const int samples);
-		static void convert(const qbyte16s *input, qbyte16u *output, const int samples);
-		static void convert(const qbyte16s *input, qbyte32u *output, const int samples);
-		static void convert(const qbyte16s *input, qbyte8s *output, const int samples);
-		static void convert(const qbyte16s *input, qbyte16s *output, const int samples);
-		static void convert(const qbyte16s *input, qbyte32s *output, const int samples);
-		static void convert(const qbyte16s *input, qfloat *output, const int samples);
-		static void convert(const qbyte16s *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - signed 32
-		**********************************************************************/
-
-		static void convert(const qbyte32s *input, qbyte8u *output, const int samples);
-		static void convert(const qbyte32s *input, qbyte16u *output, const int samples);
-		static void convert(const qbyte32s *input, qbyte32u *output, const int samples);
-		static void convert(const qbyte32s *input, qbyte8s *output, const int samples);
-		static void convert(const qbyte32s *input, qbyte16s *output, const int samples);
-		static void convert(const qbyte32s *input, qbyte32s *output, const int samples);
-		static void convert(const qbyte32s *input, qfloat *output, const int samples);
-		static void convert(const qbyte32s *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - float
-		**********************************************************************/
-
-		static void convert(const qfloat *input, qbyte8u *output, const int samples);
-		static void convert(const qfloat *input, qbyte16u *output, const int samples);
-		static void convert(const qfloat *input, qbyte32u *output, const int samples);
-		static void convert(const qfloat *input, qbyte8s *output, const int samples);
-		static void convert(const qfloat *input, qbyte16s *output, const int samples);
-		static void convert(const qfloat *input, qbyte32s *output, const int samples);
-		static void convert(const qfloat *input, qfloat *output, const int samples);
-		static void convert(const qfloat *input, qreal *output, const int samples);
-
-		/**********************************************************************
-		Array conversion - real
-		**********************************************************************/
-
-		static void convert(const qreal *input, qbyte8u *output, const int samples);
-		static void convert(const qreal *input, qbyte16u *output, const int samples);
-		static void convert(const qreal *input, qbyte32u *output, const int samples);
-		static void convert(const qreal *input, qbyte8s *output, const int samples);
-		static void convert(const qreal *input, qbyte16s *output, const int samples);
-		static void convert(const qreal *input, qbyte32s *output, const int samples);
-		static void convert(const qreal *input, qfloat *output, const int samples);
-		static void convert(const qreal *input, qreal *output, const int samples);
 
 };
 

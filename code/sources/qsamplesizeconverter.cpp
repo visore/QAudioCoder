@@ -21,6 +21,185 @@
 #define RATIO_8_32 5.93718141455603e-08
 #define RATIO_16_32 1.5258556235409e-05
 
+QSampleSizeConverter::QSampleSizeConverter()
+{
+	convert = NULL;
+}
+
+QSampleSizeConverter::QSampleSizeConverter(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType)
+{
+	QSampleSizeConverter();
+	initialize(inputSize, inputType, outputSize, outputType);
+}
+
+bool QSampleSizeConverter::initialize(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType)
+{
+	convert = NULL;
+	if(inputType == QAudio::SignedInt)
+	{
+		if(outputType == QAudio::SignedInt)
+		{
+			if(inputSize == 8)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert8sTo8s;
+				if(outputSize == 16) convert = &QSampleSizeConverter::convert8sTo16s;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert8sTo32s;
+			}
+			else if(inputSize == 16)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert16sTo8s;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert16sTo16s;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert16sTo32s;
+			}
+			else if(inputSize == 32)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert32sTo8s;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert32sTo16s;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32sTo32s;
+			}
+		}
+		else if(outputType == QAudio::UnSignedInt)
+		{
+			if(inputSize == 8)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert8sTo8u;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert8sTo16u;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert8sTo32u;
+			}
+			else if(inputSize == 16)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert16sTo8u;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert16sTo16u;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert16sTo32u;
+			}
+			else if(inputSize == 32)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert32sTo8u;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert32sTo16u;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32sTo32u;
+			}
+		}
+		else if(outputType == QAudio::Float)
+		{
+			if(inputSize == 8) convert = &QSampleSizeConverter::convert8sToFloat;
+			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16sToFloat;
+			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32sToFloat;
+		}
+		else if(outputType == QAudio::Real)
+		{
+			if(inputSize == 8) convert = &QSampleSizeConverter::convert8sToReal;
+			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16sToReal;
+			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32sToReal;
+		}
+	}
+	else if(inputType == QAudio::UnSignedInt)
+	{
+		if(outputType == QAudio::SignedInt)
+		{
+			if(inputSize == 8)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert8uTo8s;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert8uTo16s;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert8uTo32s;
+			}
+			else if(inputSize == 16)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert16uTo8s;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert16uTo16s;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert16uTo32s;
+			}
+			else if(inputSize == 32)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert32uTo8s;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert32uTo16s;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32uTo32s;
+			}
+		}
+		else if(outputType == QAudio::UnSignedInt)
+		{
+			if(inputSize == 8)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert8uTo8u;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert8uTo16u;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert8uTo32u;
+			}
+			else if(inputSize == 16)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert16uTo8u;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert16uTo16u;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert16uTo32u;
+			}
+			else if(inputSize == 32)
+			{
+				if(outputSize == 8) convert = &QSampleSizeConverter::convert32uTo8u;
+				else if(outputSize == 16) convert = &QSampleSizeConverter::convert32uTo16u;
+				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32uTo32u;
+			}
+		}
+		else if(outputType == QAudio::Float)
+		{
+			if(inputSize == 8) convert = &QSampleSizeConverter::convert8uToFloat;
+			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16uToFloat;
+			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32uToFloat;
+		}
+		else if(outputType == QAudio::Real)
+		{
+			if(inputSize == 8) convert = &QSampleSizeConverter::convert8uToReal;
+			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16uToReal;
+			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32uToReal;
+		}
+	}
+	else if(inputType == QAudio::Float)
+	{
+		if(outputType == QAudio::SignedInt)
+		{
+			if(outputSize == 8) convert = &QSampleSizeConverter::convertFloatTo8s;
+			else if(outputSize == 16) convert = &QSampleSizeConverter::convertFloatTo16s;
+			else if(outputSize == 32) convert = &QSampleSizeConverter::convertFloatTo32s;
+		}
+		else if(outputType == QAudio::UnSignedInt)
+		{
+			if(outputSize == 8) convert = &QSampleSizeConverter::convertFloatTo8u;
+			else if(outputSize == 16) convert = &QSampleSizeConverter::convertFloatTo16u;
+			else if(outputSize == 32) convert = &QSampleSizeConverter::convertFloatTo32u;
+		}
+		else if(outputType == QAudio::Float)
+		{
+			convert = &QSampleSizeConverter::convertFloatToReal;
+		}
+		else if(outputType == QAudio::Real)
+		{
+			convert = &QSampleSizeConverter::convertFloatToFloat;
+		}
+	}
+	else if(inputType == QAudio::Real)
+	{
+		if(outputType == QAudio::SignedInt)
+		{
+			if(outputSize == 8) convert = &QSampleSizeConverter::convertRealTo8s;
+			else if(outputSize == 16) convert = &QSampleSizeConverter::convertRealTo16s;
+			else if(outputSize == 32) convert = &QSampleSizeConverter::convertRealTo32s;
+		}
+		else if(outputType == QAudio::UnSignedInt)
+		{
+			if(outputSize == 8) convert = &QSampleSizeConverter::convertRealTo8u;
+			else if(outputSize == 16) convert = &QSampleSizeConverter::convertRealTo16u;
+			else if(outputSize == 32) convert = &QSampleSizeConverter::convertRealTo32u;
+		}
+		else if(outputType == QAudio::Float)
+		{
+			convert = &QSampleSizeConverter::convertRealToFloat;
+		}
+		else if(outputType == QAudio::Real)
+		{
+			convert = &QSampleSizeConverter::convertRealToReal;
+		}
+	}
+
+	return convert != NULL;
+}
+
+
 /**********************************************************************
 Value conversion - unsigned 8
 **********************************************************************/
@@ -379,42 +558,77 @@ Array conversion - unsigned 8
 
 void QSampleSizeConverter::convert8uTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qbyte8u*) output, samples);
+	memcpy(output, input, samples * sizeof(qbyte8u));
 }
 
 void QSampleSizeConverter::convert8uTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qbyte16u*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8uTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qbyte32u*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8uTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qbyte8s*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8uTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qbyte16s*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8uTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qbyte32s*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8uToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qfloat*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qfloat *outputData = (qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8uToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8u*) input, (qreal*) output, samples);
+	qbyte8u *inputData = (qbyte8u*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
 
 /**********************************************************************
@@ -423,42 +637,77 @@ Array conversion - unsigned 16
 
 void QSampleSizeConverter::convert16uTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qbyte8u*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16uTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qbyte16u*) output, samples);
+	memcpy(output, input, samples * sizeof(qbyte16u));
 }
 
 void QSampleSizeConverter::convert16uTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qbyte32u*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16uTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qbyte8s*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16uTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qbyte16s*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16uTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qbyte32s*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16uToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qfloat*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qfloat *outputData = (qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16uToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16u*) input, (qreal*) output, samples);
+	qbyte16u *inputData = (qbyte16u*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
 
 /**********************************************************************
@@ -467,42 +716,77 @@ Array conversion - unsigned 32
 
 void QSampleSizeConverter::convert32uTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qbyte8u*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32uTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qbyte16u*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32uTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qbyte32u*) output, samples);
+	memcpy(output, input, samples * sizeof(qbyte32u));
 }
 
 void QSampleSizeConverter::convert32uTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qbyte8s*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32uTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qbyte16s*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32uTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qbyte32s*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32uToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qfloat*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qfloat *outputData = (qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32uToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32u*) input, (qreal*) output, samples);
+	qbyte32u *inputData = (qbyte32u*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
 
 /**********************************************************************
@@ -511,42 +795,77 @@ Array conversion - signed 8
 
 void QSampleSizeConverter::convert8sTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qbyte8u*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8sTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qbyte16u*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8sTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qbyte32u*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8sTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qbyte8s*) output, samples);
+	memcpy(output, input, samples * sizeof(qbyte8s));
 }
 
 void QSampleSizeConverter::convert8sTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qbyte16s*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8sTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qbyte32s*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8sToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qfloat*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qfloat *outputData = (qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert8sToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte8s*) input, (qreal*) output, samples);
+	qbyte8s *inputData = (qbyte8s*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
 
 /**********************************************************************
@@ -555,44 +874,78 @@ Array conversion - signed 16
 
 void QSampleSizeConverter::convert16sTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qbyte8u*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16sTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qbyte16u*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16sTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qbyte32u*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16sTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qbyte8s*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16sTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qbyte16s*) output, samples);
+	memcpy(output, input, samples * sizeof(qbyte16s));
 }
 
 void QSampleSizeConverter::convert16sTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qbyte32s*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16sToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qfloat*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	 qfloat *outputData = ( qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert16sToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte16s*) input, (qreal*) output, samples);
+	qbyte16s *inputData = (qbyte16s*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
-
 
 /**********************************************************************
 Array conversion - signed 32
@@ -600,42 +953,77 @@ Array conversion - signed 32
 
 void QSampleSizeConverter::convert32sTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qbyte8u*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32sTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qbyte16u*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32sTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qbyte32u*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32sTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qbyte8s*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32sTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qbyte16s*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32sTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qbyte32s*) output, samples);
+	memcpy(output, input, samples * sizeof(qbyte32s));
 }
 
 void QSampleSizeConverter::convert32sToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qfloat*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qfloat *outputData = (qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convert32sToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qbyte32s*) input, (qreal*) output, samples);
+	qbyte32s *inputData = (qbyte32s*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
 
 /**********************************************************************
@@ -644,42 +1032,77 @@ Array conversion - float
 
 void QSampleSizeConverter::convertFloatTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qbyte8u*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertFloatTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qbyte16u*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertFloatTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qbyte32u*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertFloatTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qbyte8s*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertFloatTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qbyte16s*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertFloatTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qbyte32s*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertFloatToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qfloat*) output, samples);
+	memcpy(output, input, samples * sizeof(qfloat));
 }
 
 void QSampleSizeConverter::convertFloatToReal(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qfloat*) input, (qreal*) output, samples);
+	qfloat *inputData = (qfloat*) input;
+	qreal *outputData = (qreal*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToReal(inputData[i]);
+	}
 }
 
 /**********************************************************************
@@ -688,560 +1111,75 @@ Array conversion - real
 
 void QSampleSizeConverter::convertRealTo8u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qbyte8u*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qbyte8u *outputData = (qbyte8u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealTo16u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qbyte16u*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qbyte16u *outputData = (qbyte16u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealTo32u(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qbyte32u*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qbyte32u *outputData = (qbyte32u*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32u(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealTo8s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qbyte8s*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qbyte8s *outputData = (qbyte8s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo8s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealTo16s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qbyte16s*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qbyte16s *outputData = (qbyte16s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo16s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealTo32s(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qbyte32s*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qbyte32s *outputData = (qbyte32s*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertTo32s(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealToFloat(const void *input, void *output, const int samples)
 {
-	QSampleSizeConverter::convert((qreal*) input, (qfloat*) output, samples);
+	qreal *inputData = (qreal*) input;
+	qfloat *outputData = (qfloat*) output;
+	for(int i = 0; i < samples; ++i)
+	{
+		outputData[i] = QSampleSizeConverter::convertToFloat(inputData[i]);
+	}
 }
 
 void QSampleSizeConverter::convertRealToReal(const void *input, void *output, const int samples)
-{
-	QSampleSizeConverter::convert((qreal*) input, (qreal*) output, samples);
-}
-
-/**********************************************************************
-Array conversion - unsigned 8
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qbyte8u *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qbyte8u));
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8u *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - unsigned 16
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qbyte16u *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qbyte16u));
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16u *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - unsigned 32
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qbyte32u *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qbyte32u));
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32u *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - signed 8
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qbyte8s *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qbyte8s));
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte8s *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - signed 16
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qbyte16s *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qbyte16s));
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte16s *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - signed 32
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qbyte32s *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qbyte32s));
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qbyte32s *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - float
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qfloat *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qfloat *output, const int samples)
-{
-	memcpy(output, input, samples * sizeof(qfloat));
-}
-
-void QSampleSizeConverter::convert(const qfloat *input, qreal *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToReal(input[i]);
-	}
-}
-
-/**********************************************************************
-Array conversion - real
-**********************************************************************/
-
-void QSampleSizeConverter::convert(const qreal *input, qbyte8u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qbyte16u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qbyte32u *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32u(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qbyte8s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo8s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qbyte16s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo16s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qbyte32s *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertTo32s(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qfloat *output, const int samples)
-{
-	for(int i = 0; i < samples; ++i)
-	{
-		output[i] = QSampleSizeConverter::convertToFloat(input[i]);
-	}
-}
-
-void QSampleSizeConverter::convert(const qreal *input, qreal *output, const int samples)
 {
 	memcpy(output, input, samples * sizeof(qreal));
 }

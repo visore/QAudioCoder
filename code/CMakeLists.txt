@@ -8,6 +8,7 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 SET(HEADERS ${ROOT}/headers)
 SET(SOURCES ${ROOT}/sources)
+SET(EXTERNAL ${ROOT}/external)
 SET(EXAMPLES ${ROOT}/examples)
 
 #Set System
@@ -36,8 +37,12 @@ ENDIF()
 
 #Setup Packaging and Version
 SET(CMAKE_MODULE_PATH ${ROOT}/cmake)
+include(ExternalProject) 
 INCLUDE(Version)
 INCLUDE(Macros)
+
+#External projects
+#EXTERNALPROJECT_ADD(libsamplerate SOURCE_DIR "${EXTERNAL}/libsamplerate" CONFIGURE_COMMAND "${EXTERNAL}/libsamplerate/configure" BUILD_IN_SOURCE 0)
 
 #Setup Qt
 SET(QT5BASE /home/visore/Qt5/qt5/qtbase)

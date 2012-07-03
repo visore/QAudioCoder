@@ -25,7 +25,7 @@ class QSampleChannelConverter
 
 		QSampleChannelConverter();
 		QSampleChannelConverter(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize);
-		void initialize(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize);
+		bool initialize(int inputChannels, int outputChannels, QAudioFormat::SampleType sampleType, int sampleSize);
 		void (*convert)(const void *input, void *output, int samples);
 
 	private:
