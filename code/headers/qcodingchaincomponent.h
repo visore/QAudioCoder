@@ -56,6 +56,12 @@ class QCodingChainInput : public QCodingChainComponent
 	public:
 
 		QCodingChainInput();
+		void skipHeader(int bytes);
+
+	protected:
+
+		int mHeaderSize;
+		bool mAtEnd;
 
 };
 
@@ -160,6 +166,11 @@ class QCodingChainOutput : public QCodingChainComponent
 	public:
 
 		QCodingChainOutput();
+		void setHeader(QByteArray header);
+
+	protected:
+
+		QByteArray mHeader;
 
 };
 

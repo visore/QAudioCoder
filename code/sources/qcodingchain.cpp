@@ -1,8 +1,13 @@
 #include <qcodingchain.h>
+#include <QFile>
+
+#define HEADER_SIZE 4096
 
 QCodingChain::QCodingChain()
 	: QThread()
 {
+	mInputFilePath = "";
+	mOutputFilePath = "";
 	mInput = NULL;
 	mOutput = NULL;
 	mInputAtEnd = false;
@@ -15,12 +20,14 @@ QCodingChain::QCodingChain()
 
 void QCodingChain::setInputFilePath(QString filePath)
 {
+	mInputFilePath = filePath;
 	mFileInput.setFilePath(filePath);
 	mInput = &mFileInput;
 }
 
 void QCodingChain::setOutputFilePath(QString filePath)
 {
+	mOutputFilePath = filePath;
 	mFileOutput.setFilePath(filePath);
 	mOutput = &mFileOutput;
 }
@@ -30,10 +37,11 @@ void QCodingChain::run()
 {
 	if(mInput != NULL && mOutput != NULL)
 	{
-		QList<QAbstractCodec*> codecs = mCodecManager.availableCodecs();
-		if(codecs.size()!=1)
+		QCodecContent content;
+		QAbstractCodec *codec = detectCodec(content);
+		if(codec == NULL)
 		{
-			cout<<"No enough codecs available! ("<<codecs.size()<<" available)"<<endl;
+			cout<<"File format not supported!"<<endl;
 		}
 		else
 		{
@@ -49,12 +57,18 @@ void QCodingChain::run()
 			format.setSampleRate(44100);
 			format.setChannelCount(2);
 
-			codecs[0]->setFormat(QAudio::AudioInput, format);
-			format.setSampleSize(32);
-			codecs[0]->setFormat(QAudio::AudioOutput, format);
+			format.setSampleSize(8);
+			codec->setFormat(QAudio::AudioOutput, format);
 
-			mDecoder.setCodec(codecs[0]);
-			mEncoder.setCodec(codecs[0]);
+			mDecoder.setCodec(codec);
+			mEncoder.setCodec(codec);
+
+			QByteArray header;
+			codec->createHeader(header, content);
+cout<<"header size: "<<header.size()<<endl;
+
+			mInput->skipHeader(content.headerSize());
+			mOutput->setHeader(header);
 
 			mInput->initialize();
 			mDecoder.initialize();
@@ -80,6 +94,39 @@ void QCodingChain::checkFinished()
 		mDecoder.finalize();
 		mEncoder.finalize();
 		mOutput->finalize();
+		cout<<"Finished!!"<<endl;
 		emit finished();
 	}
+}
+
+QAbstractCodec* QCodingChain::detectCodec(QCodecContent &content)
+{
+	QList<QAbstractCodec*> codecs = mCodecManager.availableCodecs();
+	if(codecs.size() == 0)
+	{
+		return NULL;
+	}
+
+	QCodecFormat format;
+
+	QFile file(mInputFilePath);
+	if(!file.open(QIODevice::ReadOnly))
+	{
+		return NULL;
+	}
+
+	content.setFileSize(file.size());
+	QByteArray header = file.read(HEADER_SIZE);
+	file.close();
+
+	for(int i = 0; i < codecs.size(); ++i)
+	{
+		if(codecs[i]->inspectHeader(header, format, content))
+		{
+			cout << "Codec found: "<<codecs[i]->name().toAscii().data()<<endl;
+			codecs[i]->setFormat(QAudio::AudioInput, format);
+			return codecs[i];
+		}
+	}
+	return NULL;
 }

@@ -54,6 +54,13 @@ QCodingChainInput
 QCodingChainInput::QCodingChainInput()
 	: QCodingChainComponent()
 {
+	mHeaderSize = 0;
+	mAtEnd = false;
+}
+
+void QCodingChainInput::skipHeader(int bytes)
+{
+	mHeaderSize = bytes;
 }
 
 /**********************************************************
@@ -74,7 +81,13 @@ void QCodingChainFileInput::setFilePath(QString filePath)
 bool QCodingChainFileInput::initialize()
 {
 	mFile.setFileName(mFilePath);
-	return mFile.open(QIODevice::ReadOnly);
+	if(!mFile.open(QIODevice::ReadOnly))
+	{
+		return false;
+	}
+	mFile.seek(mHeaderSize);
+	mAtEnd = false;
+	return true;
 }
 
 bool QCodingChainFileInput::finalize()
@@ -86,7 +99,7 @@ bool QCodingChainFileInput::finalize()
 void QCodingChainFileInput::run()
 {
 	int size = 0;
-	while(numberOfChunks() < FILE_BUFFER_SIZE)
+	while(numberOfChunks() < FILE_BUFFER_SIZE && !mAtEnd)
 	{
 		qbyte *data = new qbyte[CHUNK_SIZE];
 		size = mFile.read((char*) data, CHUNK_SIZE);
@@ -99,6 +112,7 @@ void QCodingChainFileInput::run()
 		else
 		{
 			delete [] data;
+			mAtEnd = true;
 			emit atEnd();
 			break;
 		}
@@ -210,6 +224,11 @@ QCodingChainOutput::QCodingChainOutput()
 {
 }
 
+void QCodingChainOutput::setHeader(QByteArray header)
+{
+	mHeader = header;
+}
+
 /**********************************************************
 QCodingChainFileOutput
 **********************************************************/
@@ -228,7 +247,12 @@ void QCodingChainFileOutput::setFilePath(QString filePath)
 bool QCodingChainFileOutput::initialize()
 {
 	mFile.setFileName(mFilePath);
-	return mFile.open(QIODevice::WriteOnly);
+	if(!mFile.open(QIODevice::WriteOnly))
+	{
+		return false;
+	}
+	mFile.write(mHeader);
+	return true;
 }
 
 bool QCodingChainFileOutput::finalize()

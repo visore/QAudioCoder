@@ -29,7 +29,14 @@ class QCodingChain : public QThread
 
 		void run();
 
+	protected:
+
+		QAbstractCodec* detectCodec(QCodecContent &content);
+
 	private:
+
+		QString mInputFilePath;
+		QString mOutputFilePath;
 
 		QCodecManager mCodecManager;
 

@@ -31,6 +31,16 @@ QAbstractCodec::~QAbstractCodec()
 	mLibrary.unload();
 }
 
+bool QAbstractCodec::inspectHeader(const QByteArray &header, QCodecContent &content)
+{
+	return inspectHeader(header, mInputFormat, content);
+}
+
+void QAbstractCodec::createHeader(QByteArray &header, const QCodecContent &content)
+{
+	createHeader(header, mOutputFormat, content);
+}
+
 QAbstractCodec::Error QAbstractCodec::load()
 {
 	if(!mLibrary.isLoaded())
