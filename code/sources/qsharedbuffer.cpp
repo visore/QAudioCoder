@@ -16,21 +16,29 @@ QSharedBuffer::~QSharedBuffer()
 void QSharedBuffer::enqueue(QAudioChunk *chunk)
 {
 	mMutex.lock();
-	mChunks.enqueue(chunk);
+char *f = new char[chunk->bytes()];
+memcpy(f, chunk->data(), chunk->bytes());
+	mChunks.enqueue(f, chunk->samples(), chunk->bytes());
 	mMutex.unlock();
 	emit chunkAdded();
 }
 
 QAudioChunk* QSharedBuffer::dequeue()
 {
-	mMutex.lock();
+mMutex.lock();
+	QAudioChunk *result = mChunks.dequeue();
+delete result;
+	//delete(result->data(), 8192);
+	mMutex.unlock();
+
+	/*mMutex.lock();
 	QAudioChunk *result = mChunks.dequeue();
 	if(mChunks.size() < ALMOST_EMPTY)
 	{
 		emit almostEmpty(mChunks.size());
 	}
 	mMutex.unlock();
-	return result;
+	return result;*/
 }
 
 void QSharedBuffer::connect(QCodingChainComponent *sender, QCodingChainComponent *receiver)

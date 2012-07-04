@@ -165,8 +165,8 @@ void QCodingChainDecoder::run()
 	while(!mInputBuffer->isEmpty())
 	{
 		chunk = mInputBuffer->dequeue();
-		mCodec->decode(chunk->data(), chunk->bytes());
-		delete chunk;
+		//mCodec->decode(chunk->data(), chunk->bytes());
+		//delete chunk;
 	}
 }
 
