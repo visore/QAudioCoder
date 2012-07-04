@@ -20,8 +20,8 @@ class QCodingChainComponent : public QThread
 
 		virtual bool initialize() = 0;
 		virtual bool finalize() = 0;
-		virtual void chunkAvailable();
-		virtual void addChunks(int size);
+		virtual void dataAvailable();
+		virtual void addData(int size);
 
 	public:
 
@@ -52,7 +52,7 @@ class QCodingChainInput : public QCodingChainComponent
 
 	public slots:
 
-		void addChunks(int size);
+		void addData(int size);
 
 	public:
 

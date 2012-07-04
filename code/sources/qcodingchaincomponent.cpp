@@ -23,7 +23,7 @@ void QCodingChainComponent::setOutputBuffer(QSharedBuffer *buffer)
 	mOutputBuffer = buffer;
 }
 
-void QCodingChainComponent::chunkAvailable()
+void QCodingChainComponent::dataAvailable()
 {
 	if(!isRunning())
 	{
@@ -31,7 +31,7 @@ void QCodingChainComponent::chunkAvailable()
 	}
 }
 
-void QCodingChainComponent::addChunks(int size)
+void QCodingChainComponent::addData(int size)
 {
 }
 
@@ -46,7 +46,7 @@ QCodingChainInput::QCodingChainInput()
 	mAtEnd = false;
 }
 
-void QCodingChainInput::addChunks(int size)
+void QCodingChainInput::addData(int size)
 {
 	if(!isRunning())
 	{
@@ -97,11 +97,11 @@ void QCodingChainFileInput::run()
 	int size = 0;
 	while(!mAtEnd)
 	{
-		qbyte *data = new qbyte[CHUNK_SIZE];
-		size = mFile.read((char*) data, CHUNK_SIZE);
+		char *data = new char[CHUNK_SIZE];
+		size = mFile.read(data, CHUNK_SIZE);
 		if(size > 0)
 		{
-			mOutputBuffer->enqueue(new QAudioChunk(data, 0, size));
+			mOutputBuffer->enqueue(new QSampleArray(data, size, 0));
 		}
 		else
 		{
@@ -111,7 +111,18 @@ void QCodingChainFileInput::run()
 
 			break;
 		}
-		
+
+		/*QByteArray data = mFile.read(CHUNK_SIZE);
+		if(data.size() > 0)
+		{
+			mOutputBuffer->enqueue(data);
+		}
+		else
+		{
+			mAtEnd = true;
+			emit atEnd();
+			break;
+		}*/
 	}
 }
 
@@ -143,7 +154,7 @@ bool QCodingChainDecoder::initialize()
 {
 	if(mCodec != NULL && mCodec->initializeDecode())
 	{
-		QObject::connect(mCodec, SIGNAL(decoded(QAudioChunk*)), mOutputBuffer, SLOT(enqueue(QAudioChunk*)));
+		QObject::connect(mCodec, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -153,7 +164,7 @@ bool QCodingChainDecoder::finalize()
 {
 	if(mCodec != NULL && mCodec->finalizeDecode())
 	{
-		QObject::disconnect(mCodec, SIGNAL(decoded(QAudioChunk*)), mOutputBuffer, SLOT(enqueue(QAudioChunk*)));
+		QObject::disconnect(mCodec, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -161,12 +172,12 @@ bool QCodingChainDecoder::finalize()
 
 void QCodingChainDecoder::run()
 {
-	QAudioChunk *chunk;
+	QSampleArray *array;
 	while(!mInputBuffer->isEmpty())
 	{
-		chunk = mInputBuffer->dequeue();
-		//mCodec->decode(chunk->data(), chunk->bytes());
-		//delete chunk;
+		array = mInputBuffer->dequeue();
+		mCodec->decode(array->data(), array->size());
+		delete array;
 	}
 }
 
@@ -183,7 +194,7 @@ bool QCodingChainEncoder::initialize()
 {
 	if(mCodec != NULL && mCodec->initializeEncode())
 	{
-		QObject::connect(mCodec, SIGNAL(encoded(QAudioChunk*)), mOutputBuffer, SLOT(enqueue(QAudioChunk*)));
+		QObject::connect(mCodec, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -193,7 +204,7 @@ bool QCodingChainEncoder::finalize()
 {
 	if(mCodec != NULL && mCodec->finalizeEncode())
 	{
-		QObject::disconnect(mCodec, SIGNAL(encoded(QAudioChunk*)), mOutputBuffer, SLOT(enqueue(QAudioChunk*)));
+		QObject::disconnect(mCodec, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -201,12 +212,12 @@ bool QCodingChainEncoder::finalize()
 
 void QCodingChainEncoder::run()
 {
-	QAudioChunk *chunk;
+	QSampleArray *array;
 	while(!mInputBuffer->isEmpty())
 	{
-		chunk = mInputBuffer->dequeue();
-		mCodec->encode(chunk->data(), chunk->samples());
-		delete chunk;
+		array = mInputBuffer->dequeue();
+		mCodec->encode(array->data(), array->samples());
+		delete array;
 	}
 }
 
@@ -258,11 +269,11 @@ bool QCodingChainFileOutput::finalize()
 
 void QCodingChainFileOutput::run()
 {
-	QAudioChunk *chunk;
+	QSampleArray *array;
 	while(!mInputBuffer->isEmpty())
 	{
-		chunk = mInputBuffer->dequeue();
-		mFile.write((char*) chunk->data(), chunk->bytes());
-		delete chunk;
+		array = mInputBuffer->dequeue();
+		mFile.write((char*) array->data(), array->size());
+		delete array;
 	}
 }

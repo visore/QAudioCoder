@@ -24,7 +24,7 @@ bool QWaveCodec::unload()
 	return true;
 }
 
-bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content)
+QAbstractCodec::Header QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content)
 {
 	QDataStream stream((QByteArray*) &header, QIODevice::ReadOnly);
 	char data2[2];
@@ -33,7 +33,7 @@ bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, Q
 	//Check if header contains "RIFF"
 	if(stream.readRawData(data4, 4) < 4)
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 	if(QString(data4).toLower() == "riff")
 	{
@@ -47,40 +47,40 @@ bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, Q
 	}
 	else
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 
 	//Check chunk size
 	int chunkSize;
 	if(stream.readRawData(data4, 4) < 4 || (chunkSize = toInt(data4)) <= 0)
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 
 	//Check if header contains "WAVE"
 	if(stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "wave")
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 
 	//Check if header contains "fmt "
 	if(stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "fmt ")
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 
 	//Check if data is PCM
 	stream.skipRawData(4);
 	if(stream.readRawData(data2, 2) < 2 || data2[0] != 1)
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 
 	//Check channels
 	short channels;
 	if(stream.readRawData(data2, 2) < 2 || (channels = toShort(data2)) <= 0)
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 	format.setChannelCount(channels);
 
@@ -88,7 +88,7 @@ bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, Q
 	int sampleRate;
 	if(stream.readRawData(data4, 4) < 4 || (sampleRate = toInt(data4)) <= 0)
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 	format.setSampleRate(sampleRate);
 
@@ -97,7 +97,7 @@ bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, Q
 	int sampleSize;
 	if(stream.readRawData(data2, 2) < 2 || (sampleSize = toShort(data2)) <= 0)
 	{
-		return false;
+		return QAbstractCodec::InvalidHeader;
 	}
 	format.setSampleSize(sampleSize);
 
@@ -109,7 +109,7 @@ bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, Q
 
 	format.setSampleType(QAudioFormat::SignedInt);	
 
-	return true;
+	return QAbstractCodec::ValidHeader;
 }
 
 void QWaveCodec::createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content)
@@ -157,15 +157,15 @@ void QWaveCodec::decode(const void *input, int size)
 {
 	qbyte *output = new qbyte[size];
 	memcpy(output, input, size);
-	emit decoded(new QAudioChunk(output, size / (mInputFormat.sampleSize() / 8), size));
+	emit decoded(new QSampleArray(output, size, size / (mDecoderFormat.sampleSize() / 8)));
 }
 
 bool QWaveCodec::initializeEncode()
 {
-	int inSize = mInputFormat.sampleSize();
-	int outSize = mOutputFormat.sampleSize();
-	QAudioFormat::SampleType inType = mInputFormat.sampleType();
-	QAudioFormat::SampleType outType = mOutputFormat.sampleType();
+	int inSize = mDecoderFormat.sampleSize();
+	int outSize = mEncoderFormat.sampleSize();
+	QAudioFormat::SampleType inType = mDecoderFormat.sampleType();
+	QAudioFormat::SampleType outType = mEncoderFormat.sampleType();
 
 	if(!(inSize == 8 || inSize == 16 || inSize == 32) && !(outSize == 8 || outSize == 16 || outSize == 32))
 	{
@@ -179,7 +179,7 @@ bool QWaveCodec::initializeEncode()
 		return false;
 	}
 
-	if(!mConverter.initialize(mInputFormat, mOutputFormat))
+	if(!mConverter.initialize(mDecoderFormat, mEncoderFormat))
 	{
 		mError = QAbstractCodec::InitializationError;
 		return false;
@@ -198,7 +198,7 @@ void QWaveCodec::encode(const void *input, int samples)
 {
 	int bytes;
 	qbyte *output = (qbyte*) mConverter.convert(input, samples, bytes);
-	emit encoded(new QAudioChunk(output, samples, bytes));
+	emit encoded(new QSampleArray(output, bytes, samples));
 }
 
 QAbstractCodec::Error QWaveCodec::initializeLibrary()

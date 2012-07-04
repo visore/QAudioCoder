@@ -13,32 +13,24 @@ QSharedBuffer::~QSharedBuffer()
 	clear();
 }
 
-void QSharedBuffer::enqueue(QAudioChunk *chunk)
+void QSharedBuffer::enqueue(QSampleArray *array)
 {
 	mMutex.lock();
-char *f = new char[chunk->bytes()];
-memcpy(f, chunk->data(), chunk->bytes());
-	mChunks.enqueue(f, chunk->samples(), chunk->bytes());
+	mChunks.enqueue(array);
 	mMutex.unlock();
-	emit chunkAdded();
+	emit dataAdded();
 }
 
-QAudioChunk* QSharedBuffer::dequeue()
+QSampleArray* QSharedBuffer::dequeue()
 {
-mMutex.lock();
-	QAudioChunk *result = mChunks.dequeue();
-delete result;
-	//delete(result->data(), 8192);
-	mMutex.unlock();
-
-	/*mMutex.lock();
-	QAudioChunk *result = mChunks.dequeue();
+	mMutex.lock();
+	QSampleArray *result = mChunks.dequeue();
 	if(mChunks.size() < ALMOST_EMPTY)
 	{
 		emit almostEmpty(mChunks.size());
 	}
 	mMutex.unlock();
-	return result;*/
+	return result;
 }
 
 void QSharedBuffer::connect(QCodingChainComponent *sender, QCodingChainComponent *receiver)
@@ -46,11 +38,11 @@ void QSharedBuffer::connect(QCodingChainComponent *sender, QCodingChainComponent
 	sender->setOutputBuffer(this);
 	receiver->setInputBuffer(this);
 
-	QObject::disconnect(this, SIGNAL(chunkAdded()));
+	QObject::disconnect(this, SIGNAL(dataAdded()));
 	QObject::disconnect(this, SIGNAL(almostEmpty(int)));
 
-	QObject::connect(this, SIGNAL(chunkAdded()), receiver, SLOT(chunkAvailable()));
-	QObject::connect(this, SIGNAL(almostEmpty(int)), sender, SLOT(addChunks(int)));
+	QObject::connect(this, SIGNAL(dataAdded()), receiver, SLOT(dataAvailable()));
+	QObject::connect(this, SIGNAL(almostEmpty(int)), sender, SLOT(addData(int)));
 }
 
 bool QSharedBuffer::isEmpty()

@@ -8,7 +8,7 @@
 #include <qaudio.h>
 #include <qcodecformat.h>
 #include <qcodeccontent.h>
-#include <qaudiochunk.h>
+#include <qsamplearray.h>
 
 #include <iostream>
 using namespace std;
@@ -20,8 +20,8 @@ class QAbstractCodec : public QObject
 
 	signals:
 
-		void decoded(QAudioChunk *chunk);
-		void encoded(QAudioChunk *chunk);
+		void decoded(QSampleArray *array);
+		void encoded(QSampleArray *array);
 
 	public:
 
@@ -45,10 +45,17 @@ class QAbstractCodec : public QObject
 			NumberOfChannelsError = 12
 		};
 
+		enum Header
+		{
+			ValidHeader = 0,
+			NeedMoreData = 1,
+			InvalidHeader = 2
+		};
+
 		QAbstractCodec();
 		~QAbstractCodec();
 
-		bool inspectHeader(const QByteArray &header, QCodecContent &content);
+		QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecContent &content);
 		void createHeader(QByteArray &header, QCodecContent &content);
 
 		virtual bool initializeDecode() = 0;
@@ -82,9 +89,7 @@ class QAbstractCodec : public QObject
 
 	protected:
 
-		void addChunk(QAudioChunk chunk);
-
-		virtual bool inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content) = 0;
+		virtual QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content) = 0;
 		virtual void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content) = 0;
 
 		virtual QAbstractCodec::Error initializeLibrary() = 0;
@@ -101,8 +106,8 @@ class QAbstractCodec : public QObject
 
 		QAbstractCodec::Error mError;
 
-		QCodecFormat mInputFormat;
-		QCodecFormat mOutputFormat;
+		QCodecFormat mDecoderFormat;
+		QCodecFormat mEncoderFormat;
 
 };
 

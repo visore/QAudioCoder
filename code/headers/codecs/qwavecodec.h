@@ -25,7 +25,7 @@ class QWaveCodec : public QAbstractCodec
 
 	protected:
 
-		bool inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
+		QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
 		void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content);
 
 		QAbstractCodec::Error initializeLibrary();

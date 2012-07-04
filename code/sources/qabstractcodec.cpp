@@ -31,20 +31,20 @@ QAbstractCodec::~QAbstractCodec()
 	mLibrary.unload();
 }
 
-bool QAbstractCodec::inspectHeader(const QByteArray &header, QCodecContent &content)
+QAbstractCodec::Header QAbstractCodec::inspectHeader(const QByteArray &header, QCodecContent &content)
 {
-	return inspectHeader(header, mInputFormat, content);
+	return inspectHeader(header, mDecoderFormat, content);
 }
 
 void QAbstractCodec::createHeader(QByteArray &header, QCodecContent &content)
 {
-	qreal sizeRatio = (mOutputFormat.sampleSize() + mOutputFormat.channelCount() + mOutputFormat.sampleRate()) / qreal(mInputFormat.sampleSize() + mInputFormat.channelCount() + mInputFormat.sampleRate());
-	qreal sampleRatio = (mOutputFormat.channelCount() + mOutputFormat.sampleRate()) / qreal(mInputFormat.channelCount() + mInputFormat.sampleRate());
+	qreal sizeRatio = (mEncoderFormat.sampleSize() + mEncoderFormat.channelCount() + mEncoderFormat.sampleRate()) / qreal(mDecoderFormat.sampleSize() + mDecoderFormat.channelCount() + mDecoderFormat.sampleRate());
+	qreal sampleRatio = (mEncoderFormat.channelCount() + mEncoderFormat.sampleRate()) / qreal(mDecoderFormat.channelCount() + mDecoderFormat.sampleRate());
 	content.setDataSize(content.dataSize() * sizeRatio);
 	content.setFileSize(content.dataSize() + content.headerSize() + content.trailerSize());
 	content.setSamples(content.samples() * sampleRatio);
 
-	createHeader(header, mOutputFormat, content);
+	createHeader(header, mEncoderFormat, content);
 }
 
 QAbstractCodec::Error QAbstractCodec::load()
@@ -102,11 +102,11 @@ QCodecFormat QAbstractCodec::format(QAudio::Mode mode)
 {
 	if(mode == QAudio::AudioInput)
 	{
-		return mInputFormat;
+		return mDecoderFormat;
 	}
 	else if(mode == QAudio::AudioOutput)
 	{
-		return mOutputFormat;
+		return mEncoderFormat;
 	}
 	return QCodecFormat();
 }
@@ -115,11 +115,11 @@ void QAbstractCodec::setFormat(QAudio::Mode mode, QCodecFormat format)
 {
 	if(mode == QAudio::AudioInput)
 	{
-		mInputFormat = format;
+		mDecoderFormat = format;
 	}
 	else if(mode == QAudio::AudioOutput)
 	{
-		mOutputFormat = format;
+		mEncoderFormat = format;
 	}
 }
 

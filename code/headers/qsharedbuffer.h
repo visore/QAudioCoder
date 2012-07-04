@@ -3,7 +3,7 @@
 
 #include <QMutex>
 #include <QQueue>
-#include <qaudiochunk.h>
+#include <qsamplearray.h>
 
 class QCodingChainComponent;
 
@@ -14,19 +14,19 @@ class QSharedBuffer : public QObject
 
 	signals:
 
-		void chunkAdded();
+		void dataAdded();
 		void almostEmpty(int size);
 
 	public slots:
 
-		void enqueue(QAudioChunk *chunk);
+		void enqueue(QSampleArray *array);
 
 	public:
 
 		QSharedBuffer();
 		~QSharedBuffer();
 		void connect(QCodingChainComponent *sender, QCodingChainComponent *receiver);
-		QAudioChunk* dequeue();
+		QSampleArray* dequeue();
 		bool isEmpty();
 		int size();
 		void clear();
@@ -34,7 +34,7 @@ class QSharedBuffer : public QObject
 	private:
 
 		QMutex mMutex;
-		QQueue<QAudioChunk*> mChunks;
+		QQueue<QSampleArray*> mChunks;
 
 };
 
