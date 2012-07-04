@@ -28,8 +28,8 @@ ENDIF()
 
 #Setup installation directory paths
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-	SET(INSTALL_LIB_DIR lib/qaudiocoder)
-	SET(INSTALL_INCLUDE_DIR include/qaudiocoder)
+	SET(INSTALL_LIB_DIR lib)
+	SET(INSTALL_INCLUDE_DIR include)
 ELSE()
 	SET(INSTALL_LIB_DIR lib)
 	SET(INSTALL_INCLUDE_DIR include)
@@ -42,7 +42,9 @@ INCLUDE(Version)
 INCLUDE(Macros)
 
 #External projects
-#EXTERNALPROJECT_ADD(libsamplerate SOURCE_DIR "${EXTERNAL}/libsamplerate" CONFIGURE_COMMAND "${EXTERNAL}/libsamplerate/configure" BUILD_IN_SOURCE 0)
+#EXTERNALPROJECT_ADD(RESAMPLE SOURCE_DIR "${EXTERNAL}/libresample" CONFIGURE_COMMAND ${EXTERNAL}/libresample/configure INSTALL_DIR "${INSTALL_LIB_DIR}" BUILD_IN_SOURCE 0)
+#SET(libsamplerate_LIBRARY "${CMAKE_INSTALL_PREFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}samplerate")
+#message(error *${CMAKE_CURRENT_BINARY_DIR}/*)
 
 #Setup Qt
 SET(QT5BASE /home/visore/Qt5/qt5/qtbase)
@@ -50,11 +52,11 @@ FIND_PACKAGE(Qt5 COMPONENTS Core Multimedia Widgets Gui)
 
 #Include common headers
 HEADER_DIRECTORIES(GLOBAL_HEADERS)
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${GLOBAL_HEADERS})
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${GLOBAL_HEADERS} /home/visore/Project/QAudioCoder/build/RESAMPLE-prefix/src/RESAMPLE-build/src)
 
 #Initiate source files
-FILE(GLOB SOURCES ${SOURCES}/*.cpp ${SOURCES}/*/*.cpp)
-FILE(GLOB ALL_HEADERS ${HEADERS}/*.h ${HEADERS}/*/*.h)
+FILE(GLOB SOURCES ${SOURCES}/*.cpp ${SOURCES}/*/*.cpp ${EXTERNAL}/libresample/*/*.c)
+FILE(GLOB ALL_HEADERS ${HEADERS}/*.h ${HEADERS}/*/*.h ${EXTERNAL}/libresample/*/*.h)
 SET(NORMAL_HEADERS)
 SET(MOC_HEADERS)
 FOREACH(HEADER ${ALL_HEADERS})

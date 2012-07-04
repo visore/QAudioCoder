@@ -36,8 +36,14 @@ bool QAbstractCodec::inspectHeader(const QByteArray &header, QCodecContent &cont
 	return inspectHeader(header, mInputFormat, content);
 }
 
-void QAbstractCodec::createHeader(QByteArray &header, const QCodecContent &content)
+void QAbstractCodec::createHeader(QByteArray &header, QCodecContent &content)
 {
+	qreal sizeRatio = (mOutputFormat.sampleSize() + mOutputFormat.channelCount() + mOutputFormat.sampleRate()) / qreal(mInputFormat.sampleSize() + mInputFormat.channelCount() + mInputFormat.sampleRate());
+	qreal sampleRatio = (mOutputFormat.channelCount() + mOutputFormat.sampleRate()) / qreal(mInputFormat.channelCount() + mInputFormat.sampleRate());
+	content.setDataSize(content.dataSize() * sizeRatio);
+	content.setFileSize(content.dataSize() + content.headerSize() + content.trailerSize());
+	content.setSamples(content.samples() * sampleRatio);
+
 	createHeader(header, mOutputFormat, content);
 }
 

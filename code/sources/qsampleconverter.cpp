@@ -5,10 +5,15 @@ using namespace std;
 
 QSampleConverter::QSampleConverter()
 {
-	mChannelSampleSize = 1;
+	mFloatSampleSize = 1;
+	mRateSampleSize = 1;
 	mSizeSampleSize = 1;
-	mChannelDifference = 1;
+	mChannelSampleSize = 1;
+
+	mFloatDifference = 1;
+	mRateDifference = 1;
 	mSizeDifference = 1;
+	mChannelDifference = 1;
 }
 
 QSampleConverter::QSampleConverter(QCodecFormat inputFormat, QCodecFormat outputFormat)
@@ -24,10 +29,14 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 	mChannelSampleSize = 1;
 	mSizeSampleSize = 1;
 
+	int floatBits = sizeof(qfloat) * 8;
+
 	int inputSize = inputFormat.sampleSize();
 	int outputSize = outputFormat.sampleSize();
 	int inputChannels = inputFormat.channelCount();
 	int outputChannels = outputFormat.channelCount();
+	int inputRate = inputFormat.sampleRate();
+	int outputRate = outputFormat.sampleRate();
 	QAudio::SampleType inputType = QAudio::toAudioSampleType(inputFormat.sampleType());
 	QAudio::SampleType outputType = QAudio::toAudioSampleType(outputFormat.sampleType());
 
@@ -40,20 +49,40 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 		outputSize = 32;
 	}
 
-	if(mChannelConverter.initialize(inputChannels, outputChannels, inputType, inputSize))
+	if(mFloatConverter.initialize(inputSize, inputType, floatBits, QAudio::Float))
 	{
-		mChannelSampleSize = inputSize / 8;
-		mChannelDifference = outputChannels / qreal(inputChannels);
+		mFloatSampleSize = inputSize / 8;
+		mFloatDifference = floatBits / qreal(inputSize);
 	}
 	else
 	{
 		return false;
 	}
 
-	if(mSizeConverter.initialize(inputSize, inputType, outputSize, outputType))
+	if(mRateConverter.initialize(inputChannels, inputRate, outputRate))
 	{
-		mSizeSampleSize = inputSize / 8;
-		mSizeDifference = outputSize / qreal(inputSize);
+		mRateSampleSize = floatBits / 8;
+		mRateDifference = outputRate / qreal(inputRate);
+	}
+	else
+	{
+		return false;
+	}
+
+	if(mSizeConverter.initialize(floatBits, QAudio::Float, outputSize, outputType))
+	{
+		mSizeSampleSize = floatBits / 8;
+		mSizeDifference = outputSize / qreal(floatBits);
+	}
+	else
+	{
+		return false;
+	}
+
+	if(mChannelConverter.initialize(inputChannels, outputChannels, outputType, outputSize))
+	{
+		mChannelSampleSize = outputSize / 8;
+		mChannelDifference = outputChannels / qreal(inputChannels);
 	}
 	else
 	{
@@ -62,17 +91,29 @@ bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputF
 
 	return true;
 }
+
 void* QSampleConverter::convert(const void *input, int &samples, int &size)
 {
-	size = int(samples * mChannelDifference * mChannelSampleSize);
-	qbyte *channelData = new qbyte[size];
-	mChannelConverter.convert(input, channelData, samples);
-	samples *= mChannelDifference;
+	size = int(samples * mFloatDifference * mFloatSampleSize);
+	qbyte *floatData = new qbyte[size];
+	mFloatConverter.convert(input, floatData, samples);
+
+	size = int(samples * mRateDifference * mRateSampleSize);
+	qbyte *rateData = new qbyte[size];
+	mRateConverter.convert((qfloat*) floatData, (qfloat*) rateData, samples);
+	samples *= mRateDifference;
+	delete [] floatData;
 
 	size = int(samples * mSizeDifference * mSizeSampleSize);
 	qbyte *sizeData = new qbyte[size];
-	mSizeConverter.convert(channelData, sizeData, samples);
-	delete [] channelData;
+	mSizeConverter.convert(rateData, sizeData, samples);
+	delete [] rateData;
 
-	return sizeData;
+	size = int(samples * mChannelDifference * mChannelSampleSize);
+	qbyte *channelData = new qbyte[size];
+	mChannelConverter.convert(sizeData, channelData, samples);
+	samples *= mChannelDifference;
+	delete [] sizeData;
+
+	return channelData;
 }

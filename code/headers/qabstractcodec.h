@@ -49,9 +49,7 @@ class QAbstractCodec : public QObject
 		~QAbstractCodec();
 
 		bool inspectHeader(const QByteArray &header, QCodecContent &content);
-		void createHeader(QByteArray &header, const QCodecContent &content);
-		virtual bool inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content) = 0;
-		virtual void createHeader(QByteArray &header, const QCodecFormat &format, const QCodecContent &content) = 0;
+		void createHeader(QByteArray &header, QCodecContent &content);
 
 		virtual bool initializeDecode() = 0;
 		virtual bool finalizeDecode() = 0;
@@ -85,6 +83,9 @@ class QAbstractCodec : public QObject
 	protected:
 
 		void addChunk(QAudioChunk chunk);
+
+		virtual bool inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content) = 0;
+		virtual void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content) = 0;
 
 		virtual QAbstractCodec::Error initializeLibrary() = 0;
 

@@ -15,9 +15,6 @@ class QWaveCodec : public QAbstractCodec
 		QAbstractCodec::Error load(QString filePath);
 		bool unload();
 
-		bool inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
-		void createHeader(QByteArray &header, const QCodecFormat &format, const QCodecContent &content);
-
 		bool initializeEncode();
 		bool finalizeEncode();
 		void encode(const void *input, int samples);
@@ -27,6 +24,9 @@ class QWaveCodec : public QAbstractCodec
 		void decode(const void *input, int size);
 
 	protected:
+
+		bool inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
+		void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content);
 
 		QAbstractCodec::Error initializeLibrary();
 		short toShort(char data[]);

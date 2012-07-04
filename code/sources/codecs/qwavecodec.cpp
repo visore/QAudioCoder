@@ -112,7 +112,7 @@ bool QWaveCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, Q
 	return true;
 }
 
-void QWaveCodec::createHeader(QByteArray &header, const QCodecFormat &format, const QCodecContent &content)
+void QWaveCodec::createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content)
 {
 	QDataStream stream((QByteArray*) &header, QIODevice::WriteOnly);
 

@@ -4,6 +4,7 @@
 #include <qcodecformat.h>
 #include <qsamplechannelconverter.h>
 #include <qsamplesizeconverter.h>
+#include <qsamplerateconverter.h>
 
 class QSampleConverter
 {
@@ -17,17 +18,20 @@ class QSampleConverter
 
 	private:
 
-		QSampleChannelConverter mChannelConverter;
+		QSampleSizeConverter mFloatConverter;
+		QSampleRateConverter mRateConverter;
 		QSampleSizeConverter mSizeConverter;
+		QSampleChannelConverter mChannelConverter;
 
-		int mChannelSampleSize;
+		int mFloatSampleSize;
+		int mRateSampleSize;
 		int mSizeSampleSize;
+		int mChannelSampleSize;
 
-		qreal mChannelDifference;
+		qreal mFloatDifference;
+		qreal mRateDifference;
 		qreal mSizeDifference;
-
-		void convertChannel(const void *input, void *output, int &samples);
-		void convertSize(const void *input, void *output, int &samples);
+		qreal mChannelDifference;
 
 };
 

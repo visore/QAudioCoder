@@ -54,8 +54,8 @@ void QCodingChain::run()
 			QCodecFormat format;
 			format.setSampleSize(16);
 			format.setSampleType(QAudioFormat::SignedInt);
-			format.setSampleRate(44100);
-			format.setChannelCount(1);
+			format.setSampleRate(44100*1.5);
+			format.setChannelCount(2);
 
 			
 			codec->setFormat(QAudio::AudioOutput, format);
@@ -65,7 +65,6 @@ void QCodingChain::run()
 
 			QByteArray header;
 			codec->createHeader(header, content);
-cout<<"header size: "<<header.size()<<endl;
 
 			mInput->skipHeader(content.headerSize());
 			mOutput->setHeader(header);
@@ -121,10 +120,9 @@ QAbstractCodec* QCodingChain::detectCodec(QCodecContent &content)
 
 	for(int i = 0; i < codecs.size(); ++i)
 	{
-		if(codecs[i]->inspectHeader(header, format, content))
+		if(codecs[i]->inspectHeader(header, content))
 		{
 			cout << "Codec found: "<<codecs[i]->name().toAscii().data()<<endl;
-			codecs[i]->setFormat(QAudio::AudioInput, format);
 			return codecs[i];
 		}
 	}
