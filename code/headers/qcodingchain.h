@@ -49,7 +49,12 @@ class QCodingChain : public QThread
 		QCodingChainDecoder mDecoder;
 		QCodingChainEncoder mEncoder;
 
+		QSharedBuffer mBuffer1;
+		QSharedBuffer mBuffer2;
+		QSharedBuffer mBuffer3;
+
 		bool mInputAtEnd;
+		bool mIsFinished;
 
 };
 

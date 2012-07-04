@@ -1,8 +1,5 @@
 #include <qsampleconverter.h>
 
-#include <iostream>
-using namespace std;
-
 QSampleConverter::QSampleConverter()
 {
 	mFloatSampleSize = 1;
@@ -24,10 +21,15 @@ QSampleConverter::QSampleConverter(QCodecFormat inputFormat, QCodecFormat output
 
 bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputFormat)
 {
-	mChannelDifference = 1;
-	mSizeDifference = 1;
-	mChannelSampleSize = 1;
+	mFloatSampleSize = 1;
+	mRateSampleSize = 1;
 	mSizeSampleSize = 1;
+	mChannelSampleSize = 1;
+
+	mFloatDifference = 1;
+	mRateDifference = 1;
+	mSizeDifference = 1;
+	mChannelDifference = 1;
 
 	int floatBits = sizeof(qfloat) * 8;
 

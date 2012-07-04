@@ -5,6 +5,7 @@
 #include <QThread>
 #include <QFile>
 #include <qabstractcodec.h>
+#include <qsharedbuffer.h>
 
 /**********************************************************
 QCodingChainComponent
@@ -15,28 +16,24 @@ class QCodingChainComponent : public QThread
 
 	Q_OBJECT
 
-	signals:
-
-		void available(QAudioChunk *chunk);
-
 	public slots:
 
 		virtual bool initialize() = 0;
 		virtual bool finalize() = 0;
-		void addChunk(QAudioChunk *chunk);
+		virtual void chunkAvailable();
+		virtual void addChunks(int size);
 
 	public:
 
 		QCodingChainComponent();
-		bool hasChunk();
-		int numberOfChunks();
-		QAudioChunk* takeChunk();
+		void setInputBuffer(QSharedBuffer *buffer);
+		void setOutputBuffer(QSharedBuffer *buffer);
 		virtual void run() = 0;
 
-	private:
+	protected:
 
-		QMutex mMutex;
-		QQueue<QAudioChunk*> mChunks;
+		QSharedBuffer *mInputBuffer;
+		QSharedBuffer *mOutputBuffer;	
 
 };
 
@@ -52,6 +49,10 @@ class QCodingChainInput : public QCodingChainComponent
 	signals:
 
 		void atEnd();
+
+	public slots:
+
+		void addChunks(int size);
 
 	public:
 
