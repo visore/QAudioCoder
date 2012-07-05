@@ -22,8 +22,6 @@ class QCodingChain : public QThread
 
 		QCodingChain();
 
-		bool isFinished();
-
 		void setInputFilePath(QString filePath);
 		void setOutputFilePath(QString filePath);
 
@@ -57,6 +55,8 @@ class QCodingChain : public QThread
 
 		bool mInputAtEnd;
 		bool mIsFinished;
+
+int t;
 
 };
 

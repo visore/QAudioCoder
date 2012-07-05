@@ -12,17 +12,12 @@ QCodingChain::QCodingChain()
 	mInput = NULL;
 	mOutput = NULL;
 	mInputAtEnd = false;
-	mIsFinished = true;
-
+	mIsFinished = false;
+t=0;
 	QObject::connect(&mFileInput, SIGNAL(finished()), this, SLOT(checkFinished()));
 	QObject::connect(&mFileOutput, SIGNAL(finished()), this, SLOT(checkFinished()));
 	QObject::connect(&mDecoder, SIGNAL(finished()), this, SLOT(checkFinished()));
 	QObject::connect(&mEncoder, SIGNAL(finished()), this, SLOT(checkFinished()));
-}
-
-bool QCodingChain::isFinished()
-{
-	return mIsFinished;
 }
 
 void QCodingChain::setInputFilePath(QString filePath)
@@ -63,12 +58,13 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 			mBuffer3.connect(&mEncoder, mOutput);
 
 			QObject::connect(mInput, SIGNAL(atEnd()), this, SLOT(inputFinished()));
+
 			//QObject::connect(mInput, SIGNAL(available(QSampleArray*)), &mDecoder, SLOT(addChunk(QSampleArray*)));
 			//QObject::connect(&mDecoder, SIGNAL(requestChunks(int)), mInput, SLOT(readChunks(int)));
 			//QObject::connect(&mDecoder, SIGNAL(available(QSampleArray*)), &mEncoder, SLOT(addChunk(QSampleArray*)));
 			//QObject::connect(&mEncoder, SIGNAL(available(QSampleArray*)), mOutput, SLOT(addChunk(QSampleArray*)));
 
-
+//QObject::connect(s, SIGNAL(signal()), &mDecoder, SLOT(dataAvailable()));
 
 
 
@@ -106,9 +102,8 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 
 			mInputAtEnd = false;
 			mIsFinished = false;
+
 			mInput->start();
-
-
 		}
 	}
 }
@@ -116,12 +111,15 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 void QCodingChain::inputFinished()
 {
 	mInputAtEnd = true;
+	checkFinished();
 }
 
 void QCodingChain::checkFinished()
 {
 	if(mInputAtEnd && !mIsFinished && !mInput->isRunning() && !mDecoder.isRunning() && !mEncoder.isRunning() && !mOutput->isRunning())
 	{
+		mIsFinished = true;
+
 		mInput->finalize();
 		mDecoder.finalize();
 		mEncoder.finalize();
@@ -130,9 +128,14 @@ void QCodingChain::checkFinished()
 		mInputCodec->unload();
 		mOutputCodec->unload();
 
+			mBuffer1.clear();
+			mBuffer2.clear();
+			mBuffer3.clear();
+
 		cout<<"Finished!!"<<endl;
-		mIsFinished = true;
+		
 		emit finished();
+//if(t<20){++t;start();cout<<"counter: "<<t<<endl;}
 	}
 }
 

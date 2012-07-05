@@ -20,12 +20,8 @@ format.setSampleSize(16);
 format.setBitrate(128);
 
 QAudioCoder coder;
-//coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);
-coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.mp3", format);
-
-
-signed int g = 40000;
-unsigned int a = g;
+coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);
+//coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.mp3", format);
 
 QMainWindow w;
 w.show();

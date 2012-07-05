@@ -12,6 +12,24 @@ class QAudioCoder : public QObject
 
 		void finished();
 
+public slots: 
+
+void s()
+{
+QObject::disconnect(mChain, SIGNAL(finished()));
+delete mChain;
+	
+	mChain = new QCodingChain();
+	QObject::connect(mChain, SIGNAL(finished()), this, SLOT(s()));
+mChain->setInputFilePath(a);
+	mChain->setOutputFilePath(b);
+
+
+
+	mChain->start();
+
+}
+
 	public:
 
 		QAudioCoder();
@@ -30,7 +48,10 @@ class QAudioCoder : public QObject
 
 	private:
 
-		QCodingChain mChain;
+		QCodingChain *mChain;
+
+QString a;
+QString b;
 
 };
 

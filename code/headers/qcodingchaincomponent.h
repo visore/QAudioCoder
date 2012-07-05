@@ -21,7 +21,7 @@ class QCodingChainComponent : public QThread
 		virtual bool initialize() = 0;
 		virtual bool finalize() = 0;
 		virtual void dataAvailable();
-		virtual void addData(int size);
+		virtual void processData(int size);
 
 	public:
 
@@ -33,7 +33,8 @@ class QCodingChainComponent : public QThread
 	protected:
 
 		QSharedBuffer *mInputBuffer;
-		QSharedBuffer *mOutputBuffer;	
+		QSharedBuffer *mOutputBuffer;
+		int mChunksToRead;
 
 };
 
@@ -49,10 +50,6 @@ class QCodingChainInput : public QCodingChainComponent
 	signals:
 
 		void atEnd();
-
-	public slots:
-
-		void addData(int size);
 
 	public:
 

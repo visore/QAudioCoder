@@ -25,14 +25,14 @@ QSampleArray* QSharedBuffer::dequeue()
 {
 	mMutex.lock();
 	QSampleArray *result = mChunks.dequeue();
-	if(mChunks.size() < ALMOST_EMPTY)
-	{
-		emit almostEmpty(mChunks.size());
-	}
+	int size = mChunks.size();
 	mMutex.unlock();
+	if(size <= ALMOST_EMPTY)
+	{
+		emit almostEmpty(ALMOST_EMPTY);
+	}
 	return result;
 }
-
 void QSharedBuffer::connect(QCodingChainComponent *sender, QCodingChainComponent *receiver)
 {
 	sender->setOutputBuffer(this);
@@ -42,7 +42,7 @@ void QSharedBuffer::connect(QCodingChainComponent *sender, QCodingChainComponent
 	QObject::disconnect(this, SIGNAL(almostEmpty(int)));
 
 	QObject::connect(this, SIGNAL(dataAdded()), receiver, SLOT(dataAvailable()));
-	QObject::connect(this, SIGNAL(almostEmpty(int)), sender, SLOT(addData(int)));
+	QObject::connect(this, SIGNAL(almostEmpty(int)), sender, SLOT(processData(int)));
 }
 
 bool QSharedBuffer::isEmpty()

@@ -155,9 +155,9 @@ bool QWaveCodec::finalizeDecode()
 
 void QWaveCodec::decode(const void *input, int size)
 {
-	qbyte *output = new qbyte[size];
-	memcpy(output, input, size);
-	emit decoded(new QSampleArray(output, size, size / (mDecoderFormat.sampleSize() / 8)));
+	qbyte *data = new qbyte[size];
+	memcpy(data, input, size);
+	emit decoded(new QSampleArray(data, size, size / (mDecoderFormat.sampleSize() / 8)));
 }
 
 bool QWaveCodec::initializeEncode()
@@ -197,7 +197,7 @@ bool QWaveCodec::finalizeEncode()
 void QWaveCodec::encode(const void *input, int samples)
 {
 	int bytes;
-	qbyte *output = (qbyte*) mConverter.convert(input, samples, bytes);
+	char *output = (char*) mConverter.convert(input, samples, bytes);
 	emit encoded(new QSampleArray(output, bytes, samples));
 }
 

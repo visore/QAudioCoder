@@ -9,9 +9,7 @@
 #include <qcodecformat.h>
 #include <qcodeccontent.h>
 #include <qsamplearray.h>
-
-#include <iostream>
-using namespace std;
+#include <qsharedbuffer.h>
 
 class QAbstractCodec : public QObject
 {

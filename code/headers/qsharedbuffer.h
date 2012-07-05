@@ -5,6 +5,9 @@
 #include <QQueue>
 #include <qsamplearray.h>
 
+#include <iostream>
+using namespace std;
+
 class QCodingChainComponent;
 
 class QSharedBuffer : public QObject

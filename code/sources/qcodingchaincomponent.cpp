@@ -11,6 +11,7 @@ QCodingChainComponent::QCodingChainComponent()
 {
 	mInputBuffer = NULL;
 	mOutputBuffer = NULL;
+	mChunksToRead = 10;
 }
 
 void QCodingChainComponent::setInputBuffer(QSharedBuffer *buffer)
@@ -31,8 +32,13 @@ void QCodingChainComponent::dataAvailable()
 	}
 }
 
-void QCodingChainComponent::addData(int size)
+void QCodingChainComponent::processData(int size)
 {
+	mChunksToRead = size;
+	if(!isRunning())
+	{
+		start();
+	}
 }
 
 /**********************************************************
@@ -44,14 +50,6 @@ QCodingChainInput::QCodingChainInput()
 {
 	mHeaderSize = 0;
 	mAtEnd = false;
-}
-
-void QCodingChainInput::addData(int size)
-{
-	if(!isRunning())
-	{
-		start();
-	}
 }
 
 void QCodingChainInput::skipHeader(int bytes)
@@ -93,36 +91,25 @@ bool QCodingChainFileInput::finalize()
 }
 		
 void QCodingChainFileInput::run()
-{
+{//cout<<"k1"<<endl;
 	int size = 0;
-	while(!mAtEnd)
-	{
+	int chunks = mChunksToRead;
+	while(mChunksToRead > 0 && !mAtEnd)
+	{//cout<<"k2"<<endl;
+		--mChunksToRead;
 		char *data = new char[CHUNK_SIZE];
 		size = mFile.read(data, CHUNK_SIZE);
 		if(size > 0)
 		{
-			mOutputBuffer->enqueue(new QSampleArray(data, size, 0));
+			mOutputBuffer->enqueue(new QSampleArray(data, size));
 		}
 		else
-		{
+		{cout<<"at end"<<endl;
 			delete [] data;
 			mAtEnd = true;
 			emit atEnd();
-
 			break;
 		}
-
-		/*QByteArray data = mFile.read(CHUNK_SIZE);
-		if(data.size() > 0)
-		{
-			mOutputBuffer->enqueue(data);
-		}
-		else
-		{
-			mAtEnd = true;
-			emit atEnd();
-			break;
-		}*/
 	}
 }
 
@@ -173,8 +160,9 @@ bool QCodingChainDecoder::finalize()
 void QCodingChainDecoder::run()
 {
 	QSampleArray *array;
-	while(!mInputBuffer->isEmpty())
+	while(mChunksToRead > 0 && !mInputBuffer->isEmpty())
 	{
+		--mChunksToRead;
 		array = mInputBuffer->dequeue();
 		mCodec->decode(array->data(), array->size());
 		delete array;
@@ -213,8 +201,9 @@ bool QCodingChainEncoder::finalize()
 void QCodingChainEncoder::run()
 {
 	QSampleArray *array;
-	while(!mInputBuffer->isEmpty())
+	while(mChunksToRead > 0 && !mInputBuffer->isEmpty())
 	{
+		--mChunksToRead;
 		array = mInputBuffer->dequeue();
 		mCodec->encode(array->data(), array->samples());
 		delete array;
@@ -273,7 +262,7 @@ void QCodingChainFileOutput::run()
 	while(!mInputBuffer->isEmpty())
 	{
 		array = mInputBuffer->dequeue();
-		mFile.write((char*) array->data(), array->size());
+		mFile.write(array->charData(), array->size());
 		delete array;
 	}
 }
