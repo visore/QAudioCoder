@@ -2,6 +2,7 @@
 #define QLAMECODEC_H
 
 #include <qabstractcodec.h>
+#include <qsamplesizeconverter.h>
 #include <lame.h>
 
 class QLameCodec : public QAbstractCodec
@@ -20,6 +21,12 @@ class QLameCodec : public QAbstractCodec
 		void decode(const void *input, int size);
 
 	protected:
+
+		void encodeConvert(const void *input, int samples);
+		void encode16Convert(const void *input, int samples);
+		void encode32Convert(const void *input, int samples);
+		void encode16Normal(const void *input, int samples);
+		void encode32Normal(const void *input, int samples);
 
 		QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
 		void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content);
@@ -61,8 +68,12 @@ class QLameCodec : public QAbstractCodec
 
 		int (*m_lame_encode_flush)(lame_t, unsigned char*, int);
 		int (*m_lame_encode_buffer_interleaved)(lame_t, short int[], int, unsigned char*, int);
+		int (*m_lame_encode_buffer_int)(lame_t, const int[], const int[], int, unsigned char*, const int);
 
 	private:
+
+		QSampleSizeConverter mConverter;
+		void (QLameCodec::*encodePointer)(const void *input, int samples);
 
 		lame_t mLameEncoder;
 		hip_t mLameDecoder;

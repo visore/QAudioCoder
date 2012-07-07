@@ -1,4 +1,5 @@
 #include <qlamecodec.h>
+#include <qchannelconverter.h>
 
 #define MINIMUM_HEADER_FRAMES 5
 
@@ -56,6 +57,98 @@ bool QLameCodec::initializeEncode()
 	}
 
 	m_lame_init_params(mLameEncoder);
+
+
+	int sampleSize = mDecoderFormat.sampleSize();
+	QAudio::SampleType sampleType = QAudio::toAudioSampleType(mDecoderFormat.sampleType());
+
+	if(sampleType == QAudio::Float)
+	{
+		if(mConverter.initialize(16, QAudio::Float, 16, QAudio::SignedInt))
+		{
+			encodePointer = &QLameCodec::encode16Convert;
+		}
+		else
+		{
+			mError = QAbstractCodec::SampleSizeError;
+			return false;
+		}
+	}
+	else if(sampleType == QAudio::Real)
+	{
+		if(mConverter.initialize(32, QAudio::Real, 32, QAudio::SignedInt))
+		{
+			encodePointer = &QLameCodec::encode32Convert;
+		}
+		else
+		{
+			mError = QAbstractCodec::SampleSizeError;
+			return false;
+		}
+	}
+	else if(sampleType == QAudio::SignedInt)
+	{
+		if(sampleSize == 8)
+		{
+			if(mConverter.initialize(8, QAudio::SignedInt, 16, QAudio::SignedInt))
+			{
+				encodePointer = &QLameCodec::encode16Convert;
+			}
+			else
+			{
+				mError = QAbstractCodec::SampleSizeError;
+				return false;
+			}
+		}
+		else if(sampleSize == 16)
+		{
+			encodePointer = &QLameCodec::encode16Normal;
+		}
+		else if(sampleSize == 32)
+		{
+			encodePointer = &QLameCodec::encode32Normal;
+		}
+	}
+	else if(sampleType == QAudio::UnSignedInt)
+	{
+		if(sampleSize == 8)
+		{
+			if(mConverter.initialize(8, QAudio::UnSignedInt, 16, QAudio::SignedInt))
+			{
+				encodePointer = &QLameCodec::encode16Convert;
+			}
+			else
+			{
+				mError = QAbstractCodec::SampleSizeError;
+				return false;
+			}
+		}
+		else if(sampleSize == 16)
+		{
+			if(mConverter.initialize(16, QAudio::UnSignedInt, 16, QAudio::SignedInt))
+			{
+				encodePointer = &QLameCodec::encode16Convert;
+			}
+			else
+			{
+				mError = QAbstractCodec::SampleSizeError;
+				return false;
+			}
+		}
+		else if(sampleSize == 32)
+		{
+			if(mConverter.initialize(32, QAudio::UnSignedInt, 32, QAudio::SignedInt))
+			{
+				encodePointer = &QLameCodec::encode32Convert;
+			}
+			else
+			{
+				mError = QAbstractCodec::SampleSizeError;
+				return false;
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -67,18 +160,80 @@ bool QLameCodec::finalizeEncode()
 
 void QLameCodec::encode(const void *input, int samples)
 {
-	int bytes = samples * (mDecoderFormat.sampleSize() / 8.0);
-	qbyte8u *output = new qbyte8u[bytes];
-	if(bytes == 0)
+	(this->*encodePointer)(input, samples);
+}
+
+void QLameCodec::encode16Convert(const void *input, int samples)
+{
+	if(samples == 0)
 	{
-		bytes = m_lame_encode_flush(mLameEncoder, (unsigned char*) input, samples);
+		m_lame_encode_flush(mLameEncoder, (unsigned char*) input, samples);
 	}
 	else
 	{
-		//Input size is devided by 2, size Lame wants the samples per channel, not the samples in the array
-		bytes = m_lame_encode_buffer_interleaved(mLameEncoder, (short int*) input, samples / 2, output, bytes);
+		short data[samples];
+		mConverter.convert(input, data, samples);
+
+		int bytes = samples * 2;
+		qbyte *output = new qbyte[bytes];
+		bytes = m_lame_encode_buffer_interleaved(mLameEncoder, data, samples / 2, output, bytes);
+		emit encoded(new QSampleArray(output, bytes, samples));
 	}
-	emit encoded(new QSampleArray(output, bytes, samples));
+}
+
+void QLameCodec::encode32Convert(const void *input, int samples)
+{
+	if(samples == 0)
+	{
+		m_lame_encode_flush(mLameEncoder, (unsigned char*) input, samples);
+	}
+	else
+	{
+		int data[samples];
+		int left[samples / 2];
+		int right[samples / 2];
+		mConverter.convert(input, data, samples);
+		QChannelConverter<int>::splitChannels(data, left, right, samples);
+
+		int bytes = samples * 4;
+		qbyte *output = new qbyte[bytes];
+		bytes = m_lame_encode_buffer_int(mLameEncoder, left, right, samples / 2, output, bytes);
+		emit encoded(new QSampleArray(output, bytes, samples));
+	}
+}
+
+void QLameCodec::encode16Normal(const void *input, int samples)
+{
+	if(samples == 0)
+	{
+		m_lame_encode_flush(mLameEncoder, (unsigned char*) input, samples);
+	}
+	else
+	{
+		int bytes = samples * 2;
+		qbyte *output = new qbyte[bytes];
+		bytes = m_lame_encode_buffer_interleaved(mLameEncoder, (short int*) input, samples / 2, output, bytes);
+		emit encoded(new QSampleArray(output, bytes, samples));
+	}
+}
+
+void QLameCodec::encode32Normal(const void *input, int samples)
+{
+	if(samples == 0)
+	{
+		m_lame_encode_flush(mLameEncoder, (unsigned char*) input, samples);
+	}
+	else
+	{
+		int left[samples / 2];
+		int right[samples / 2];
+		QChannelConverter<int>::splitChannels(input, left, right, samples);
+
+		int bytes = samples * 4;
+		qbyte *output = new qbyte[bytes];
+		bytes = m_lame_encode_buffer_int(mLameEncoder, left, right, samples / 2, output, bytes);
+		emit encoded(new QSampleArray(output, bytes, samples));
+	}
 }
 
 bool QLameCodec::initializeDecode()
@@ -242,6 +397,7 @@ QAbstractCodec::Error QLameCodec::initializeLibrary()
 
 	loaded.append((m_lame_encode_flush = (int (*)(lame_t, unsigned char*, int)) mLibrary.resolve("lame_encode_flush")) != NULL);
 	loaded.append((m_lame_encode_buffer_interleaved = (int (*)(lame_t, short int[], int, unsigned char*, int)) mLibrary.resolve("lame_encode_buffer_interleaved")) != NULL);
+	loaded.append((m_lame_encode_buffer_int = (int (*)(lame_t, const int[], const int[], int, unsigned char*, const int)) mLibrary.resolve("lame_encode_buffer_int")) != NULL);
 
 	for(int i = 0; i < loaded.size(); ++i)
 	{
@@ -254,7 +410,7 @@ QAbstractCodec::Error QLameCodec::initializeLibrary()
 			++failure;
 		}
 	}
-
+cout<<failure<<endl;
 	if(success == loaded.size())
 	{
 		return QAbstractCodec::NoError;

@@ -3,20 +3,7 @@
 
 #include <qcommon.h>
 #include <qcodecformat.h>
-
-template <typename T>
-class QSampleChunkChannelConverter
-{
-
-	public:
-
-		static void convert1To1(const void *input, void *output, int samples);
-		static void convert2To1(const void *input, void *output, int samples);
-
-		static void convert1To2(const void *input, void *output, int samples);
-		static void convert2To2(const void *input, void *output, int samples);
-	
-};
+#include <qchannelconverter.h>
 
 class QSampleChannelConverter
 {

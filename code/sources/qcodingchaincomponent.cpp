@@ -91,11 +91,11 @@ bool QCodingChainFileInput::finalize()
 }
 		
 void QCodingChainFileInput::run()
-{//cout<<"k1"<<endl;
+{
 	int size = 0;
 	int chunks = mChunksToRead;
 	while(mChunksToRead > 0 && !mAtEnd)
-	{//cout<<"k2"<<endl;
+	{
 		--mChunksToRead;
 		char *data = new char[CHUNK_SIZE];
 		size = mFile.read(data, CHUNK_SIZE);

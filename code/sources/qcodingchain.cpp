@@ -45,7 +45,11 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 
 		if(mInputCodec == NULL)
 		{
-			cout<<"File format not supported!"<<endl;
+			cout<<"Input file format not supported!"<<endl;
+		}
+		else if(mOutputCodec == NULL)
+		{
+			cout<<"Output file format not supported!"<<endl;
 		}
 		else
 		{
@@ -74,7 +78,7 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 			format.setSampleType(QAudioFormat::SignedInt);
 			format.setSampleRate(44100);
 			format.setChannelCount(2);
-			format.setBitrateMode(QCodecFormat::VariableBitrate);
+			format.setBitrateMode(QCodecFormat::ConstantBitrate);
 			format.setBitrate(256);
 
 			mOutputCodec->setFormat(QAudio::AudioInput, mInputCodec->format(QAudio::AudioInput));
@@ -89,11 +93,11 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 			cout << "Input Codec: "<<mInputCodec->name().toAscii().data()<<endl;
 			cout << "Output Codec: "<<mOutputCodec->name().toAscii().data()<<endl;
 
-			/*QByteArray header;
+			QByteArray header;
 			mOutputCodec->createHeader(header, content);
 
 			mInput->skipHeader(content.headerSize());
-			mOutput->setHeader(header);*/
+			mOutput->setHeader(header);
 
 			mInput->initialize();
 			mDecoder.initialize();
@@ -135,6 +139,7 @@ void QCodingChain::checkFinished()
 		cout<<"Finished!!"<<endl;
 		
 		emit finished();
+//start();
 //if(t<20){++t;start();cout<<"counter: "<<t<<endl;}
 	}
 }

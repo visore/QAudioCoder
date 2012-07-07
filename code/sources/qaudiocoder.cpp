@@ -6,7 +6,7 @@ QAudioCoder::QAudioCoder()
 	/*mDecoder = NULL;
 	mEncoder = NULL;*/
 	mChain = new QCodingChain();
-	QObject::connect(mChain, SIGNAL(finished()), this, SLOT(s()));
+	//QObject::connect(mChain, SIGNAL(finished()), this, SLOT(s()));
 	//QObject::connect(mChain, SIGNAL(finished()), this, SIGNAL(finished()));
 }
 

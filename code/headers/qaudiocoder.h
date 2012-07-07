@@ -13,7 +13,7 @@ class QAudioCoder : public QObject
 		void finished();
 
 public slots: 
-
+/*
 void s()
 {
 QObject::disconnect(mChain, SIGNAL(finished()));
@@ -28,7 +28,7 @@ mChain->setInputFilePath(a);
 
 	mChain->start();
 
-}
+}*/
 
 	public:
 
