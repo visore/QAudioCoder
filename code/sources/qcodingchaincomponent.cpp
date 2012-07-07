@@ -120,12 +120,12 @@ QCodingChainCoder
 QCodingChainCoder::QCodingChainCoder()
 	: QCodingChainComponent()
 {
-	mCodec = NULL;
+	mCoder = NULL;
 }
 
-void QCodingChainCoder::setCodec(QAbstractCodec *codec)
+void QCodingChainCoder::setCoder(QAbstractCoder *coder)
 {
-	mCodec = codec;
+	mCoder = coder;
 }
 
 /**********************************************************
@@ -139,9 +139,9 @@ QCodingChainDecoder::QCodingChainDecoder()
 
 bool QCodingChainDecoder::initialize()
 {
-	if(mCodec != NULL && mCodec->initializeDecode())
+	if(mCoder != NULL && mCoder->initializeDecode())
 	{
-		QObject::connect(mCodec, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
+		QObject::connect(mCoder, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -149,9 +149,9 @@ bool QCodingChainDecoder::initialize()
 
 bool QCodingChainDecoder::finalize()
 {
-	if(mCodec != NULL && mCodec->finalizeDecode())
+	if(mCoder != NULL && mCoder->finalizeDecode())
 	{
-		QObject::disconnect(mCodec, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
+		QObject::disconnect(mCoder, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -164,7 +164,7 @@ void QCodingChainDecoder::run()
 	{
 		--mChunksToRead;
 		array = mInputBuffer->dequeue();
-		mCodec->decode(array->data(), array->size());
+		mCoder->decode(array->data(), array->size());
 		delete array;
 	}
 }
@@ -180,9 +180,9 @@ QCodingChainEncoder::QCodingChainEncoder()
 
 bool QCodingChainEncoder::initialize()
 {
-	if(mCodec != NULL && mCodec->initializeEncode())
+	if(mCoder != NULL && mCoder->initializeEncode())
 	{
-		QObject::connect(mCodec, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
+		QObject::connect(mCoder, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -190,9 +190,9 @@ bool QCodingChainEncoder::initialize()
 
 bool QCodingChainEncoder::finalize()
 {
-	if(mCodec != NULL && mCodec->finalizeEncode())
+	if(mCoder != NULL && mCoder->finalizeEncode())
 	{
-		QObject::disconnect(mCodec, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
+		QObject::disconnect(mCoder, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
 	return false;
@@ -205,7 +205,7 @@ void QCodingChainEncoder::run()
 	{
 		--mChunksToRead;
 		array = mInputBuffer->dequeue();
-		mCodec->encode(array->data(), array->samples());
+		mCoder->encode(array->data(), array->samples());
 		delete array;
 	}
 }

@@ -15,7 +15,7 @@ void QAudioCoder::encode(const QByteArray *data, const QString filePath)
 
 }
 
-void QAudioCoder::convert(const QString inputFilePath, const QString outputFilePath, QCodecFormat outputFormat)
+void QAudioCoder::convert(const QString inputFilePath, const QString outputFilePath, QExtendedAudioFormat outputFormat)
 {
 	mChain->setInputFilePath(inputFilePath);
 	mChain->setOutputFilePath(outputFilePath);
@@ -25,8 +25,8 @@ b = outputFilePath;
 
 	mChain->start();
 
-	//mCodecExecutor.setFormat(QAudio::AudioOutput, outputFormat);
-	//mCodecExecutor.setData(inputFilePath, outputFilePath);
+	//mCoderExecutor.setFormat(QAudio::AudioOutput, outputFormat);
+	//mCoderExecutor.setData(inputFilePath, outputFilePath);
 
 	/*mDecoder = &mFileDecoder;
 	mEncoder = &mFileEncoder;
@@ -35,38 +35,38 @@ b = outputFilePath;
 	mFileEncoder.setFilePath(outputFilePath);
 	QObject::connect(&mFileDecoder, SIGNAL(finished()), &mFileEncoder, SLOT(finalize()));
 
-	QCodecFormat format;
+	QExtendedAudioFormat format;
 	format.setChannelCount(2);
 	format.setSampleSize(16);
 	format.setSampleRate(44100);
 	format.setSampleType(QAudioFormat::SignedInt);
 
-	QList<QAbstractCodec*> codecs = mCodecManager.availableCodecs();
-	if(codecs.size()!=1)
+	QList<QAbstractCoder*> coders = mCoderManager.availableCoders();
+	if(coders.size()!=1)
 	{
-		cout<<"No enough codecs available!"<<endl;
+		cout<<"No enough coders available!"<<endl;
 	}
 	else
 	{
-		codecs[0]->load();
+		coders[0]->load();
 
-		startDecoder(codecs[0], format);
-		startEncoder(codecs[0], outputFormat);
+		startDecoder(coders[0], format);
+		startEncoder(coders[0], outputFormat);
 
-		codecs[0]->unload();
+		coders[0]->unload();
 	}*/
 }
 
-void QAudioCoder::startDecoder(QAbstractCodec *codec, QCodecFormat format)
+void QAudioCoder::startDecoder(QAbstractCoder *coder, QExtendedAudioFormat format)
 {
-	/*codec->setFormat(QAudio::AudioInput, format);
-	mDecoder->setCodec(codec);
+	/*coder->setFormat(QAudio::AudioInput, format);
+	mDecoder->setCoder(coder);
 	mDecoder->start();*/
 }
 
-void QAudioCoder::startEncoder(QAbstractCodec *codec, QCodecFormat format)
+void QAudioCoder::startEncoder(QAbstractCoder *coder, QExtendedAudioFormat format)
 {
-	/*codec->setFormat(QAudio::AudioOutput, format);
-	mEncoder->setCodec(codec);
+	/*coder->setFormat(QAudio::AudioOutput, format);
+	mEncoder->setCoder(coder);
 	mEncoder->start();*/
 }

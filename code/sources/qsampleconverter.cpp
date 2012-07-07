@@ -13,13 +13,13 @@ QSampleConverter::QSampleConverter()
 	mChannelDifference = 1;
 }
 
-QSampleConverter::QSampleConverter(QCodecFormat inputFormat, QCodecFormat outputFormat)
+QSampleConverter::QSampleConverter(QExtendedAudioFormat inputFormat, QExtendedAudioFormat outputFormat)
 {
 	QSampleConverter();
 	initialize(inputFormat, outputFormat);
 }
 
-bool QSampleConverter::initialize(QCodecFormat inputFormat, QCodecFormat outputFormat)
+bool QSampleConverter::initialize(QExtendedAudioFormat inputFormat, QExtendedAudioFormat outputFormat)
 {
 	mFloatSampleSize = 1;
 	mRateSampleSize = 1;

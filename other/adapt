@@ -3,18 +3,44 @@
 for i in {1..100}
 do
 
-   sed -i 's/ffft\///g' ../code/fftreal/*
+	sed -i 's/qcodercontent/qcodeccontent/' ../code/headers/*.h
+	sed -i 's/qcoderinfo/qcodecinfo/g' ../code/headers/*.h
+	sed -i 's/qcodermanager/qcodecmanager/g' ../code/headers/*.h
+	sed -i 's/QCoderContent/QCodecContent/' ../code/headers/*.h
+	sed -i 's/QCoderInfo/QCodecInfo/g' ../code/headers/*.h
+	sed -i 's/QCoderManager/QCodecManager/g' ../code/headers/*.h
+	sed -i 's/QCODERCONTENT/QCODECCONTENT/' ../code/headers/*.h
+	sed -i 's/QCODERINFO/QCODECINFO/g' ../code/headers/*.h
+	sed -i 's/QCODERMANAGER/QCODECMANAGER/g' ../code/headers/*.h
 
-	rename 's/vi/q/' ../code/headers/*
-	sed -i 's/vi/q/g' ../code/headers/*
-	sed -i 's/VI/Q/g' ../code/headers/*
-	sed -i 's/Vi/Q/g' ../code/headers/*
-	sed -i 's/qrtual/virtual/g' ../code/headers/*
+	sed -i 's/qcodercontent/qcodeccontent/' ../code/headers/*/*.h
+	sed -i 's/qcoderinfo/qcodecinfo/g' ../code/headers/*/*.h
+	sed -i 's/qcodermanager/qcodecmanager/g' ../code/headers/*/*.h
+	sed -i 's/QCoderContent/QCodecContent/' ../code/headers/*/*.h
+	sed -i 's/QCoderInfo/QCodecInfo/g' ../code/headers/*/*.h
+	sed -i 's/QCoderManager/QCodecManager/g' ../code/headers/*/*.h
+	sed -i 's/QCODERCONTENT/QCODECCONTENT/' ../code/headers/*/*.h
+	sed -i 's/QCODERINFO/QCODECINFO/g' ../code/headers/*/*.h
+	sed -i 's/QCODERMANAGER/QCODECMANAGER/g' ../code/headers/*/*.h
 
-	rename 's/vi/q/' ../code/sources/*
-	sed -i 's/vi/q/' ../code/sources/*
-	sed -i 's/VI/Q/' ../code/sources/*
-	sed -i 's/Vi/Q/' ../code/sources/*
-	sed -i 's/qrtual/virtual/g' ../code/sources/*
+	sed -i 's/qcodercontent/qcodeccontent/' ../code/sources/*.cpp
+	sed -i 's/qcoderinfo/qcodecinfo/g' ../code/sources/*.cpp
+	sed -i 's/qcodermanager/qcodecmanager/g' ../code/sources/*.cpp
+	sed -i 's/QCoderContent/QCodecContent/' ../code/sources/*.cpp
+	sed -i 's/QCoderInfo/QCodecInfo/g' ../code/sources/*.cpp
+	sed -i 's/QCoderManager/QCodecManager/g' ../code/sources/*.cpp
+	sed -i 's/QCODERCONTENT/QCODECCONTENT/' ../code/sources/*.cpp
+	sed -i 's/QCODERINFO/QCODECINFO/g' ../code/sources/*.cpp
+	sed -i 's/QCODERMANAGER/QCODECMANAGER/g' ../code/sources/*.cpp
+
+	sed -i 's/qcodercontent/qcodeccontent/' ../code/sources/*/*.cpp
+	sed -i 's/qcoderinfo/qcodecinfo/g' ../code/sources/*/*.cpp
+	sed -i 's/qcodermanager/qcodecmanager/g' ../code/sources/*/*.cpp
+	sed -i 's/QCoderContent/QCodecContent/' ../code/sources/*/*.cpp
+	sed -i 's/QCoderInfo/QCodecInfo/g' ../code/sources/*/*.cpp
+	sed -i 's/QCoderManager/QCodecManager/g' ../code/sources/*/*.cpp
+	sed -i 's/QCODERCONTENT/QCODECCONTENT/' ../code/sources/*/*.cpp
+	sed -i 's/QCODERINFO/QCODECINFO/g' ../code/sources/*/*.cpp
+	sed -i 's/QCODERMANAGER/QCODECMANAGER/g' ../code/sources/*/*.cpp
 
 done

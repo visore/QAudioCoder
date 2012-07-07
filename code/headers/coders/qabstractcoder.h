@@ -1,17 +1,17 @@
-#ifndef QABSTRACTCODEC_H
-#define QABSTRACTCODEC_H
+#ifndef QABSTRACTCODER_H
+#define QABSTRACTCODER_H
 
 #include <QQueue>
 #include <QByteArray>
 #include <QStringList>
 #include <QLibrary>
 #include <qaudio.h>
-#include <qcodecformat.h>
+#include <qextendedaudioformat.h>
 #include <qcodeccontent.h>
 #include <qsamplearray.h>
 #include <qsharedbuffer.h>
 
-class QAbstractCodec : public QObject
+class QAbstractCoder : public QObject
 {
 
 	Q_OBJECT
@@ -50,10 +50,10 @@ class QAbstractCodec : public QObject
 			InvalidHeader = 2
 		};
 
-		QAbstractCodec();
-		~QAbstractCodec();
+		QAbstractCoder();
+		~QAbstractCoder();
 
-		QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecContent &content);
+		QAbstractCoder::Header inspectHeader(const QByteArray &header, QCodecContent &content);
 		void createHeader(QByteArray &header, QCodecContent &content);
 
 		virtual bool initializeDecode() = 0;
@@ -64,15 +64,15 @@ class QAbstractCodec : public QObject
 		virtual bool finalizeEncode() = 0;
 		virtual void encode(const void *input, int samples) = 0;
 		
-		virtual QAbstractCodec::Error load();
-		virtual QAbstractCodec::Error load(QString filePath);
+		virtual QAbstractCoder::Error load();
+		virtual QAbstractCoder::Error load(QString filePath);
 		virtual bool unload();
 
 		QString filePath();
 		void setFilePath(QString filePath);
 
-		QCodecFormat format(QAudio::Mode mode);
-		void setFormat(QAudio::Mode mode, QCodecFormat format);
+		QExtendedAudioFormat format(QAudio::Mode mode);
+		void setFormat(QAudio::Mode mode, QExtendedAudioFormat format);
 
 		QString name();
 		QString version();
@@ -81,16 +81,16 @@ class QAbstractCodec : public QObject
 		void addFileName(QString name);
 		void addFileExtension(QString extension);
 
-		QAbstractCodec::Error error();
+		QAbstractCoder::Error error();
 
-		bool operator == (const QAbstractCodec &other) const;
+		bool operator == (const QAbstractCoder &other) const;
 
 	protected:
 
-		virtual QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content) = 0;
-		virtual void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content) = 0;
+		virtual QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content) = 0;
+		virtual void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content) = 0;
 
-		virtual QAbstractCodec::Error initializeLibrary() = 0;
+		virtual QAbstractCoder::Error initializeLibrary() = 0;
 
 	protected:
 
@@ -102,10 +102,10 @@ class QAbstractCodec : public QObject
 		QStringList mFileExtensions;
 		int mHeaderSize;
 
-		QAbstractCodec::Error mError;
+		QAbstractCoder::Error mError;
 
-		QCodecFormat mDecoderFormat;
-		QCodecFormat mEncoderFormat;
+		QExtendedAudioFormat mInputFormat;
+		QExtendedAudioFormat mOutputFormat;
 
 };
 

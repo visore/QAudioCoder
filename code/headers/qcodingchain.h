@@ -29,16 +29,16 @@ class QCodingChain : public QThread
 
 	protected:
 
-		QAbstractCodec* detectCodec(QCodecContent &content);
+		QAbstractCoder* detectCoder(QCodecContent &content);
 
 	private:
 
 		QString mInputFilePath;
 		QString mOutputFilePath;
 
-		QCodecManager mCodecManager;
-		QAbstractCodec *mInputCodec;
-		QAbstractCodec *mOutputCodec;
+		QCodecManager mCoderManager;
+		QAbstractCoder *mInputCoder;
+		QAbstractCoder *mOutputCoder;
 
 		QCodingChainInput *mInput;
 		QCodingChainOutput *mOutput;

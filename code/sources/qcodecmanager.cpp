@@ -1,14 +1,14 @@
 #include <qcodecmanager.h>
-#include <qwavecodec.h>
-#include <qlamecodec.h>
-#include <qflaccodec.h>
+#include <qwavecoder.h>
+#include <qlamecoder.h>
+#include <qflaccoder.h>
 #include <QDir>
 
 QCodecManager::QCodecManager()
 {
-	mSupportedCodecs.append(new QWaveCodec);
-	mSupportedCodecs.append(new QLameCodec);
-	mSupportedCodecs.append(new QFlacCodec);
+	mSupportedCoders.append(new QWaveCoder);
+	mSupportedCoders.append(new QLameCoder);
+	mSupportedCoders.append(new QFlacCoder);
 
 	initializeSearchPaths();
 	testLibraries();
@@ -16,44 +16,44 @@ QCodecManager::QCodecManager()
 
 QCodecManager::~QCodecManager()
 {
-	qDeleteAll(mSupportedCodecs);
-	mSupportedCodecs.clear();
-	mAvailableCodecs.clear();
+	qDeleteAll(mSupportedCoders);
+	mSupportedCoders.clear();
+	mAvailableCoders.clear();
 }
 
 void QCodecManager::testLibraries()
 {
-	for(int i = 0; i < mSupportedCodecs.size(); ++i)
+	for(int i = 0; i < mSupportedCoders.size(); ++i)
 	{
-		if(!isCodecAvailable(mSupportedCodecs[i]))
+		if(!isCoderAvailable(mSupportedCoders[i]))
 		{
-			testLibrary(mSupportedCodecs[i]);
+			testLibrary(mSupportedCoders[i]);
 		}
 	}
 }
 
-void QCodecManager::addFileName(QString codecName, QString name)
+void QCodecManager::addFileName(QString coderName, QString name)
 {
-	QAbstractCodec *codec = codecByName(codecName);
-	if(codec != NULL)
+	QAbstractCoder *coder = coderByName(coderName);
+	if(coder != NULL)
 	{
-		codec->addFileName(name);
-		if(!isCodecAvailable(codec))
+		coder->addFileName(name);
+		if(!isCoderAvailable(coder))
 		{
-			testLibrary(codec);
+			testLibrary(coder);
 		}
 	}
 }
 
-void QCodecManager::addFileExtension(QString codecName, QString extension)
+void QCodecManager::addFileExtension(QString coderName, QString extension)
 {
-	QAbstractCodec *codec = codecByName(codecName);
-	if(codec != NULL)
+	QAbstractCoder *coder = coderByName(coderName);
+	if(coder != NULL)
 	{
-		codec->addFileExtension(extension);
-		if(!isCodecAvailable(codec))
+		coder->addFileExtension(extension);
+		if(!isCoderAvailable(coder))
 		{
-			testLibrary(codec);
+			testLibrary(coder);
 		}
 	}
 }
@@ -74,14 +74,14 @@ QCodecInfo QCodecManager::detect(QByteArray data)
 
 }
 
-QList<QAbstractCodec*> QCodecManager::supportedCodecs()
+QList<QAbstractCoder*> QCodecManager::supportedCoders()
 {
-	return mSupportedCodecs;
+	return mSupportedCoders;
 }
 
-QList<QAbstractCodec*> QCodecManager::availableCodecs()
+QList<QAbstractCoder*> QCodecManager::availableCoders()
 {
-	return mAvailableCodecs;
+	return mAvailableCoders;
 }
 
 void QCodecManager::initializeSearchPaths()
@@ -120,10 +120,10 @@ void QCodecManager::initializeSearchPaths()
 	}
 }
 
-bool QCodecManager::testLibrary(QAbstractCodec *codec)
+bool QCodecManager::testLibrary(QAbstractCoder *coder)
 {
-	QStringList fileNames = codec->fileNames();
-	QStringList fileExtensions = codec->fileExtensions();
+	QStringList fileNames = coder->fileNames();
+	QStringList fileExtensions = coder->fileExtensions();
 	for(int j = 0; j < mSearchPaths.size(); ++j)
 	{
 		QString path = mSearchPaths[j];
@@ -132,10 +132,10 @@ bool QCodecManager::testLibrary(QAbstractCodec *codec)
 			QString fileName = fileNames[k];
 			for(int i = 0; i < fileExtensions.size(); ++i)
 			{
-				if(codec->load(path + fileName + fileExtensions[i]) == QAbstractCodec::NoError || codec->load(path + "lib" + fileName + fileExtensions[i]) == QAbstractCodec::NoError)
+				if(coder->load(path + fileName + fileExtensions[i]) == QAbstractCoder::NoError || coder->load(path + "lib" + fileName + fileExtensions[i]) == QAbstractCoder::NoError)
 				{
-					codec->unload();
-					mAvailableCodecs.append(codec);
+					coder->unload();
+					mAvailableCoders.append(coder);
 					return true;
 				}
 				
@@ -145,11 +145,11 @@ bool QCodecManager::testLibrary(QAbstractCodec *codec)
 	return false;
 }
 
-bool QCodecManager::isCodecAvailable(QAbstractCodec *codec)
+bool QCodecManager::isCoderAvailable(QAbstractCoder *coder)
 {
-	for(int i = 0; i < mAvailableCodecs.size(); ++i)
+	for(int i = 0; i < mAvailableCoders.size(); ++i)
 	{
-		if((*codec) == (*mAvailableCodecs[i]))
+		if((*coder) == (*mAvailableCoders[i]))
 		{
 			return true;
 		}
@@ -157,13 +157,13 @@ bool QCodecManager::isCodecAvailable(QAbstractCodec *codec)
 	return false;
 }
 
-QAbstractCodec* QCodecManager::codecByName(QString name)
+QAbstractCoder* QCodecManager::coderByName(QString name)
 {
-	for(int i = 0; i < mSupportedCodecs.size(); ++i)
+	for(int i = 0; i < mSupportedCoders.size(); ++i)
 	{
-		if(mSupportedCodecs[i]->name().trimmed().toLower() == name.trimmed().toLower())
+		if(mSupportedCoders[i]->name().trimmed().toLower() == name.trimmed().toLower())
 		{
-			return mSupportedCodecs[i];
+			return mSupportedCoders[i];
 		}
 	}
 	return NULL;

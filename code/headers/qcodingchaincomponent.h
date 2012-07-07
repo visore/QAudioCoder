@@ -4,7 +4,7 @@
 #include <QMutex>
 #include <QThread>
 #include <QFile>
-#include <qabstractcodec.h>
+#include <qabstractcoder.h>
 #include <qsharedbuffer.h>
 
 /**********************************************************
@@ -102,11 +102,11 @@ class QCodingChainCoder : public QCodingChainComponent
 	public:
 
 		QCodingChainCoder();
-		void setCodec(QAbstractCodec *codec);
+		void setCoder(QAbstractCoder *coder);
 
 	protected:
 
-		QAbstractCodec *mCodec;
+		QAbstractCoder *mCoder;
 
 };
 

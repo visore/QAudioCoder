@@ -1,23 +1,23 @@
-#ifndef QFLACCODEC_H
-#define QFLACCODEC_H
+#ifndef QFLACCODER_H
+#define QFLACCODER_H
 
-#include <qabstractcodec.h>
+#include <qabstractcoder.h>
 #include <all.h>
 
-class QFlacCodec;
+class QFlacCoder;
 
 struct ExtendedFlacStreamEncoder : FLAC__StreamEncoder
 {
-    QFlacCodec *codec;
+    QFlacCoder *coder;
 };
 
-class QFlacCodec : public QAbstractCodec
+class QFlacCoder : public QAbstractCoder
 {
 
 	public:
 
-		QFlacCodec();
-		~QFlacCodec();
+		QFlacCoder();
+		~QFlacCoder();
 
 		bool initializeEncode();
 		bool finalizeEncode();
@@ -32,10 +32,10 @@ class QFlacCodec : public QAbstractCodec
 		ExtendedFlacStreamEncoder* createExtendedEncoder();
 		static FLAC__StreamEncoderWriteStatus flacWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
 
-		QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
-		void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content);
+		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content);
+		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content);
 
-		QAbstractCodec::Error initializeLibrary();
+		QAbstractCoder::Error initializeLibrary();
 
 
 	private:

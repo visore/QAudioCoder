@@ -2,7 +2,7 @@
 #define QCODECMANAGER_H
 
 #include <qcodecinfo.h>
-#include <qabstractcodec.h>
+#include <qabstractcoder.h>
 
 class QCodecManager
 {
@@ -14,26 +14,26 @@ class QCodecManager
 
 		void testLibraries();
 		void addSearchPath(QString searchPath);
-		void addFileName(QString codecName, QString name);
-		void addFileExtension(QString codecName, QString extension);
+		void addFileName(QString coderName, QString name);
+		void addFileExtension(QString coderName, QString extension);
 
 		QCodecInfo detect(QString filePath);
 		QCodecInfo detect(QByteArray data);
 
-		QList<QAbstractCodec*> supportedCodecs(); //Codecs supported by QAudioCoder
-		QList<QAbstractCodec*> availableCodecs(); //Codecs supported by QAudioCoder and which can be loaded
+		QList<QAbstractCoder*> supportedCoders(); //Coders supported by QAudioCoder
+		QList<QAbstractCoder*> availableCoders(); //Coders supported by QAudioCoder and which can be loaded
 
 	protected:
 
 		void initializeSearchPaths();
-		bool testLibrary(QAbstractCodec *codec);
-		bool isCodecAvailable(QAbstractCodec *codec);
-		QAbstractCodec* codecByName(QString name);
+		bool testLibrary(QAbstractCoder *coder);
+		bool isCoderAvailable(QAbstractCoder *coder);
+		QAbstractCoder* coderByName(QString name);
 
 	private:
 
-		QList<QAbstractCodec*> mSupportedCodecs;
-		QList<QAbstractCodec*> mAvailableCodecs;
+		QList<QAbstractCoder*> mSupportedCoders;
+		QList<QAbstractCoder*> mAvailableCoders;
 		QCodecInfoList mSupported;
 		QStringList mSearchPaths;
 

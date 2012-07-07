@@ -2,7 +2,7 @@
 #define QSAMPLECHANNELCONVERTER_H
 
 #include <qcommon.h>
-#include <qcodecformat.h>
+#include <qextendedaudioformat.h>
 #include <qchannelconverter.h>
 
 class QSampleChannelConverter

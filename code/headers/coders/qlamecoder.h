@@ -1,16 +1,16 @@
-#ifndef QLAMECODEC_H
-#define QLAMECODEC_H
+#ifndef QLAMECODER_H
+#define QLAMECODER_H
 
-#include <qabstractcodec.h>
+#include <qabstractcoder.h>
 #include <qsamplesizeconverter.h>
 #include <lame.h>
 
-class QLameCodec : public QAbstractCodec
+class QLameCoder : public QAbstractCoder
 {
 
 	public:
 
-		QLameCodec();
+		QLameCoder();
 
 		bool initializeEncode();
 		bool finalizeEncode();
@@ -28,12 +28,12 @@ class QLameCodec : public QAbstractCodec
 		void encode16Normal(const void *input, int samples);
 		void encode32Normal(const void *input, int samples);
 
-		QAbstractCodec::Header inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content);
-		void createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content);
+		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content);
+		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content);
 
 		int sequentialFrames(QList<int> positions);
 
-		QAbstractCodec::Error initializeLibrary();
+		QAbstractCoder::Error initializeLibrary();
 
 	private:
 
@@ -73,7 +73,7 @@ class QLameCodec : public QAbstractCodec
 	private:
 
 		QSampleSizeConverter mConverter;
-		void (QLameCodec::*encodePointer)(const void *input, int samples);
+		void (QLameCoder::*encodePointer)(const void *input, int samples);
 
 		lame_t mLameEncoder;
 		hip_t mLameDecoder;

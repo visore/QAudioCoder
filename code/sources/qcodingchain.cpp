@@ -39,15 +39,15 @@ void QCodingChain::run()
 	if(mInput != NULL && mOutput != NULL)
 	{
 		QCodecContent content;
-		mInputCodec = detectCodec(content);
+		mInputCoder = detectCoder(content);
 
-mOutputCodec = mCodecManager.availableCodecs()[1];
+mOutputCoder = mCoderManager.availableCoders()[1];
 
-		if(mInputCodec == NULL)
+		if(mInputCoder == NULL)
 		{
 			cout<<"Input file format not supported!"<<endl;
 		}
-		else if(mOutputCodec == NULL)
+		else if(mOutputCoder == NULL)
 		{
 			cout<<"Output file format not supported!"<<endl;
 		}
@@ -73,28 +73,28 @@ mOutputCodec = mCodecManager.availableCodecs()[1];
 
 
 
-			QCodecFormat format;
+			QExtendedAudioFormat format;
 			format.setSampleSize(16);
 			format.setSampleType(QAudioFormat::SignedInt);
 			format.setSampleRate(44100);
 			format.setChannelCount(2);
-			format.setBitrateMode(QCodecFormat::ConstantBitrate);
+			format.setBitrateMode(QExtendedAudioFormat::VariableBitrate);
 			format.setBitrate(256);
 
-			mOutputCodec->setFormat(QAudio::AudioInput, mInputCodec->format(QAudio::AudioInput));
-			mOutputCodec->setFormat(QAudio::AudioOutput, format);
+			mOutputCoder->setFormat(QAudio::AudioInput, mInputCoder->format(QAudio::AudioInput));
+			mOutputCoder->setFormat(QAudio::AudioOutput, format);
 
-			mDecoder.setCodec(mInputCodec);
-			mEncoder.setCodec(mOutputCodec);
+			mDecoder.setCoder(mInputCoder);
+			mEncoder.setCoder(mOutputCoder);
 
-			mInputCodec->load();
-			mOutputCodec->load();
+			mInputCoder->load();
+			mOutputCoder->load();
 
-			cout << "Input Codec: "<<mInputCodec->name().toAscii().data()<<endl;
-			cout << "Output Codec: "<<mOutputCodec->name().toAscii().data()<<endl;
+			cout << "Input Coder: "<<mInputCoder->name().toAscii().data()<<endl;
+			cout << "Output Coder: "<<mOutputCoder->name().toAscii().data()<<endl;
 
 			QByteArray header;
-			mOutputCodec->createHeader(header, content);
+			mOutputCoder->createHeader(header, content);
 
 			mInput->skipHeader(content.headerSize());
 			mOutput->setHeader(header);
@@ -129,8 +129,8 @@ void QCodingChain::checkFinished()
 		mEncoder.finalize();
 		mOutput->finalize();
 
-		mInputCodec->unload();
-		mOutputCodec->unload();
+		mInputCoder->unload();
+		mOutputCoder->unload();
 
 			mBuffer1.clear();
 			mBuffer2.clear();
@@ -144,10 +144,10 @@ void QCodingChain::checkFinished()
 	}
 }
 
-QAbstractCodec* QCodingChain::detectCodec(QCodecContent &content)
+QAbstractCoder* QCodingChain::detectCoder(QCodecContent &content)
 {
-	QList<QAbstractCodec*> codecs = mCodecManager.availableCodecs();
-	if(codecs.size() == 0)
+	QList<QAbstractCoder*> coders = mCoderManager.availableCoders();
+	if(coders.size() == 0)
 	{
 		return NULL;
 	}
@@ -160,24 +160,24 @@ QAbstractCodec* QCodingChain::detectCodec(QCodecContent &content)
 
 	content.setFileSize(file.size());
 	QByteArray header = file.read(HEADER_SIZE);
-	QAbstractCodec::Header result;
+	QAbstractCoder::Header result;
 	int requests;
 
-	for(int i = 0; i < codecs.size(); ++i)
+	for(int i = 0; i < coders.size(); ++i)
 	{
 		requests = 0;
-		result = codecs[i]->inspectHeader(header, content);
-		while(result == QAbstractCodec::NeedMoreData && requests < MAXIMUM_HEADER_REQUESTS)
+		result = coders[i]->inspectHeader(header, content);
+		while(result == QAbstractCoder::NeedMoreData && requests < MAXIMUM_HEADER_REQUESTS)
 		{
 			++requests;
 			header.append(file.read(HEADER_SIZE));
-			result = codecs[i]->inspectHeader(header, content);
+			result = coders[i]->inspectHeader(header, content);
 		}
 
-		if(result == QAbstractCodec::ValidHeader)
+		if(result == QAbstractCoder::ValidHeader)
 		{
 			file.close();
-			return codecs[i];
+			return coders[i];
 		}
 	}
 	file.close();

@@ -1,10 +1,10 @@
-#include <qlamecodec.h>
+#include <qlamecoder.h>
 #include <qchannelconverter.h>
 
 #define MINIMUM_HEADER_FRAMES 5
 
-QLameCodec::QLameCodec()
-	: QAbstractCodec()
+QLameCoder::QLameCoder()
+	: QAbstractCoder()
 {
 	mName = "Lame";
 
@@ -15,24 +15,24 @@ QLameCodec::QLameCodec()
 	addFileName("lame");
 }
 
-bool QLameCodec::initializeEncode()
+bool QLameCoder::initializeEncode()
 {
-	mError = QAbstractCodec::NoError;
+	mError = QAbstractCoder::NoError;
 
 	mLameEncoder = m_lame_init();
 
-	m_lame_set_in_samplerate(mLameEncoder, mDecoderFormat.sampleRate());
-	m_lame_set_num_channels(mLameEncoder, mDecoderFormat.channelCount());
+	m_lame_set_in_samplerate(mLameEncoder, mInputFormat.sampleRate());
+	m_lame_set_num_channels(mLameEncoder, mInputFormat.channelCount());
 
-	if(mEncoderFormat.bitrateMode() == QCodecFormat::ConstantBitrate)
+	if(mOutputFormat.bitrateMode() == QExtendedAudioFormat::ConstantBitrate)
 	{
 		m_lame_set_VBR(mLameEncoder, vbr_off);
 	}
-	else if(mEncoderFormat.bitrateMode() == QCodecFormat::VariableBitrate)
+	else if(mOutputFormat.bitrateMode() == QExtendedAudioFormat::VariableBitrate)
 	{
 		m_lame_set_VBR(mLameEncoder, vbr_default);
 	}
-	else if(mEncoderFormat.bitrateMode() == QCodecFormat::AverageBitrate)
+	else if(mOutputFormat.bitrateMode() == QExtendedAudioFormat::AverageBitrate)
 	{
 		m_lame_set_VBR(mLameEncoder, vbr_abr);
 	}
@@ -40,14 +40,14 @@ bool QLameCodec::initializeEncode()
 	{
 		m_lame_set_VBR(mLameEncoder, vbr_off);
 	}
-	m_lame_set_VBR_q(mLameEncoder, mEncoderFormat.quality());
-	m_lame_set_VBR_mean_bitrate_kbps(mLameEncoder, mEncoderFormat.bitrate(QCodecFormat::NormalBitrate));
-	m_lame_set_VBR_min_bitrate_kbps(mLameEncoder, mEncoderFormat.bitrate(QCodecFormat::MinimumBitrate));
-	m_lame_set_VBR_max_bitrate_kbps(mLameEncoder, mEncoderFormat.bitrate(QCodecFormat::MaximumBitrate));
+	m_lame_set_VBR_q(mLameEncoder, mOutputFormat.quality());
+	m_lame_set_VBR_mean_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::NormalBitrate));
+	m_lame_set_VBR_min_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::MinimumBitrate));
+	m_lame_set_VBR_max_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::MaximumBitrate));
 
-	m_lame_set_quality(mLameEncoder, mEncoderFormat.quality());
-	m_lame_set_out_samplerate(mLameEncoder, mEncoderFormat.sampleRate());
-	if(mEncoderFormat.channelCount() == 1)
+	m_lame_set_quality(mLameEncoder, mOutputFormat.quality());
+	m_lame_set_out_samplerate(mLameEncoder, mOutputFormat.sampleRate());
+	if(mOutputFormat.channelCount() == 1)
 	{
 		m_lame_set_mode(mLameEncoder, MONO);
 	}
@@ -59,91 +59,128 @@ bool QLameCodec::initializeEncode()
 	m_lame_init_params(mLameEncoder);
 
 
-	int sampleSize = mDecoderFormat.sampleSize();
-	QAudio::SampleType sampleType = QAudio::toAudioSampleType(mDecoderFormat.sampleType());
+	int inputSampleSize = mInputFormat.sampleSize();
+	int outputSampleSize = mOutputFormat.sampleSize();
+	QAudio::SampleType sampleType = QAudio::toAudioSampleType(mInputFormat.sampleType());
+
+	if(outputSampleSize != 16 && outputSampleSize != 32)
+	{
+		if(outputSampleSize < 16) outputSampleSize = 16;
+		else outputSampleSize = 32;
+	}
 
 	if(sampleType == QAudio::Float)
 	{
-		if(mConverter.initialize(16, QAudio::Float, 16, QAudio::SignedInt))
+		if(mConverter.initialize(16, QAudio::Float, outputSampleSize, QAudio::SignedInt))
 		{
-			encodePointer = &QLameCodec::encode16Convert;
+			if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
+			else encodePointer = &QLameCoder::encode32Convert;
 		}
 		else
 		{
-			mError = QAbstractCodec::SampleSizeError;
+			mError = QAbstractCoder::SampleSizeError;
 			return false;
 		}
 	}
 	else if(sampleType == QAudio::Real)
 	{
-		if(mConverter.initialize(32, QAudio::Real, 32, QAudio::SignedInt))
+		if(mConverter.initialize(32, QAudio::Real, outputSampleSize, QAudio::SignedInt))
 		{
-			encodePointer = &QLameCodec::encode32Convert;
+			if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
+			else encodePointer = &QLameCoder::encode32Convert;
 		}
 		else
 		{
-			mError = QAbstractCodec::SampleSizeError;
+			mError = QAbstractCoder::SampleSizeError;
 			return false;
 		}
 	}
 	else if(sampleType == QAudio::SignedInt)
 	{
-		if(sampleSize == 8)
+		if(inputSampleSize == 8)
 		{
-			if(mConverter.initialize(8, QAudio::SignedInt, 16, QAudio::SignedInt))
+			if(mConverter.initialize(8, QAudio::SignedInt, outputSampleSize, QAudio::SignedInt))
 			{
-				encodePointer = &QLameCodec::encode16Convert;
+				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
+				else encodePointer = &QLameCoder::encode32Convert;
 			}
 			else
 			{
-				mError = QAbstractCodec::SampleSizeError;
+				mError = QAbstractCoder::SampleSizeError;
 				return false;
 			}
 		}
-		else if(sampleSize == 16)
+		else if(inputSampleSize == 16)
 		{
-			encodePointer = &QLameCodec::encode16Normal;
+			if(outputSampleSize == 16)
+			{
+				encodePointer = &QLameCoder::encode16Normal;
+			}
+			else if(mConverter.initialize(16, QAudio::SignedInt, outputSampleSize, QAudio::SignedInt))
+			{
+				encodePointer = &QLameCoder::encode32Convert;
+			}
+			else
+			{
+				mError = QAbstractCoder::SampleSizeError;
+				return false;
+			}
 		}
-		else if(sampleSize == 32)
+		else if(inputSampleSize == 32)
 		{
-			encodePointer = &QLameCodec::encode32Normal;
+			if(outputSampleSize == 32)
+			{
+				encodePointer = &QLameCoder::encode32Normal;
+			}
+			else if(mConverter.initialize(32, QAudio::SignedInt, outputSampleSize, QAudio::SignedInt))
+			{
+				encodePointer = &QLameCoder::encode16Convert;
+			}
+			else
+			{
+				mError = QAbstractCoder::SampleSizeError;
+				return false;
+			}
 		}
 	}
 	else if(sampleType == QAudio::UnSignedInt)
 	{
-		if(sampleSize == 8)
+		if(inputSampleSize == 8)
 		{
-			if(mConverter.initialize(8, QAudio::UnSignedInt, 16, QAudio::SignedInt))
+			if(mConverter.initialize(8, QAudio::UnSignedInt, outputSampleSize, QAudio::SignedInt))
 			{
-				encodePointer = &QLameCodec::encode16Convert;
+				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
+				else encodePointer = &QLameCoder::encode32Convert;
 			}
 			else
 			{
-				mError = QAbstractCodec::SampleSizeError;
+				mError = QAbstractCoder::SampleSizeError;
 				return false;
 			}
 		}
-		else if(sampleSize == 16)
+		else if(inputSampleSize == 16)
 		{
-			if(mConverter.initialize(16, QAudio::UnSignedInt, 16, QAudio::SignedInt))
+			if(mConverter.initialize(16, QAudio::UnSignedInt, outputSampleSize, QAudio::SignedInt))
 			{
-				encodePointer = &QLameCodec::encode16Convert;
+				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
+				else encodePointer = &QLameCoder::encode32Convert;
 			}
 			else
 			{
-				mError = QAbstractCodec::SampleSizeError;
+				mError = QAbstractCoder::SampleSizeError;
 				return false;
 			}
 		}
-		else if(sampleSize == 32)
+		else if(inputSampleSize == 32)
 		{
-			if(mConverter.initialize(32, QAudio::UnSignedInt, 32, QAudio::SignedInt))
+			if(mConverter.initialize(32, QAudio::UnSignedInt, outputSampleSize, QAudio::SignedInt))
 			{
-				encodePointer = &QLameCodec::encode32Convert;
+				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
+				else encodePointer = &QLameCoder::encode32Convert;
 			}
 			else
 			{
-				mError = QAbstractCodec::SampleSizeError;
+				mError = QAbstractCoder::SampleSizeError;
 				return false;
 			}
 		}
@@ -152,18 +189,18 @@ bool QLameCodec::initializeEncode()
 	return true;
 }
 
-bool QLameCodec::finalizeEncode()
+bool QLameCoder::finalizeEncode()
 {
 	m_lame_close(mLameEncoder);
 	return true;
 }
 
-void QLameCodec::encode(const void *input, int samples)
+void QLameCoder::encode(const void *input, int samples)
 {
 	(this->*encodePointer)(input, samples);
 }
 
-void QLameCodec::encode16Convert(const void *input, int samples)
+void QLameCoder::encode16Convert(const void *input, int samples)
 {
 	if(samples == 0)
 	{
@@ -181,7 +218,7 @@ void QLameCodec::encode16Convert(const void *input, int samples)
 	}
 }
 
-void QLameCodec::encode32Convert(const void *input, int samples)
+void QLameCoder::encode32Convert(const void *input, int samples)
 {
 	if(samples == 0)
 	{
@@ -202,7 +239,7 @@ void QLameCodec::encode32Convert(const void *input, int samples)
 	}
 }
 
-void QLameCodec::encode16Normal(const void *input, int samples)
+void QLameCoder::encode16Normal(const void *input, int samples)
 {
 	if(samples == 0)
 	{
@@ -217,7 +254,7 @@ void QLameCodec::encode16Normal(const void *input, int samples)
 	}
 }
 
-void QLameCodec::encode32Normal(const void *input, int samples)
+void QLameCoder::encode32Normal(const void *input, int samples)
 {
 	if(samples == 0)
 	{
@@ -236,22 +273,22 @@ void QLameCodec::encode32Normal(const void *input, int samples)
 	}
 }
 
-bool QLameCodec::initializeDecode()
+bool QLameCoder::initializeDecode()
 {
-	mError = QAbstractCodec::NoError;
+	mError = QAbstractCoder::NoError;
 
 	mLameDecoder = m_hip_decode_init();
 
 	return true;
 }
 
-bool QLameCodec::finalizeDecode()
+bool QLameCoder::finalizeDecode()
 {
 	m_hip_decode_exit(mLameDecoder);
 	return true;
 }
 
-void QLameCodec::decode(const void *input, int size)
+void QLameCoder::decode(const void *input, int size)
 {
 /*
 int CDECL hip_decode( hip_t           gfp
@@ -266,7 +303,7 @@ int CDECL hip_decode( hip_t           gfp
 
 }
 
-QAbstractCodec::Header QLameCodec::inspectHeader(const QByteArray &header, QCodecFormat &format, QCodecContent &content)
+QAbstractCoder::Header QLameCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content)
 {
 	/*
 
@@ -317,20 +354,20 @@ QAbstractCodec::Header QLameCodec::inspectHeader(const QByteArray &header, QCode
 				content.setTrailerSize(0);
 				content.setDataSize(mp3Header.nsamp * 2); // * 2 because 16bit data
 
-				return QAbstractCodec::ValidHeader;
+				return QAbstractCoder::ValidHeader;
 			}
 		}
 	}
 
-	return QAbstractCodec::NeedMoreData;
+	return QAbstractCoder::NeedMoreData;
 }
 
-void QLameCodec::createHeader(QByteArray &header, const QCodecFormat &format, QCodecContent &content)
+void QLameCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content)
 {
 
 }
 
-int QLameCodec::sequentialFrames(QList<int> positions)
+int QLameCoder::sequentialFrames(QList<int> positions)
 {
 	int end = positions.size() - 1;
 	int difference = 0;
@@ -355,7 +392,7 @@ int QLameCodec::sequentialFrames(QList<int> positions)
 	return sequential;
 }
 
-QAbstractCodec::Error QLameCodec::initializeLibrary()
+QAbstractCoder::Error QLameCoder::initializeLibrary()
 {
 	QList<bool> loaded;
 	int success = 0;
@@ -413,11 +450,11 @@ QAbstractCodec::Error QLameCodec::initializeLibrary()
 cout<<failure<<endl;
 	if(success == loaded.size())
 	{
-		return QAbstractCodec::NoError;
+		return QAbstractCoder::NoError;
 	}
 	else if(failure == loaded.size())
 	{
-		return QAbstractCodec::LibraryError;
+		return QAbstractCoder::LibraryError;
 	}
-	return QAbstractCodec::VersionError;
+	return QAbstractCoder::VersionError;
 }

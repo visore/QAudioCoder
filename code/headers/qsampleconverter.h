@@ -1,7 +1,7 @@
 #ifndef QSAMPLECONVERTER_H
 #define QSAMPLECONVERTER_H
 
-#include <qcodecformat.h>
+#include <qextendedaudioformat.h>
 #include <qsamplechannelconverter.h>
 #include <qsamplesizeconverter.h>
 #include <qsamplerateconverter.h>
@@ -12,8 +12,8 @@ class QSampleConverter
 	public:
 
 		QSampleConverter();
-		QSampleConverter(QCodecFormat inputFormat, QCodecFormat outputFormat);
-		bool initialize(QCodecFormat inputFormat, QCodecFormat outputFormat);
+		QSampleConverter(QExtendedAudioFormat inputFormat, QExtendedAudioFormat outputFormat);
+		bool initialize(QExtendedAudioFormat inputFormat, QExtendedAudioFormat outputFormat);
 		void* convert(const void *input, int &samples, int &size);
 
 	private:
