@@ -36,7 +36,7 @@ class QCodingChain : public QThread
 		QString mInputFilePath;
 		QString mOutputFilePath;
 
-		QCodecManager mCoderManager;
+		QCoderManager mCoderManager;
 		QAbstractCoder *mInputCoder;
 		QAbstractCoder *mOutputCoder;
 

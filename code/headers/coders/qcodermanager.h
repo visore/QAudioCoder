@@ -4,13 +4,13 @@
 #include <qcodecinfo.h>
 #include <qabstractcoder.h>
 
-class QCodecManager
+class QCoderManager
 {
 
 	public:
 
-		QCodecManager();
-		~QCodecManager();
+		QCoderManager();
+		~QCoderManager();
 
 		void testLibraries();
 		void addSearchPath(QString searchPath);

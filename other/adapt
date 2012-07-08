@@ -3,9 +3,13 @@
 for i in {1..100}
 do
 
-	sed -i 's/QAudio::SampleType/QExtendedAudioFormat::SampleType/' ../code/headers/*.h
-	sed -i 's/QAudio::SampleType/QExtendedAudioFormat::SampleType/' ../code/headers/*/*.h
-	sed -i 's/QAudio::SampleType/QExtendedAudioFormat::SampleType/' ../code/sources/*.cpp
-	sed -i 's/QAudio::SampleType/QExtendedAudioFormat::SampleType/' ../code/sources/*/*.cpp
+	sed -i 's/QCodecManager/QCoderManager/' ../code/headers/*.h
+	sed -i 's/QCODECMANAGER/QCODERMANAGER/' ../code/headers/*/*.h
+	sed -i 's/qcodecmanager/qcodermanager/' ../code/headers/*/*.h
+
+	sed -i 's/QCodecManager/QCoderManager/' ../code/sources/*.cpp
+	sed -i 's/QCODECMANAGER/QCODERMANAGER/' ../code/sources/*/*.cpp
+	sed -i 's/qcodecmanager/qcodermanager/' ../code/sources/*/*.cpp
+
 
 done
