@@ -61,7 +61,7 @@ bool QLameCoder::initializeEncode()
 
 	int inputSampleSize = mInputFormat.sampleSize();
 	int outputSampleSize = mOutputFormat.sampleSize();
-	QAudio::SampleType sampleType = QAudio::toAudioSampleType(mInputFormat.sampleType());
+	QExtendedAudioFormat::SampleType sampleType = mInputFormat.sampleType();
 
 	if(outputSampleSize != 16 && outputSampleSize != 32)
 	{
@@ -69,9 +69,9 @@ bool QLameCoder::initializeEncode()
 		else outputSampleSize = 32;
 	}
 
-	if(sampleType == QAudio::Float)
+	if(sampleType == QExtendedAudioFormat::Float)
 	{
-		if(mConverter.initialize(16, QAudio::Float, outputSampleSize, QAudio::SignedInt))
+		if(mConverter.initialize(16, QExtendedAudioFormat::Float, outputSampleSize, QExtendedAudioFormat::SignedInt))
 		{
 			if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
 			else encodePointer = &QLameCoder::encode32Convert;
@@ -82,9 +82,9 @@ bool QLameCoder::initializeEncode()
 			return false;
 		}
 	}
-	else if(sampleType == QAudio::Real)
+	else if(sampleType == QExtendedAudioFormat::Real)
 	{
-		if(mConverter.initialize(32, QAudio::Real, outputSampleSize, QAudio::SignedInt))
+		if(mConverter.initialize(32, QExtendedAudioFormat::Real, outputSampleSize, QExtendedAudioFormat::SignedInt))
 		{
 			if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
 			else encodePointer = &QLameCoder::encode32Convert;
@@ -95,11 +95,11 @@ bool QLameCoder::initializeEncode()
 			return false;
 		}
 	}
-	else if(sampleType == QAudio::SignedInt)
+	else if(sampleType == QExtendedAudioFormat::SignedInt)
 	{
 		if(inputSampleSize == 8)
 		{
-			if(mConverter.initialize(8, QAudio::SignedInt, outputSampleSize, QAudio::SignedInt))
+			if(mConverter.initialize(8, QExtendedAudioFormat::SignedInt, outputSampleSize, QExtendedAudioFormat::SignedInt))
 			{
 				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
 				else encodePointer = &QLameCoder::encode32Convert;
@@ -116,7 +116,7 @@ bool QLameCoder::initializeEncode()
 			{
 				encodePointer = &QLameCoder::encode16Normal;
 			}
-			else if(mConverter.initialize(16, QAudio::SignedInt, outputSampleSize, QAudio::SignedInt))
+			else if(mConverter.initialize(16, QExtendedAudioFormat::SignedInt, outputSampleSize, QExtendedAudioFormat::SignedInt))
 			{
 				encodePointer = &QLameCoder::encode32Convert;
 			}
@@ -132,7 +132,7 @@ bool QLameCoder::initializeEncode()
 			{
 				encodePointer = &QLameCoder::encode32Normal;
 			}
-			else if(mConverter.initialize(32, QAudio::SignedInt, outputSampleSize, QAudio::SignedInt))
+			else if(mConverter.initialize(32, QExtendedAudioFormat::SignedInt, outputSampleSize, QExtendedAudioFormat::SignedInt))
 			{
 				encodePointer = &QLameCoder::encode16Convert;
 			}
@@ -143,11 +143,11 @@ bool QLameCoder::initializeEncode()
 			}
 		}
 	}
-	else if(sampleType == QAudio::UnSignedInt)
+	else if(sampleType == QExtendedAudioFormat::UnSignedInt)
 	{
 		if(inputSampleSize == 8)
 		{
-			if(mConverter.initialize(8, QAudio::UnSignedInt, outputSampleSize, QAudio::SignedInt))
+			if(mConverter.initialize(8, QExtendedAudioFormat::UnSignedInt, outputSampleSize, QExtendedAudioFormat::SignedInt))
 			{
 				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
 				else encodePointer = &QLameCoder::encode32Convert;
@@ -160,7 +160,7 @@ bool QLameCoder::initializeEncode()
 		}
 		else if(inputSampleSize == 16)
 		{
-			if(mConverter.initialize(16, QAudio::UnSignedInt, outputSampleSize, QAudio::SignedInt))
+			if(mConverter.initialize(16, QExtendedAudioFormat::UnSignedInt, outputSampleSize, QExtendedAudioFormat::SignedInt))
 			{
 				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
 				else encodePointer = &QLameCoder::encode32Convert;
@@ -173,7 +173,7 @@ bool QLameCoder::initializeEncode()
 		}
 		else if(inputSampleSize == 32)
 		{
-			if(mConverter.initialize(32, QAudio::UnSignedInt, outputSampleSize, QAudio::SignedInt))
+			if(mConverter.initialize(32, QExtendedAudioFormat::UnSignedInt, outputSampleSize, QExtendedAudioFormat::SignedInt))
 			{
 				if(outputSampleSize == 16) encodePointer = &QLameCoder::encode16Convert;
 				else encodePointer = &QLameCoder::encode32Convert;

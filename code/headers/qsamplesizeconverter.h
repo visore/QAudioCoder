@@ -2,6 +2,7 @@
 #define QSAMPLESIZECONVERTER_H
 
 #include <qcommon.h>
+#include <qextendedaudioformat.h>
 
 class QSampleSizeConverter
 {
@@ -9,8 +10,8 @@ class QSampleSizeConverter
 	public:
 
 		QSampleSizeConverter();
-		QSampleSizeConverter(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType);
-		bool initialize(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType);
+		QSampleSizeConverter(int inputSize, QExtendedAudioFormat::SampleType inputType, int outputSize, QExtendedAudioFormat::SampleType outputType);
+		bool initialize(int inputSize, QExtendedAudioFormat::SampleType inputType, int outputSize, QExtendedAudioFormat::SampleType outputType);
 		void (*convert)(const void *input, void *output, int samples);
 
 		/**********************************************************************

@@ -8,6 +8,16 @@ class QExtendedAudioFormat : public QAudioFormat
 
 	public:
 
+		enum SampleType
+		{
+			Unknown = 0,
+			SignedInt = 1,
+			UnSignedInt = 2,
+			Float = 3,
+			Double = 4,
+			Real = Double
+		};
+
 		enum BitrateMode
 		{
 			ConstantBitrate = 0,
@@ -38,6 +48,9 @@ class QExtendedAudioFormat : public QAudioFormat
 
 		QExtendedAudioFormat();
 
+		QExtendedAudioFormat::SampleType sampleType();
+		void setSampleType(QExtendedAudioFormat::SampleType type);
+
 		QExtendedAudioFormat::BitrateMode bitrateMode();
 		void setBitrateMode(QExtendedAudioFormat::BitrateMode mode);
 
@@ -49,6 +62,7 @@ class QExtendedAudioFormat : public QAudioFormat
 
 	private:
 
+		QExtendedAudioFormat::SampleType mSampleType;
 		QExtendedAudioFormat::BitrateMode mBitrateMode;
 		int mNormalBitrate;
 		int mMinimumBitrate;

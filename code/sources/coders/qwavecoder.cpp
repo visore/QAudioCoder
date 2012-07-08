@@ -38,12 +38,12 @@ QAbstractCoder::Header QWaveCoder::inspectHeader(const QByteArray &header, QExte
 	if(QString(data4).toLower() == "riff")
 	{
 		stream.setByteOrder(QDataStream::LittleEndian);
-		format.setByteOrder(QAudioFormat::LittleEndian);
+		format.setByteOrder(QExtendedAudioFormat::LittleEndian);
 	}
 	else if(QString(data4).toLower() == "rifx")
 	{
 		stream.setByteOrder(QDataStream::BigEndian);
-		format.setByteOrder(QAudioFormat::BigEndian);
+		format.setByteOrder(QExtendedAudioFormat::BigEndian);
 	}
 	else
 	{
@@ -107,7 +107,7 @@ QAbstractCoder::Header QWaveCoder::inspectHeader(const QByteArray &header, QExte
 	content.setTrailerSize(0);
 	content.setDataSize(content.fileSize() - 44);
 
-	format.setSampleType(QAudioFormat::SignedInt);	
+	format.setSampleType(QExtendedAudioFormat::SignedInt);	
 
 	return QAbstractCoder::ValidHeader;
 }
@@ -116,12 +116,12 @@ void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &fo
 {
 	QDataStream stream((QByteArray*) &header, QIODevice::WriteOnly);
 
-	if(format.byteOrder() == QAudioFormat::LittleEndian)
+	if(format.byteOrder() == QExtendedAudioFormat::LittleEndian)
 	{
 		stream.setByteOrder(QDataStream::LittleEndian);
 		stream << qint8('R') << qint8('I') << qint8('F') << qint8('F');
 	}
-	else if(format.byteOrder() == QAudioFormat::BigEndian)
+	else if(format.byteOrder() == QExtendedAudioFormat::BigEndian)
 	{
 		stream.setByteOrder(QDataStream::BigEndian);
 		stream << qint8('R') << qint8('I') << qint8('F') << qint8('X');
@@ -164,8 +164,8 @@ bool QWaveCoder::initializeEncode()
 {
 	int inSize = mInputFormat.sampleSize();
 	int outSize = mOutputFormat.sampleSize();
-	QAudioFormat::SampleType inType = mInputFormat.sampleType();
-	QAudioFormat::SampleType outType = mOutputFormat.sampleType();
+	QExtendedAudioFormat::SampleType inType = mInputFormat.sampleType();
+	QExtendedAudioFormat::SampleType outType = mOutputFormat.sampleType();
 
 	if(!(inSize == 8 || inSize == 16 || inSize == 32) && !(outSize == 8 || outSize == 16 || outSize == 32))
 	{
@@ -173,7 +173,7 @@ bool QWaveCoder::initializeEncode()
 		return false;
 	}
 
-	if(inType == QAudioFormat::Unknown || outType == QAudioFormat::Unknown)
+	if(inType == QExtendedAudioFormat::Unknown || outType == QExtendedAudioFormat::Unknown)
 	{
 		mError = QAbstractCoder::SampleTypeError;
 		return false;

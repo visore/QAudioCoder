@@ -39,19 +39,19 @@ bool QSampleConverter::initialize(QExtendedAudioFormat inputFormat, QExtendedAud
 	int outputChannels = outputFormat.channelCount();
 	int inputRate = inputFormat.sampleRate();
 	int outputRate = outputFormat.sampleRate();
-	QAudio::SampleType inputType = QAudio::toAudioSampleType(inputFormat.sampleType());
-	QAudio::SampleType outputType = QAudio::toAudioSampleType(outputFormat.sampleType());
+	QExtendedAudioFormat::SampleType inputType = inputFormat.sampleType();
+	QExtendedAudioFormat::SampleType outputType = outputFormat.sampleType();
 
-	if(inputFormat.sampleType() == QAudioFormat::Float)
+	if(inputFormat.sampleType() == QExtendedAudioFormat::Float)
 	{
 		inputSize = 32;
 	}
-	if(outputFormat.sampleType() == QAudioFormat::Float)
+	if(outputFormat.sampleType() == QExtendedAudioFormat::Float)
 	{
 		outputSize = 32;
 	}
 
-	if(mFloatConverter.initialize(inputSize, inputType, floatBits, QAudio::Float))
+	if(mFloatConverter.initialize(inputSize, inputType, floatBits, QExtendedAudioFormat::Float))
 	{
 		mFloatSampleSize = inputSize / 8;
 		mFloatDifference = floatBits / qreal(inputSize);
@@ -71,7 +71,7 @@ bool QSampleConverter::initialize(QExtendedAudioFormat inputFormat, QExtendedAud
 		return false;
 	}
 
-	if(mSizeConverter.initialize(floatBits, QAudio::Float, outputSize, outputType))
+	if(mSizeConverter.initialize(floatBits, QExtendedAudioFormat::Float, outputSize, outputType))
 	{
 		mSizeSampleSize = floatBits / 8;
 		mSizeDifference = outputSize / qreal(floatBits);

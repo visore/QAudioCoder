@@ -5,13 +5,13 @@ QSampleChannelConverter::QSampleChannelConverter()
 	convert = NULL;
 }
 
-QSampleChannelConverter::QSampleChannelConverter(int inputChannels, int outputChannels, QAudio::SampleType sampleType, int sampleSize)
+QSampleChannelConverter::QSampleChannelConverter(int inputChannels, int outputChannels, QExtendedAudioFormat::SampleType sampleType, int sampleSize)
 {
 	QSampleChannelConverter();
 	initialize(inputChannels, outputChannels, sampleType, sampleSize);
 }
 
-bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, QAudio::SampleType sampleType, int sampleSize)
+bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, QExtendedAudioFormat::SampleType sampleType, int sampleSize)
 {
 	convert = NULL;
 
@@ -19,21 +19,21 @@ bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, 
 	{
 		if(outputChannels == 1)
 		{
-			if(sampleType == QAudio::Float)
+			if(sampleType == QExtendedAudioFormat::Float)
 			{
 				convert = &QChannelConverter<qfloat>::convertMonoToMono;
 			}
-			else if(sampleType == QAudio::Real)
+			else if(sampleType == QExtendedAudioFormat::Real)
 			{
 				convert = &QChannelConverter<qreal>::convertMonoToMono;
 			}
-			else if(sampleType == QAudio::SignedInt)
+			else if(sampleType == QExtendedAudioFormat::SignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8s>::convertMonoToMono;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16s>::convertMonoToMono;
 				else if(sampleSize == 32) convert = &QChannelConverter<qbyte32s>::convertMonoToMono;
 			}
-			else if(sampleType == QAudio::UnSignedInt)
+			else if(sampleType == QExtendedAudioFormat::UnSignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8u>::convertMonoToMono;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16u>::convertMonoToMono;
@@ -42,21 +42,21 @@ bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, 
 		}
 		else if(outputChannels == 2)
 		{
-			if(sampleType == QAudio::Float)
+			if(sampleType == QExtendedAudioFormat::Float)
 			{
 				convert = &QChannelConverter<qfloat>::convertMonoToStereo;
 			}
-			else if(sampleType == QAudio::Real)
+			else if(sampleType == QExtendedAudioFormat::Real)
 			{
 				convert = &QChannelConverter<qreal>::convertMonoToStereo;
 			}
-			else if(sampleType == QAudio::SignedInt)
+			else if(sampleType == QExtendedAudioFormat::SignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8s>::convertMonoToStereo;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16s>::convertMonoToStereo;
 				else if(sampleSize == 32) convert = &QChannelConverter<qbyte32s>::convertMonoToStereo;
 			}
-			else if(sampleType == QAudio::UnSignedInt)
+			else if(sampleType == QExtendedAudioFormat::UnSignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8u>::convertMonoToStereo;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16u>::convertMonoToStereo;
@@ -68,21 +68,21 @@ bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, 
 	{
 		if(outputChannels == 1)
 		{
-			if(sampleType == QAudio::Float)
+			if(sampleType == QExtendedAudioFormat::Float)
 			{
 				convert = &QChannelConverter<qfloat>::convertStereoToMono;
 			}
-			else if(sampleType == QAudio::Real)
+			else if(sampleType == QExtendedAudioFormat::Real)
 			{
 				convert = &QChannelConverter<qreal>::convertStereoToMono;
 			}
-			else if(sampleType == QAudio::SignedInt)
+			else if(sampleType == QExtendedAudioFormat::SignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8s>::convertStereoToMono;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16s>::convertStereoToMono;
 				else if(sampleSize == 32) convert = &QChannelConverter<qbyte32s>::convertStereoToMono;
 			}
-			else if(sampleType == QAudio::UnSignedInt)
+			else if(sampleType == QExtendedAudioFormat::UnSignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8u>::convertStereoToMono;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16u>::convertStereoToMono;
@@ -91,21 +91,21 @@ bool QSampleChannelConverter::initialize(int inputChannels, int outputChannels, 
 		}
 		else if(outputChannels == 2)
 		{
-			if(sampleType == QAudio::Float)
+			if(sampleType == QExtendedAudioFormat::Float)
 			{
 				convert = &QChannelConverter<qfloat>::convertStereoToStereo;
 			}
-			else if(sampleType == QAudio::Real)
+			else if(sampleType == QExtendedAudioFormat::Real)
 			{
 				convert = &QChannelConverter<qreal>::convertStereoToStereo;
 			}
-			else if(sampleType == QAudio::SignedInt)
+			else if(sampleType == QExtendedAudioFormat::SignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8s>::convertStereoToStereo;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16s>::convertStereoToStereo;
 				else if(sampleSize == 32) convert = &QChannelConverter<qbyte32s>::convertStereoToStereo;
 			}
-			else if(sampleType == QAudio::UnSignedInt)
+			else if(sampleType == QExtendedAudioFormat::UnSignedInt)
 			{
 				if(sampleSize == 8) convert = &QChannelConverter<qbyte8u>::convertStereoToStereo;
 				else if(sampleSize == 16) convert = &QChannelConverter<qbyte16u>::convertStereoToStereo;

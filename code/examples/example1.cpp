@@ -1,4 +1,6 @@
 #include <qaudiocoder.h>
+#include <qmp3codec.h>
+#include <qflaccodec.h>
 #include <QApplication>
 #include <QMainWindow>
 
@@ -22,6 +24,12 @@ format.setBitrate(128);
 QAudioCoder coder;
 coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);
 //coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.mp3", format);
+
+QMp3Codec codec = QMp3Codec::instance();
+QMp3Codec codec2 = QMp3Codec::instance();
+
+QFlacCodec codec3 = QFlacCodec::instance();
+QFlacCodec codec4 = QFlacCodec::instance();
 
 QMainWindow w;
 w.show();

@@ -75,7 +75,7 @@ mOutputCoder = mCoderManager.availableCoders()[1];
 
 			QExtendedAudioFormat format;
 			format.setSampleSize(16);
-			format.setSampleType(QAudioFormat::SignedInt);
+			format.setSampleType(QExtendedAudioFormat::SignedInt);
 			format.setSampleRate(44100);
 			format.setChannelCount(2);
 			format.setBitrateMode(QExtendedAudioFormat::VariableBitrate);

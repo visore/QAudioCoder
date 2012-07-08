@@ -3,11 +3,22 @@
 QExtendedAudioFormat::QExtendedAudioFormat()
 	: QAudioFormat()
 {
+	mSampleType = QExtendedAudioFormat::Unknown;
 	mBitrateMode = QExtendedAudioFormat::ConstantBitrate;
 	mNormalBitrate = 0;
 	mMinimumBitrate = 0;
 	mMaximumBitrate = 0;
 	mQuality = QExtendedAudioFormat::Average;
+}
+
+QExtendedAudioFormat::SampleType QExtendedAudioFormat::sampleType()
+{
+	return mSampleType;
+}
+
+void QExtendedAudioFormat::setSampleType(QExtendedAudioFormat::SampleType type)
+{
+	mSampleType = type;
 }
 
 QExtendedAudioFormat::BitrateMode QExtendedAudioFormat::bitrateMode()

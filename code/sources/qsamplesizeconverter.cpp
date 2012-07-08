@@ -26,18 +26,18 @@ QSampleSizeConverter::QSampleSizeConverter()
 	convert = NULL;
 }
 
-QSampleSizeConverter::QSampleSizeConverter(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType)
+QSampleSizeConverter::QSampleSizeConverter(int inputSize, QExtendedAudioFormat::SampleType inputType, int outputSize, QExtendedAudioFormat::SampleType outputType)
 {
 	QSampleSizeConverter();
 	initialize(inputSize, inputType, outputSize, outputType);
 }
 
-bool QSampleSizeConverter::initialize(int inputSize, QAudio::SampleType inputType, int outputSize, QAudio::SampleType outputType)
+bool QSampleSizeConverter::initialize(int inputSize, QExtendedAudioFormat::SampleType inputType, int outputSize, QExtendedAudioFormat::SampleType outputType)
 {
 	convert = NULL;
-	if(inputType == QAudio::SignedInt)
+	if(inputType == QExtendedAudioFormat::SignedInt)
 	{
-		if(outputType == QAudio::SignedInt)
+		if(outputType == QExtendedAudioFormat::SignedInt)
 		{
 			if(inputSize == 8)
 			{
@@ -58,7 +58,7 @@ bool QSampleSizeConverter::initialize(int inputSize, QAudio::SampleType inputTyp
 				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32sTo32s;
 			}
 		}
-		else if(outputType == QAudio::UnSignedInt)
+		else if(outputType == QExtendedAudioFormat::UnSignedInt)
 		{
 			if(inputSize == 8)
 			{
@@ -79,22 +79,22 @@ bool QSampleSizeConverter::initialize(int inputSize, QAudio::SampleType inputTyp
 				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32sTo32u;
 			}
 		}
-		else if(outputType == QAudio::Float)
+		else if(outputType == QExtendedAudioFormat::Float)
 		{
 			if(inputSize == 8) convert = &QSampleSizeConverter::convert8sToFloat;
 			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16sToFloat;
 			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32sToFloat;
 		}
-		else if(outputType == QAudio::Real)
+		else if(outputType == QExtendedAudioFormat::Real)
 		{
 			if(inputSize == 8) convert = &QSampleSizeConverter::convert8sToReal;
 			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16sToReal;
 			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32sToReal;
 		}
 	}
-	else if(inputType == QAudio::UnSignedInt)
+	else if(inputType == QExtendedAudioFormat::UnSignedInt)
 	{
-		if(outputType == QAudio::SignedInt)
+		if(outputType == QExtendedAudioFormat::SignedInt)
 		{
 			if(inputSize == 8)
 			{
@@ -115,7 +115,7 @@ bool QSampleSizeConverter::initialize(int inputSize, QAudio::SampleType inputTyp
 				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32uTo32s;
 			}
 		}
-		else if(outputType == QAudio::UnSignedInt)
+		else if(outputType == QExtendedAudioFormat::UnSignedInt)
 		{
 			if(inputSize == 8)
 			{
@@ -136,61 +136,61 @@ bool QSampleSizeConverter::initialize(int inputSize, QAudio::SampleType inputTyp
 				else if(outputSize == 32) convert = &QSampleSizeConverter::convert32uTo32u;
 			}
 		}
-		else if(outputType == QAudio::Float)
+		else if(outputType == QExtendedAudioFormat::Float)
 		{
 			if(inputSize == 8) convert = &QSampleSizeConverter::convert8uToFloat;
 			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16uToFloat;
 			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32uToFloat;
 		}
-		else if(outputType == QAudio::Real)
+		else if(outputType == QExtendedAudioFormat::Real)
 		{
 			if(inputSize == 8) convert = &QSampleSizeConverter::convert8uToReal;
 			else if(inputSize == 16) convert = &QSampleSizeConverter::convert16uToReal;
 			else if(inputSize == 32) convert = &QSampleSizeConverter::convert32uToReal;
 		}
 	}
-	else if(inputType == QAudio::Float)
+	else if(inputType == QExtendedAudioFormat::Float)
 	{
-		if(outputType == QAudio::SignedInt)
+		if(outputType == QExtendedAudioFormat::SignedInt)
 		{
 			if(outputSize == 8) convert = &QSampleSizeConverter::convertFloatTo8s;
 			else if(outputSize == 16) convert = &QSampleSizeConverter::convertFloatTo16s;
 			else if(outputSize == 32) convert = &QSampleSizeConverter::convertFloatTo32s;
 		}
-		else if(outputType == QAudio::UnSignedInt)
+		else if(outputType == QExtendedAudioFormat::UnSignedInt)
 		{
 			if(outputSize == 8) convert = &QSampleSizeConverter::convertFloatTo8u;
 			else if(outputSize == 16) convert = &QSampleSizeConverter::convertFloatTo16u;
 			else if(outputSize == 32) convert = &QSampleSizeConverter::convertFloatTo32u;
 		}
-		else if(outputType == QAudio::Float)
+		else if(outputType == QExtendedAudioFormat::Float)
 		{
 			convert = &QSampleSizeConverter::convertFloatToReal;
 		}
-		else if(outputType == QAudio::Real)
+		else if(outputType == QExtendedAudioFormat::Real)
 		{
 			convert = &QSampleSizeConverter::convertFloatToFloat;
 		}
 	}
-	else if(inputType == QAudio::Real)
+	else if(inputType == QExtendedAudioFormat::Real)
 	{
-		if(outputType == QAudio::SignedInt)
+		if(outputType == QExtendedAudioFormat::SignedInt)
 		{
 			if(outputSize == 8) convert = &QSampleSizeConverter::convertRealTo8s;
 			else if(outputSize == 16) convert = &QSampleSizeConverter::convertRealTo16s;
 			else if(outputSize == 32) convert = &QSampleSizeConverter::convertRealTo32s;
 		}
-		else if(outputType == QAudio::UnSignedInt)
+		else if(outputType == QExtendedAudioFormat::UnSignedInt)
 		{
 			if(outputSize == 8) convert = &QSampleSizeConverter::convertRealTo8u;
 			else if(outputSize == 16) convert = &QSampleSizeConverter::convertRealTo16u;
 			else if(outputSize == 32) convert = &QSampleSizeConverter::convertRealTo32u;
 		}
-		else if(outputType == QAudio::Float)
+		else if(outputType == QExtendedAudioFormat::Float)
 		{
 			convert = &QSampleSizeConverter::convertRealToFloat;
 		}
-		else if(outputType == QAudio::Real)
+		else if(outputType == QExtendedAudioFormat::Real)
 		{
 			convert = &QSampleSizeConverter::convertRealToReal;
 		}
