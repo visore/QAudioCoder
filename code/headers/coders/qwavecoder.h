@@ -25,8 +25,8 @@ class QWaveCoder : public QAbstractCoder
 
 	protected:
 
-		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content);
-		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content);
+		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content);
+		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content);
 
 		QAbstractCoder::Error initializeLibrary();
 		short toShort(char data[]);

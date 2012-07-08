@@ -1,27 +1,27 @@
-#ifndef QCODECMANAGER_H
-#define QCODECMANAGER_H
+#ifndef QAUDIOMANAGER_H
+#define QAUDIOMANAGER_H
 
-#include <qcodecinfo.h>
 #include <qabstractcoder.h>
-
-class QCoderManager
+#include <qaudiocodec.h>
+/*
+class QAudioManager
 {
 
 	public:
 
-		QCoderManager();
-		~QCoderManager();
+		QAudioManager();
+		~QAudioManager();
 
 		void testLibraries();
 		void addSearchPath(QString searchPath);
 		void addFileName(QString coderName, QString name);
 		void addFileExtension(QString coderName, QString extension);
 
-		QCodecInfo detect(QString filePath);
-		QCodecInfo detect(QByteArray data);
+		QAudioCodec& detectCodec(QString filePath);
+		QAbstractCoder& detectCoder(QString filePath);
 
-		QList<QAbstractCoder*> supportedCoders(); //Coders supported by QAudioCoder
-		QList<QAbstractCoder*> availableCoders(); //Coders supported by QAudioCoder and which can be loaded
+		QList<QAudioCodec> supportedCodecs(); //Supported codecs that can not necessarily be used
+		QList<QAudioCodec> availableCodecs(); //Supported codecs that can be used
 
 	protected:
 
@@ -37,6 +37,6 @@ class QCoderManager
 		QCodecInfoList mSupported;
 		QStringList mSearchPaths;
 
-};
+};*/
 
 #endif

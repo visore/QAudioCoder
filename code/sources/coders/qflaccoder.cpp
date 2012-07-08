@@ -1,13 +1,14 @@
 #include <qflaccoder.h>
+#include <qflaccodec.h>
 
 QFlacCoder::QFlacCoder()
 	: QAbstractCoder()
 {
 	mName = "Flac";
-	
 	addFileName("FLAC");
 	addFileName("flac");
 	addFileName("Flac");
+	mSupportedCodecs.append(QFlacCodec::instance());
 
 	mEncoder = NULL;
 }
@@ -128,12 +129,12 @@ FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallback(const FLAC__StreamE
 	emit extended->coder->encoded(new QSampleArray((qbyte*) buffer, numberOfBytes, numberOfSamples));
 }
 
-QAbstractCoder::Header QFlacCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content)
+QAbstractCoder::Header QFlacCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content)
 {
 
 }
 
-void QFlacCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content)
+void QFlacCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
 {
 
 }

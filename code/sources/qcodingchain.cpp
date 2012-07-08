@@ -36,9 +36,9 @@ void QCodingChain::setOutputFilePath(QString filePath)
 
 void QCodingChain::run()
 {
-	if(mInput != NULL && mOutput != NULL)
+	/*if(mInput != NULL && mOutput != NULL)
 	{
-		QCodecContent content;
+		QAudioInfo content;
 		mInputCoder = detectCoder(content);
 
 mOutputCoder = mCoderManager.availableCoders()[1];
@@ -109,7 +109,7 @@ mOutputCoder = mCoderManager.availableCoders()[1];
 
 			mInput->start();
 		}
-	}
+	}*/
 }
 
 void QCodingChain::inputFinished()
@@ -144,9 +144,9 @@ void QCodingChain::checkFinished()
 	}
 }
 
-QAbstractCoder* QCodingChain::detectCoder(QCodecContent &content)
+QAbstractCoder* QCodingChain::detectCoder(QAudioInfo &content)
 {
-	QList<QAbstractCoder*> coders = mCoderManager.availableCoders();
+	/*QList<QAbstractCoder*> coders = mCoderManager.availableCoders();
 	if(coders.size() == 0)
 	{
 		return NULL;
@@ -181,5 +181,5 @@ QAbstractCoder* QCodingChain::detectCoder(QCodecContent &content)
 		}
 	}
 	file.close();
-	return NULL;
+	return NULL;*/
 }

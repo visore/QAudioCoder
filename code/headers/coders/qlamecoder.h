@@ -28,8 +28,8 @@ class QLameCoder : public QAbstractCoder
 		void encode16Normal(const void *input, int samples);
 		void encode32Normal(const void *input, int samples);
 
-		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content);
-		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content);
+		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content);
+		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content);
 
 		int sequentialFrames(QList<int> positions);
 

@@ -1,5 +1,25 @@
 #include <qmp3codec.h>
 
+QByteArray QMp3Codec::createHeader(const QExtendedAudioFormat &format, const QAudioInfo &info)
+{
+
+}
+
+QByteArray QMp3Codec::createTrailer(const QExtendedAudioFormat &format, const QAudioInfo &info)
+{
+	return QByteArray();
+}
+
+Qt::Validity QMp3Codec::interpretHeader(const QByteArray &data, QExtendedAudioFormat &format, QAudioInfo &info)
+{
+
+}
+
+Qt::Validity QMp3Codec::interpretTrailer(const QByteArray &data, QExtendedAudioFormat &format, QAudioInfo &info)
+{
+	return Qt::Invalid;
+}
+
 void QMp3Codec::initialize()
 {
 	//Names

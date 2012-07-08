@@ -1,4 +1,5 @@
 #include <qwavecoder.h>
+#include <qwavecodec.h>
 #include <qsamplesizeconverter.h>
 #include <QDataStream>
 
@@ -7,6 +8,7 @@ QWaveCoder::QWaveCoder()
 {
 	mName = "Wave";
 	addFileName("");
+	mSupportedCodecs.append(QWaveCodec::instance());
 }
 
 QAbstractCoder::Error QWaveCoder::load()
@@ -24,7 +26,7 @@ bool QWaveCoder::unload()
 	return true;
 }
 
-QAbstractCoder::Header QWaveCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content)
+QAbstractCoder::Header QWaveCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content)
 {
 	QDataStream stream((QByteArray*) &header, QIODevice::ReadOnly);
 	char data2[2];
@@ -102,17 +104,17 @@ QAbstractCoder::Header QWaveCoder::inspectHeader(const QByteArray &header, QExte
 	format.setSampleSize(sampleSize);
 
 	content.setSamples((chunkSize - 36) / (format.sampleSize() / 8));
-	content.setFileSize(chunkSize + 8);
+	content.setSize(chunkSize + 8);
 	content.setHeaderSize(44);
 	content.setTrailerSize(0);
-	content.setDataSize(content.fileSize() - 44);
+	content.setDataSize(content.size() - 44);
 
 	format.setSampleType(QExtendedAudioFormat::SignedInt);	
 
 	return QAbstractCoder::ValidHeader;
 }
 
-void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content)
+void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
 {
 	QDataStream stream((QByteArray*) &header, QIODevice::WriteOnly);
 
@@ -126,7 +128,7 @@ void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &fo
 		stream.setByteOrder(QDataStream::BigEndian);
 		stream << qint8('R') << qint8('I') << qint8('F') << qint8('X');
 	}
-	stream << int(content.fileSize() - 8);
+	stream << int(content.size() - 8);
 	stream << qint8('W') << qint8('A') << qint8('V') << qint8('E');
 	
 	stream << qint8('f') << qint8('m') << qint8('t') << qint8(' ');

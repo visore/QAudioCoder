@@ -3,13 +3,15 @@
 for i in {1..100}
 do
 
-	sed -i 's/QCodecManager/QCoderManager/' ../code/headers/*.h
-	sed -i 's/QCODECMANAGER/QCODERMANAGER/' ../code/headers/*/*.h
-	sed -i 's/qcodecmanager/qcodermanager/' ../code/headers/*/*.h
+	sed -i 's/QCodecContent/QAudioInfo/' ../code/headers/*/*.h
+	sed -i 's/qcodeccontent/qaudioinfo/' ../code/headers/*/*.h
+	sed -i 's/QCodecContent/QAudioInfo/' ../code/headers/*.h
+	sed -i 's/qcodeccontent/qaudioinfo/' ../code/headers/*.h
 
-	sed -i 's/QCodecManager/QCoderManager/' ../code/sources/*.cpp
-	sed -i 's/QCODECMANAGER/QCODERMANAGER/' ../code/sources/*/*.cpp
-	sed -i 's/qcodecmanager/qcodermanager/' ../code/sources/*/*.cpp
+	sed -i 's/QCodecContent/QAudioInfo/' ../code/sources/*/*.cpp
+	sed -i 's/qcodeccontent/qaudioinfo/' ../code/sources/*/*.cpp
+	sed -i 's/QCodecContent/QAudioInfo/' ../code/sources/*.cpp
+	sed -i 's/qcodeccontent/qaudioinfo/' ../code/sources/*.cpp
 
 
 done

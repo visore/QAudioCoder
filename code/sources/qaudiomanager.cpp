@@ -1,10 +1,10 @@
-#include <qcodecmanager.h>
+#include <qaudiomanager.h>
 #include <qwavecoder.h>
 #include <qlamecoder.h>
 #include <qflaccoder.h>
 #include <QDir>
-
-QCoderManager::QCoderManager()
+/*
+QAudioManager::QAudioManager()
 {
 	mSupportedCoders.append(new QWaveCoder);
 	mSupportedCoders.append(new QLameCoder);
@@ -14,14 +14,14 @@ QCoderManager::QCoderManager()
 	testLibraries();
 }
 
-QCoderManager::~QCoderManager()
+QAudioManager::~QAudioManager()
 {
 	qDeleteAll(mSupportedCoders);
 	mSupportedCoders.clear();
 	mAvailableCoders.clear();
 }
 
-void QCoderManager::testLibraries()
+void QAudioManager::testLibraries()
 {
 	for(int i = 0; i < mSupportedCoders.size(); ++i)
 	{
@@ -32,7 +32,7 @@ void QCoderManager::testLibraries()
 	}
 }
 
-void QCoderManager::addFileName(QString coderName, QString name)
+void QAudioManager::addFileName(QString coderName, QString name)
 {
 	QAbstractCoder *coder = coderByName(coderName);
 	if(coder != NULL)
@@ -45,7 +45,7 @@ void QCoderManager::addFileName(QString coderName, QString name)
 	}
 }
 
-void QCoderManager::addFileExtension(QString coderName, QString extension)
+void QAudioManager::addFileExtension(QString coderName, QString extension)
 {
 	QAbstractCoder *coder = coderByName(coderName);
 	if(coder != NULL)
@@ -58,33 +58,33 @@ void QCoderManager::addFileExtension(QString coderName, QString extension)
 	}
 }
 
-void QCoderManager::addSearchPath(QString searchPath)
+void QAudioManager::addSearchPath(QString searchPath)
 {
 	mSearchPaths.append(searchPath);
 	testLibraries();
 }
 
-QCodecInfo QCoderManager::detect(QString filePath)
+QCodecInfo QAudioManager::detect(QString filePath)
 {
 
 }
 
-QCodecInfo QCoderManager::detect(QByteArray data)
+QCodecInfo QAudioManager::detect(QByteArray data)
 {
 
 }
 
-QList<QAbstractCoder*> QCoderManager::supportedCoders()
+QList<QAbstractCoder*> QAudioManager::supportedCoders()
 {
 	return mSupportedCoders;
 }
 
-QList<QAbstractCoder*> QCoderManager::availableCoders()
+QList<QAbstractCoder*> QAudioManager::availableCoders()
 {
 	return mAvailableCoders;
 }
 
-void QCoderManager::initializeSearchPaths()
+void QAudioManager::initializeSearchPaths()
 {
 	QStringList paths;
 
@@ -120,7 +120,7 @@ void QCoderManager::initializeSearchPaths()
 	}
 }
 
-bool QCoderManager::testLibrary(QAbstractCoder *coder)
+bool QAudioManager::testLibrary(QAbstractCoder *coder)
 {
 	QStringList fileNames = coder->fileNames();
 	QStringList fileExtensions = coder->fileExtensions();
@@ -145,7 +145,7 @@ bool QCoderManager::testLibrary(QAbstractCoder *coder)
 	return false;
 }
 
-bool QCoderManager::isCoderAvailable(QAbstractCoder *coder)
+bool QAudioManager::isCoderAvailable(QAbstractCoder *coder)
 {
 	for(int i = 0; i < mAvailableCoders.size(); ++i)
 	{
@@ -157,7 +157,7 @@ bool QCoderManager::isCoderAvailable(QAbstractCoder *coder)
 	return false;
 }
 
-QAbstractCoder* QCoderManager::coderByName(QString name)
+QAbstractCoder* QAudioManager::coderByName(QString name)
 {
 	for(int i = 0; i < mSupportedCoders.size(); ++i)
 	{
@@ -167,4 +167,4 @@ QAbstractCoder* QCoderManager::coderByName(QString name)
 		}
 	}
 	return NULL;
-}
+}*/

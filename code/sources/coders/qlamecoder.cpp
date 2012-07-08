@@ -1,5 +1,6 @@
 #include <qlamecoder.h>
 #include <qchannelconverter.h>
+#include <qmp3codec.h>
 
 #define MINIMUM_HEADER_FRAMES 5
 
@@ -7,12 +8,12 @@ QLameCoder::QLameCoder()
 	: QAbstractCoder()
 {
 	mName = "Lame";
+	addFileName("mp3lame");
+	addFileName("lame");
+	mSupportedCodecs.append(QMp3Codec::instance());
 
 	mLameEncoder = NULL;
 	mLameDecoder = NULL;
-	
-	addFileName("mp3lame");
-	addFileName("lame");
 }
 
 bool QLameCoder::initializeEncode()
@@ -303,7 +304,7 @@ int CDECL hip_decode( hip_t           gfp
 
 }
 
-QAbstractCoder::Header QLameCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content)
+QAbstractCoder::Header QLameCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content)
 {
 	/*
 
@@ -362,7 +363,7 @@ QAbstractCoder::Header QLameCoder::inspectHeader(const QByteArray &header, QExte
 	return QAbstractCoder::NeedMoreData;
 }
 
-void QLameCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content)
+void QLameCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
 {
 
 }

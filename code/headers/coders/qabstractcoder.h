@@ -7,7 +7,7 @@
 #include <QLibrary>
 #include <qaudio.h>
 #include <qextendedaudioformat.h>
-#include <qcodeccontent.h>
+#include <qaudioinfo.h>
 #include <qsamplearray.h>
 #include <qsharedbuffer.h>
 
@@ -53,8 +53,10 @@ class QAbstractCoder : public QObject
 		QAbstractCoder();
 		~QAbstractCoder();
 
-		QAbstractCoder::Header inspectHeader(const QByteArray &header, QCodecContent &content);
-		void createHeader(QByteArray &header, QCodecContent &content);
+		const QList<QAudioCodec>& supportedCodecs();
+
+		QAbstractCoder::Header inspectHeader(const QByteArray &header, QAudioInfo &content);
+		void createHeader(QByteArray &header, QAudioInfo &content);
 
 		virtual bool initializeDecode() = 0;
 		virtual bool finalizeDecode() = 0;
@@ -87,8 +89,8 @@ class QAbstractCoder : public QObject
 
 	protected:
 
-		virtual QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QCodecContent &content) = 0;
-		virtual void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QCodecContent &content) = 0;
+		virtual QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content) = 0;
+		virtual void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content) = 0;
 
 		virtual QAbstractCoder::Error initializeLibrary() = 0;
 
@@ -101,6 +103,8 @@ class QAbstractCoder : public QObject
 		QStringList mFileNames;
 		QStringList mFileExtensions;
 		int mHeaderSize;
+
+		QList<QAudioCodec> mSupportedCodecs;
 
 		QAbstractCoder::Error mError;
 

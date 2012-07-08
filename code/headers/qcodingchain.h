@@ -2,7 +2,6 @@
 #define QCODINGCHAIN_H
 
 #include <qcodingchaincomponent.h>
-#include <qcodecmanager.h>
 
 class QCodingChain : public QThread
 {
@@ -29,14 +28,14 @@ class QCodingChain : public QThread
 
 	protected:
 
-		QAbstractCoder* detectCoder(QCodecContent &content);
+		QAbstractCoder* detectCoder(QAudioInfo &content);
 
 	private:
 
 		QString mInputFilePath;
 		QString mOutputFilePath;
 
-		QCoderManager mCoderManager;
+		//QCoderManager mCoderManager;
 		QAbstractCoder *mInputCoder;
 		QAbstractCoder *mOutputCoder;
 

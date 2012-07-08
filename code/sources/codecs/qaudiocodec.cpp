@@ -1,65 +1,39 @@
-#ifndef QAUDIOCODEC_CPP
-#define QAUDIOCODEC_CPP
-
 #include <qaudiocodec.h>
-#include <typeinfo>
+#include <qextendedaudioformat.h>
 
-template <typename T>
-bool QAudioCodec<T>::mWasInitialized = false;
-
-template <typename T>
-QAudioCodec<T>::QAudioCodec()
+QAudioCodec::QAudioCodec()
 {
 	mShortName = "";
 	mLongName = "";
 	mCompression = QAudio::UnknownCompression;
 }
 
-template <typename T>
-T& QAudioCodec<T>::instance()
-{
-	static T instance;
-	if(!instance.mWasInitialized)
-	{
-		mWasInitialized = true;
-		QAudioCodec<T>& dummy = instance;
-        dummy.initialize();
-	}
-	return instance;
-}
-
-template <typename T>
-QString QAudioCodec<T>::shortName() const
+QString QAudioCodec::shortName() const
 {
 	return mShortName;
 }
 
-template <typename T>
-QString QAudioCodec<T>::longName() const
+QString QAudioCodec::longName() const
 {
 	return mLongName;
 }
 
-template <typename T>
-QString QAudioCodec<T>::name() const
+QString QAudioCodec::name() const
 {
 	return mShortName;
 }
 
-template <typename T>
-QAudio::Compression QAudioCodec<T>::compression() const
+QAudio::Compression QAudioCodec::compression() const
 {
 	return mCompression;
 }
 
-template <typename T>
-QStringList QAudioCodec<T>::abbreviations() const
+QStringList QAudioCodec::abbreviations() const
 {
 	return mAbbreviations;
 }
 
-template <typename T>
-QString QAudioCodec<T>::abbreviation() const
+QString QAudioCodec::abbreviation() const
 {
 	if(mAbbreviations.size() > 0)
 	{
@@ -68,8 +42,7 @@ QString QAudioCodec<T>::abbreviation() const
 	return "";
 }
 
-template <typename T>
-QStringList QAudioCodec<T>::extensions(const QString prefix) const
+QStringList QAudioCodec::extensions(const QString prefix) const
 {
 	QStringList result;
 	for(int i = 0; i < mExtensions.size(); ++i)
@@ -79,8 +52,7 @@ QStringList QAudioCodec<T>::extensions(const QString prefix) const
 	return result;
 }
 
-template <typename T>
-QString QAudioCodec<T>::extension(const QString prefix) const
+QString QAudioCodec::extension(const QString prefix) const
 {
 	if(mExtensions.size() > 0)
 	{
@@ -89,46 +61,37 @@ QString QAudioCodec<T>::extension(const QString prefix) const
 	return "";
 }
 
-template <typename T>
-void QAudioCodec<T>::setShortName(const QString name)
+void QAudioCodec::setShortName(const QString name)
 {
 	mShortName = name;
 }
 
-template <typename T>
-void QAudioCodec<T>::setLongName(const QString name)
+void QAudioCodec::setLongName(const QString name)
 {
 	mLongName = name;
 }
 
-template <typename T>
-void QAudioCodec<T>::setCompression(const QAudio::Compression compression)
+void QAudioCodec::setCompression(const QAudio::Compression compression)
 {
 	mCompression = compression;
 }
 
-template <typename T>
-void QAudioCodec<T>::addAbbreviation(const QString abbreviation)
+void QAudioCodec::addAbbreviation(const QString abbreviation)
 {
 	mAbbreviations.append(abbreviation);
 }
 
-template <typename T>
-void QAudioCodec<T>::addExtension(const QString extension)
+void QAudioCodec::addExtension(const QString extension)
 {
 	mExtensions.append(extension);
 }
 
-template <typename T>
-bool QAudioCodec<T>::operator == (const QAudioCodec &other) const
+bool QAudioCodec::operator == (const QAudioCodec &other) const
 {
-	return typeid(this) == typeid (other);
+	return mShortName == other.mShortName;
 }
 
-template <typename T>
-bool QAudioCodec<T>::operator != (const QAudioCodec &other) const
+bool QAudioCodec::operator != (const QAudioCodec &other) const
 {
-	return typeid(this) != typeid (other);
+	return mShortName != other.mShortName;
 }
-
-#endif
