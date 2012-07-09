@@ -8,7 +8,7 @@ QFlacCoder::QFlacCoder()
 	addFileName("FLAC");
 	addFileName("flac");
 	addFileName("Flac");
-	mSupportedCodecs.append(QFlacCodec::instance());
+	mSupportedCodecs.append(&QFlacCodec::instance());
 
 	mEncoder = NULL;
 }

@@ -88,10 +88,10 @@ void QAudioCodec::addExtension(const QString extension)
 
 bool QAudioCodec::operator == (const QAudioCodec &other) const
 {
-	return mShortName == other.mShortName;
+	return mShortName.trimmed().toLower() == other.mShortName.trimmed().toLower();
 }
 
 bool QAudioCodec::operator != (const QAudioCodec &other) const
 {
-	return mShortName != other.mShortName;
+	return mShortName.trimmed().toLower() != other.mShortName.trimmed().toLower();
 }

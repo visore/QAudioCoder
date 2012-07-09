@@ -75,11 +75,6 @@ class QAudioCodecHolder : public QAudioCodec
 			return instance;
 		}
 
-		virtual QByteArray createHeader(const QExtendedAudioFormat &format, const QAudioInfo &info) = 0;
-		virtual QByteArray createTrailer(const QExtendedAudioFormat &format, const QAudioInfo &info) = 0;
-		virtual Qt::Validity interpretHeader(const QByteArray &data, QExtendedAudioFormat &format, QAudioInfo &info) = 0;
-		virtual Qt::Validity interpretTrailer(const QByteArray &data, QExtendedAudioFormat &format, QAudioInfo &info) = 0;
-
 	protected:
 
 		virtual void initialize() = 0;

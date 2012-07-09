@@ -1,10 +1,9 @@
 #ifndef QEXTENDEDAUDIOFORMAT_H
 #define QEXTENDEDAUDIOFORMAT_H
 
-#include <QAudioFormat>
 #include <qaudiocodec.h>
 
-class QExtendedAudioFormat : public QAudioFormat
+class QExtendedAudioFormat
 {
 
 	public:
@@ -17,6 +16,12 @@ class QExtendedAudioFormat : public QAudioFormat
 			Float = 3,
 			Double = 4,
 			Real = Double
+		};
+
+		enum Endian
+		{
+			BigEndian = 0,
+			LittleEndian = 1
 		};
 
 		enum BitrateMode
@@ -48,27 +53,46 @@ class QExtendedAudioFormat : public QAudioFormat
 		};
 
 		QExtendedAudioFormat();
+		QExtendedAudioFormat(const QExtendedAudioFormat &other);
+		QExtendedAudioFormat(const QAudioFormat &other);
 
-		QExtendedAudioFormat::SampleType sampleType();
-		void setSampleType(QExtendedAudioFormat::SampleType type);
-
-		QExtendedAudioFormat::BitrateMode bitrateMode();
-		void setBitrateMode(QExtendedAudioFormat::BitrateMode mode);
-
-		int bitrate(QExtendedAudioFormat::BitrateType type = QExtendedAudioFormat::NormalBitrate);
-		void setBitrate(int rate, QExtendedAudioFormat::BitrateType type = QExtendedAudioFormat::NormalBitrate);
-
-		QExtendedAudioFormat::Quality quality();
-		void setQuality(QExtendedAudioFormat::Quality quality);
+		QExtendedAudioFormat::SampleType sampleType() const;
+		QExtendedAudioFormat::Endian byteOrder() const;
+		QExtendedAudioFormat::Quality quality() const;
+		QExtendedAudioFormat::BitrateMode bitrateMode() const;
+		int bitrate(const QExtendedAudioFormat::BitrateType type = QExtendedAudioFormat::NormalBitrate) const;
+		int sampleSize() const;
+		int sampleRate() const;
+		int channelCount() const;
+		int channels() const;
+		QAudioCodec* codec() const;
+		
+		void setSampleType(const QExtendedAudioFormat::SampleType type);
+		void setSampleType(const QAudioFormat::SampleType type);
+		void setByteOrder(const QExtendedAudioFormat::Endian order);
+		void setByteOrder(const QAudioFormat::Endian order);
+		void setQuality(const QExtendedAudioFormat::Quality quality);
+		void setBitrateMode(const QExtendedAudioFormat::BitrateMode mode);
+		void setBitrate(const int rate, const QExtendedAudioFormat::BitrateType type = QExtendedAudioFormat::NormalBitrate);
+		void setSampleSize(const int size);
+		void setSampleRate(const int rate);
+		void setChannelCount(const int channels);
+		void setChannels(const int channels);
+		void setCodec(QAudioCodec *codec);
 
 	private:
 
 		QExtendedAudioFormat::SampleType mSampleType;
+		QExtendedAudioFormat::Endian mByteOrder;
+		QExtendedAudioFormat::Quality mQuality;
 		QExtendedAudioFormat::BitrateMode mBitrateMode;
 		int mNormalBitrate;
 		int mMinimumBitrate;
 		int mMaximumBitrate;
-		QExtendedAudioFormat::Quality mQuality;
+		int mSampleSize;
+		int mSampleRate;
+		int mChannelCount;	
+		QAudioCodec *mCodec;
 
 };
 

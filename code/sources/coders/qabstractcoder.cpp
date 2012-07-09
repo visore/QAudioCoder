@@ -31,7 +31,7 @@ QAbstractCoder::~QAbstractCoder()
 	mLibrary.unload();
 }
 
-const QList<QAudioCodec>& QAbstractCoder::supportedCodecs()
+const QList<QAudioCodec*> QAbstractCoder::supportedCodecs() const
 {
 	return mSupportedCodecs;
 }
@@ -93,7 +93,7 @@ bool QAbstractCoder::unload()
 	return mLibrary.unload();
 }
 
-QString QAbstractCoder::filePath()
+QString QAbstractCoder::filePath() const
 {
 	return mLibrary.fileName();
 }
@@ -103,7 +103,7 @@ void QAbstractCoder::setFilePath(QString filePath)
 	mLibrary.setFileName(filePath);
 }
 
-QExtendedAudioFormat QAbstractCoder::format(QAudio::Mode mode)
+QExtendedAudioFormat QAbstractCoder::format(QAudio::Mode mode) const
 {
 	if(mode == QAudio::AudioInput)
 	{
@@ -128,22 +128,22 @@ void QAbstractCoder::setFormat(QAudio::Mode mode, QExtendedAudioFormat format)
 	}
 }
 
-QString QAbstractCoder::name()
+QString QAbstractCoder::name() const
 {
 	return mName;
 }
 
-QString QAbstractCoder::version()
+QString QAbstractCoder::version() const
 {
 	return mVersion;
 }
 
-QStringList QAbstractCoder::fileNames()
+QStringList QAbstractCoder::fileNames() const
 {
 	return mFileNames;
 }
 
-QStringList QAbstractCoder::fileExtensions()
+QStringList QAbstractCoder::fileExtensions() const
 {
 	return mFileExtensions;
 }
@@ -158,12 +158,17 @@ void QAbstractCoder::addFileExtension(QString extension)
 	mFileExtensions.append(extension);
 }
 
-QAbstractCoder::Error QAbstractCoder::error()
+QAbstractCoder::Error QAbstractCoder::error() const
 {
 	return mError;
 }
 
 bool QAbstractCoder::operator == (const QAbstractCoder &other) const
 {
-	return mName != "" && mName == other.mName;
+	return mName != "" && mName.trimmed().toLower() == other.mName.trimmed().toLower();
+}
+
+bool QAbstractCoder::operator != (const QAbstractCoder &other) const
+{
+	return mName == "" || mName.trimmed().toLower() != other.mName.trimmed().toLower();
 }

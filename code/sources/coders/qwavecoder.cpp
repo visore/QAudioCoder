@@ -8,7 +8,7 @@ QWaveCoder::QWaveCoder()
 {
 	mName = "Wave";
 	addFileName("");
-	mSupportedCodecs.append(QWaveCodec::instance());
+	mSupportedCodecs.append(&QWaveCodec::instance());
 }
 
 QAbstractCoder::Error QWaveCoder::load()

@@ -26,16 +26,4 @@ typedef qbyte8 qbyte;
 
 typedef float qfloat;
 
-namespace Qt
-{
-	
-	enum Validity
-	{
-		Unknown = 0,
-		Valid = 1,
-		Invalid = 2
-	};
-
-}
-
 #endif

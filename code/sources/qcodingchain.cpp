@@ -1,9 +1,6 @@
 #include <qcodingchain.h>
 #include <QFile>
 
-#define HEADER_SIZE 4096
-#define MAXIMUM_HEADER_REQUESTS 100
-
 QCodingChain::QCodingChain()
 	: QThread()
 {
@@ -36,12 +33,12 @@ void QCodingChain::setOutputFilePath(QString filePath)
 
 void QCodingChain::run()
 {
-	/*if(mInput != NULL && mOutput != NULL)
+	if(mInput != NULL && mOutput != NULL)
 	{
 		QAudioInfo content;
-		mInputCoder = detectCoder(content);
+		mInputCoder = mManager.detect(mInputFilePath, content);
 
-mOutputCoder = mCoderManager.availableCoders()[1];
+mOutputCoder = mManager.coder("MP3");
 
 		if(mInputCoder == NULL)
 		{
@@ -109,7 +106,7 @@ mOutputCoder = mCoderManager.availableCoders()[1];
 
 			mInput->start();
 		}
-	}*/
+	}
 }
 
 void QCodingChain::inputFinished()
@@ -142,44 +139,4 @@ void QCodingChain::checkFinished()
 //start();
 //if(t<20){++t;start();cout<<"counter: "<<t<<endl;}
 	}
-}
-
-QAbstractCoder* QCodingChain::detectCoder(QAudioInfo &content)
-{
-	/*QList<QAbstractCoder*> coders = mCoderManager.availableCoders();
-	if(coders.size() == 0)
-	{
-		return NULL;
-	}
-
-	QFile file(mInputFilePath);
-	if(!file.open(QIODevice::ReadOnly))
-	{
-		return NULL;
-	}
-
-	content.setFileSize(file.size());
-	QByteArray header = file.read(HEADER_SIZE);
-	QAbstractCoder::Header result;
-	int requests;
-
-	for(int i = 0; i < coders.size(); ++i)
-	{
-		requests = 0;
-		result = coders[i]->inspectHeader(header, content);
-		while(result == QAbstractCoder::NeedMoreData && requests < MAXIMUM_HEADER_REQUESTS)
-		{
-			++requests;
-			header.append(file.read(HEADER_SIZE));
-			result = coders[i]->inspectHeader(header, content);
-		}
-
-		if(result == QAbstractCoder::ValidHeader)
-		{
-			file.close();
-			return coders[i];
-		}
-	}
-	file.close();
-	return NULL;*/
 }

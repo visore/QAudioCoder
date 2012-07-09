@@ -10,7 +10,7 @@ QLameCoder::QLameCoder()
 	mName = "Lame";
 	addFileName("mp3lame");
 	addFileName("lame");
-	mSupportedCodecs.append(QMp3Codec::instance());
+	mSupportedCodecs.append(&QMp3Codec::instance());
 
 	mLameEncoder = NULL;
 	mLameDecoder = NULL;

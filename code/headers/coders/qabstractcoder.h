@@ -53,7 +53,7 @@ class QAbstractCoder : public QObject
 		QAbstractCoder();
 		~QAbstractCoder();
 
-		const QList<QAudioCodec>& supportedCodecs();
+		const QList<QAudioCodec*> supportedCodecs() const;
 
 		QAbstractCoder::Header inspectHeader(const QByteArray &header, QAudioInfo &content);
 		void createHeader(QByteArray &header, QAudioInfo &content);
@@ -70,22 +70,23 @@ class QAbstractCoder : public QObject
 		virtual QAbstractCoder::Error load(QString filePath);
 		virtual bool unload();
 
-		QString filePath();
+		QString filePath() const;
 		void setFilePath(QString filePath);
 
-		QExtendedAudioFormat format(QAudio::Mode mode);
+		QExtendedAudioFormat format(QAudio::Mode mode) const;
 		void setFormat(QAudio::Mode mode, QExtendedAudioFormat format);
 
-		QString name();
-		QString version();
-		QStringList fileNames();
-		QStringList fileExtensions();
+		QString name() const;
+		QString version() const;
+		QStringList fileNames() const;
+		QStringList fileExtensions() const;
 		void addFileName(QString name);
 		void addFileExtension(QString extension);
 
-		QAbstractCoder::Error error();
+		QAbstractCoder::Error error() const;
 
 		bool operator == (const QAbstractCoder &other) const;
+		bool operator != (const QAbstractCoder &other) const;
 
 	protected:
 
@@ -104,7 +105,7 @@ class QAbstractCoder : public QObject
 		QStringList mFileExtensions;
 		int mHeaderSize;
 
-		QList<QAudioCodec> mSupportedCodecs;
+		QList<QAudioCodec*> mSupportedCodecs;
 
 		QAbstractCoder::Error mError;
 
