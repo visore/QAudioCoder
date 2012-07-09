@@ -23,7 +23,7 @@ class QCodingChain : public QThread
 
 		void setInputFilePath(QString filePath);
 		void setOutputFilePath(QString filePath);
-		void setOutputFormat(QExtendedFormat format);
+		void setOutputFormat(QExtendedAudioFormat format);
 
 		void run();
 
@@ -31,7 +31,7 @@ class QCodingChain : public QThread
 
 		QString mInputFilePath;
 		QString mOutputFilePath;
-		QExtendedFormat mOutputFormat
+		QExtendedAudioFormat mOutputFormat;
 
 		QAbstractCoder *mInputCoder;
 		QAbstractCoder *mOutputCoder;

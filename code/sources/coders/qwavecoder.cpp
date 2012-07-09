@@ -2,6 +2,7 @@
 #include <qwavecodec.h>
 #include <qsamplesizeconverter.h>
 #include <QDataStream>
+#include <QTextStream>
 
 QWaveCoder::QWaveCoder()
 	: QAbstractCoder()
@@ -26,93 +27,64 @@ bool QWaveCoder::unload()
 	return true;
 }
 
-QAbstractCoder::Header QWaveCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content)
+QAudioCodec* QWaveCoder::detectCodec(const QByteArray &data)
 {
-	QDataStream stream((QByteArray*) &header, QIODevice::ReadOnly);
+	QDataStream stream((QByteArray*) &data, QIODevice::ReadOnly);
 	char data2[2];
 	char data4[4];
 
-	//Check if header contains "RIFF"
-	if(stream.readRawData(data4, 4) < 4)
+	if(	stream.readRawData(data4, 4) < 4 || !(QString(data4).toLower() == "riff" || QString(data4).toLower() == "rifx") ||
+		stream.readRawData(data4, 4) < 4 || toInt(data4) <= 0 ||
+		stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "wave" ||
+		stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "fmt ")
 	{
-		return QAbstractCoder::InvalidHeader;
+		return NULL;
 	}
-	if(QString(data4).toLower() == "riff")
+
+	stream.skipRawData(4);
+	if(	stream.readRawData(data2, 2) < 2 || data2[0] != 1 ||
+		stream.readRawData(data2, 2) < 2 || toShort(data2) <= 0 ||
+		stream.readRawData(data4, 4) < 4 || toInt(data4) <= 0 || 
+		stream.readRawData(data4, 4) < 4 || toInt(data4) <= 0 || 
+		stream.readRawData(data2, 2) < 2 || toShort(data2) <= 0 ||
+		stream.readRawData(data2, 2) < 2 || toShort(data2) <= 0)
+	{
+		return NULL;
+	}
+
+	return &QWaveCodec::instance();
+}
+
+QByteArray& QWaveCoder::header()
+{
+	QDataStream stream((QByteArray*) &mHeader, QIODevice::WriteOnly);
+
+	if(mOutputFormat.byteOrder() == QExtendedAudioFormat::LittleEndian)
 	{
 		stream.setByteOrder(QDataStream::LittleEndian);
-		format.setByteOrder(QExtendedAudioFormat::LittleEndian);
+		stream << qint8('R') << qint8('I') << qint8('F') << qint8('F');
 	}
-	else if(QString(data4).toLower() == "rifx")
+	else if(mOutputFormat.byteOrder() == QExtendedAudioFormat::BigEndian)
 	{
 		stream.setByteOrder(QDataStream::BigEndian);
-		format.setByteOrder(QExtendedAudioFormat::BigEndian);
+		stream << qint8('R') << qint8('I') << qint8('F') << qint8('X');
 	}
-	else
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
+	stream << int((mSamples * mOutputFormat.sampleSize() / 8) - 8);
+	stream << qint8('W') << qint8('A') << qint8('V') << qint8('E');
+	
+	stream << qint8('f') << qint8('m') << qint8('t') << qint8(' ');
+	stream << int(16);
+	stream << short(1);
+	stream << short(mOutputFormat.channelCount());
+	stream << int(mOutputFormat.sampleRate());
+	stream << int(mOutputFormat.sampleRate() * mOutputFormat.channelCount() * mOutputFormat.sampleSize() / 8);
+	stream << short(mOutputFormat.channelCount() * mOutputFormat.sampleSize() / 8);
+	stream << short(mOutputFormat.sampleSize());
 
-	//Check chunk size
-	int chunkSize;
-	if(stream.readRawData(data4, 4) < 4 || (chunkSize = toInt(data4)) <= 0)
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-
-	//Check if header contains "WAVE"
-	if(stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "wave")
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-
-	//Check if header contains "fmt "
-	if(stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "fmt ")
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-
-	//Check if data is PCM
-	stream.skipRawData(4);
-	if(stream.readRawData(data2, 2) < 2 || data2[0] != 1)
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-
-	//Check channels
-	short channels;
-	if(stream.readRawData(data2, 2) < 2 || (channels = toShort(data2)) <= 0)
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-	format.setChannelCount(channels);
-
-	//Check sample rate
-	int sampleRate;
-	if(stream.readRawData(data4, 4) < 4 || (sampleRate = toInt(data4)) <= 0)
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-	format.setSampleRate(sampleRate);
-
-	//Check sample size
-	stream.skipRawData(6);
-	int sampleSize;
-	if(stream.readRawData(data2, 2) < 2 || (sampleSize = toShort(data2)) <= 0)
-	{
-		return QAbstractCoder::InvalidHeader;
-	}
-	format.setSampleSize(sampleSize);
-
-	content.setSamples((chunkSize - 36) / (format.sampleSize() / 8));
-	content.setSize(chunkSize + 8);
-	content.setHeaderSize(44);
-	content.setTrailerSize(0);
-	content.setDataSize(content.size() - 44);
-
-	format.setSampleType(QExtendedAudioFormat::SignedInt);	
-
-	return QAbstractCoder::ValidHeader;
+	stream << qint8('d') << qint8('a') << qint8('t') << qint8('a');
+	stream << int(mSamples * mOutputFormat.sampleSize() / 8);
 }
+/*
 
 void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
 {
@@ -141,12 +113,13 @@ void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &fo
 	stream << short(format.sampleSize());
 
 	stream << qint8('d') << qint8('a') << qint8('t') << qint8('a');
-	stream << int(content.samples() * format.sampleSize() / 8);
+	stream << int(mSamples * format.sampleSize() / 8);
 }
-
+*/
 bool QWaveCoder::initializeDecode()
 {
 	mError = QAbstractCoder::NoError;
+	decodePointer = &QWaveCoder::decodeHeader;
 	return true;
 }
 
@@ -157,6 +130,50 @@ bool QWaveCoder::finalizeDecode()
 
 void QWaveCoder::decode(const void *input, int size)
 {
+	(this->*decodePointer)(input, size);
+}
+
+void QWaveCoder::decodeHeader(const void *input, int size)
+{
+	if(size >= 44)
+	{
+		decodePointer = &QWaveCoder::decodeData;
+
+		QString string;
+		QTextStream stream(&string);
+		char *data = (char*) input;
+
+		stream << data[0] << data [1] << data[2] << data[3];
+		if(string.toLower() == "riff")
+		{
+			mInputFormat.setByteOrder(QExtendedAudioFormat::LittleEndian);
+		}
+		else if(string.toLower() == "rifx")
+		{
+			mInputFormat.setByteOrder(QExtendedAudioFormat::BigEndian);
+		}
+
+		string.clear();
+		stream << data[22] << data[23];
+		mInputFormat.setChannelCount(toShort(string.toAscii().data()));
+
+		string.clear();
+		stream << data[24] << data[25] << data[26] << data[27];
+		mInputFormat.setSampleRate(toInt(string.toAscii().data()));
+
+		string.clear();
+		stream << data[34] << data[35];
+		mInputFormat.setSampleSize(toShort(string.toAscii().data()));
+
+		mInputFormat.setSampleType(QExtendedAudioFormat::SignedInt);
+
+		emit formatChanged(mInputFormat);
+		decodeData(data + 44, size - 44);
+	}
+}
+
+void QWaveCoder::decodeData(const void *input, int size)
+{
 	qbyte *data = new qbyte[size];
 	memcpy(data, input, size);
 	emit decoded(new QSampleArray(data, size, size / (mInputFormat.sampleSize() / 8)));
@@ -164,6 +181,7 @@ void QWaveCoder::decode(const void *input, int size)
 
 bool QWaveCoder::initializeEncode()
 {
+	mSamples = 0;
 	int inSize = mInputFormat.sampleSize();
 	int outSize = mOutputFormat.sampleSize();
 	QExtendedAudioFormat::SampleType inType = mInputFormat.sampleType();
@@ -200,6 +218,7 @@ void QWaveCoder::encode(const void *input, int samples)
 {
 	int bytes;
 	char *output = (char*) mConverter.convert(input, samples, bytes);
+	mSamples += samples;
 	emit encoded(new QSampleArray(output, bytes, samples));
 }
 

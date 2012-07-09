@@ -20,6 +20,7 @@ class QAbstractCoder : public QObject
 
 		void decoded(QSampleArray *array);
 		void encoded(QSampleArray *array);
+		void formatChanged(QExtendedAudioFormat format);
 
 	public:
 
@@ -43,20 +44,12 @@ class QAbstractCoder : public QObject
 			NumberOfChannelsError = 12
 		};
 
-		enum Header
-		{
-			ValidHeader = 0,
-			NeedMoreData = 1,
-			InvalidHeader = 2
-		};
-
 		QAbstractCoder();
 		~QAbstractCoder();
 
 		const QList<QAudioCodec*> supportedCodecs() const;
-
-		QAbstractCoder::Header inspectHeader(const QByteArray &header, QAudioInfo &content);
-		void createHeader(QByteArray &header, QAudioInfo &content);
+		virtual QAudioCodec* detectCodec(const QByteArray &data) = 0;
+		virtual QByteArray& header(){}
 
 		virtual bool initializeDecode() = 0;
 		virtual bool finalizeDecode() = 0;
@@ -90,9 +83,6 @@ class QAbstractCoder : public QObject
 
 	protected:
 
-		virtual QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content) = 0;
-		virtual void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content) = 0;
-
 		virtual QAbstractCoder::Error initializeLibrary() = 0;
 
 	protected:
@@ -104,6 +94,8 @@ class QAbstractCoder : public QObject
 		QStringList mFileNames;
 		QStringList mFileExtensions;
 		int mHeaderSize;
+
+		QByteArray mHeader;
 
 		QList<QAudioCodec*> mSupportedCodecs;
 

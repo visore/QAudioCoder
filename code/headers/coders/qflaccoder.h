@@ -19,6 +19,8 @@ class QFlacCoder : public QAbstractCoder
 		QFlacCoder();
 		~QFlacCoder();
 
+		QAudioCodec* detectCodec(const QByteArray &data);
+
 		bool initializeEncode();
 		bool finalizeEncode();
 		void encode(const void *input, int samples);
@@ -31,9 +33,6 @@ class QFlacCoder : public QAbstractCoder
 
 		ExtendedFlacStreamEncoder* createExtendedEncoder();
 		static FLAC__StreamEncoderWriteStatus flacWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
-
-		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content);
-		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content);
 
 		QAbstractCoder::Error initializeLibrary();
 

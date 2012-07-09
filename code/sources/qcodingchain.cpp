@@ -31,7 +31,7 @@ void QCodingChain::setOutputFilePath(QString filePath)
 	mOutput = &mFileOutput;
 }
 
-void QCodingChain::setOutputFormat(QExtendedFormat format)
+void QCodingChain::setOutputFormat(QExtendedAudioFormat format)
 {
 	mOutputFormat = format;
 }
@@ -43,7 +43,7 @@ void QCodingChain::run()
 		QAudioManager manager = QAudioManager::instance();
 
 		QAudioInfo content;
-		mInputCoder = manager.detect(mInputFilePath, content);
+		mInputCoder = manager.detect(mInputFilePath);
 		mOutputCoder = manager.coder(mOutputFormat);
 
 		if(mInputCoder == NULL)
@@ -64,7 +64,7 @@ void QCodingChain::run()
 			mBuffer2.connect(&mDecoder, &mEncoder);
 			mBuffer3.connect(&mEncoder, mOutput);
 
-			QObject::connect(mInput, SIGNAL(atEnd()), this, SLOT(inputFinished()));
+			//QObject::connect(mInput, SIGNAL(atEnd()), this, SLOT(inputFinished()));
 
 			mOutputCoder->setFormat(QAudio::AudioInput, mInputCoder->format(QAudio::AudioInput));
 			mOutputCoder->setFormat(QAudio::AudioOutput, mOutputFormat);
@@ -79,15 +79,16 @@ void QCodingChain::run()
 			cout << "Output Coder: "<<mOutputCoder->name().toAscii().data()<<endl;
 
 			QByteArray header;
-			mOutputCoder->createHeader(header, content);
+cout<<"Sam: "<<content.samples()<<" "<<21026304<<endl;
+			//mOutputCoder->createHeader(header, content);
 
-			mInput->skipHeader(content.headerSize());
-			mOutput->setHeader(header);
+			//mInput->skipHeader(content.headerSize());
+			//mOutput->setHeader(header);
 
-			mInput->initialize();
+		/*	mInput->initialize();
 			mDecoder.initialize();
 			mEncoder.initialize();
-			mOutput->initialize();
+			mOutput->initialize();*/
 
 			mInputAtEnd = false;
 			mIsFinished = false;

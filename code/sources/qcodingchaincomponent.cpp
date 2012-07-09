@@ -9,10 +9,27 @@ QCodingChainComponent
 QCodingChainComponent::QCodingChainComponent()
 	: QThread()
 {
+	mNext = NULL;
 	mInputBuffer = NULL;
 	mOutputBuffer = NULL;
 	mChunksToRead = 10;
+	runPointer = &QCodingChainComponent::initialize;
 }
+
+QCodingChainComponent::~QCodingChainComponent()
+{
+	if(mInputBuffer != NULL)
+	{
+		delete mInputBuffer;
+		mInputBuffer = NULL;
+	}
+	if(mOutputBuffer != NULL)
+	{
+		delete mOutputBuffer;
+		mOutputBuffer = NULL;
+	}
+}
+
 
 void QCodingChainComponent::setInputBuffer(QSharedBuffer *buffer)
 {
@@ -22,6 +39,16 @@ void QCodingChainComponent::setInputBuffer(QSharedBuffer *buffer)
 void QCodingChainComponent::setOutputBuffer(QSharedBuffer *buffer)
 {
 	mOutputBuffer = buffer;
+}
+
+void QCodingChainComponent::setNext(QCodingChainComponent *next)
+{
+	mNext = next;
+	mOutputBuffer = new QSharedBuffer();
+	mNext->setInputBuffer(mOutputBuffer);
+	QObject::connect(this, SIGNAL(wasFinished()), mNext, SLOT(finish()));
+	QObject::connect(mOutputBuffer, SIGNAL(dataAdded()), mNext, SLOT(dataAvailable()));
+	QObject::connect(mOutputBuffer, SIGNAL(almostEmpty(int)), this, SLOT(processData(int)));
 }
 
 void QCodingChainComponent::dataAvailable()
@@ -35,10 +62,36 @@ void QCodingChainComponent::dataAvailable()
 void QCodingChainComponent::processData(int size)
 {
 	mChunksToRead = size;
-	if(!isRunning())
+	if(!isRunning() && !mFinishUp)
 	{
 		start();
 	}
+}
+
+void QCodingChainComponent::finish()
+{
+	mFinishUp = true;
+}
+
+void QCodingChainComponent::run()
+{
+	(this->*runPointer)();
+}
+
+void QCodingChainComponent::initialize()
+{
+	mFinishUp = false;
+	initializeComponent();
+	runPointer = &QCodingChainComponent::executeComponent;
+	run();
+}
+
+void QCodingChainComponent::finalize()
+{
+	finalizeComponent();
+	runPointer = &QCodingChainComponent::initializeComponent;
+	mFinishUp = true;
+	emit wasFinished();
 }
 
 /**********************************************************
@@ -48,13 +101,6 @@ QCodingChainInput
 QCodingChainInput::QCodingChainInput()
 	: QCodingChainComponent()
 {
-	mHeaderSize = 0;
-	mAtEnd = false;
-}
-
-void QCodingChainInput::skipHeader(int bytes)
-{
-	mHeaderSize = bytes;
 }
 
 /**********************************************************
@@ -72,29 +118,20 @@ void QCodingChainFileInput::setFilePath(QString filePath)
 	mFilePath = filePath;
 }
 
-bool QCodingChainFileInput::initialize()
+void QCodingChainFileInput::initializeComponent()
 {
 	mFile.setFileName(mFilePath);
 	if(!mFile.open(QIODevice::ReadOnly))
 	{
-		return false;
+		return;
 	}
-	mFile.seek(mHeaderSize);
-	mAtEnd = false;
-	return true;
 }
 
-bool QCodingChainFileInput::finalize()
-{
-	mFile.close();
-	return true;
-}
-		
-void QCodingChainFileInput::run()
+void QCodingChainFileInput::executeComponent()
 {
 	int size = 0;
 	int chunks = mChunksToRead;
-	while(mChunksToRead > 0 && !mAtEnd)
+	while(mChunksToRead > 0 && !mFinishUp)
 	{
 		--mChunksToRead;
 		char *data = new char[CHUNK_SIZE];
@@ -104,13 +141,17 @@ void QCodingChainFileInput::run()
 			mOutputBuffer->enqueue(new QSampleArray(data, size));
 		}
 		else
-		{cout<<"at end"<<endl;
+		{
 			delete [] data;
-			mAtEnd = true;
-			emit atEnd();
+			finalize();
 			break;
 		}
 	}
+}
+
+void QCodingChainFileInput::finalizeComponent()
+{
+	mFile.close();
 }
 
 /**********************************************************
@@ -137,34 +178,30 @@ QCodingChainDecoder::QCodingChainDecoder()
 {
 }
 
-bool QCodingChainDecoder::initialize()
+void QCodingChainDecoder::initializeComponent()
 {
 	if(mCoder != NULL && mCoder->initializeDecode())
 	{
 		QObject::connect(mCoder, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
-		return true;
 	}
-	return false;
 }
 
-bool QCodingChainDecoder::finalize()
+void QCodingChainDecoder::finalizeComponent()
 {
 	if(mCoder != NULL && mCoder->finalizeDecode())
 	{
-		QObject::disconnect(mCoder, SIGNAL(decoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
-		return true;
+		QObject::disconnect(mCoder, SIGNAL(decoded(QSampleArray*)));
 	}
-	return false;
 }
 
-void QCodingChainDecoder::run()
+void QCodingChainDecoder::executeComponent()
 {
 	QSampleArray *array;
 	while(mChunksToRead > 0 && !mInputBuffer->isEmpty())
-	{
-		--mChunksToRead;
+	{cout<<"decoder..."<<endl;
+		//--mChunksToRead;
 		array = mInputBuffer->dequeue();
-		mCoder->decode(array->data(), array->size());
+		//mCoder->decode(array->data(), array->size());
 		delete array;
 	}
 }
@@ -178,26 +215,26 @@ QCodingChainEncoder::QCodingChainEncoder()
 {
 }
 
-bool QCodingChainEncoder::initialize()
-{
+void QCodingChainEncoder::initializeComponent()
+{/*
 	if(mCoder != NULL && mCoder->initializeEncode())
 	{
 		QObject::connect(mCoder, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
 		return true;
 	}
-	return false;
+	return false;*/
 }
 
-bool QCodingChainEncoder::finalize()
-{
+void QCodingChainEncoder::finalizeComponent()
+{/*
 	if(mCoder != NULL && mCoder->finalizeEncode())
 	{
-		QObject::disconnect(mCoder, SIGNAL(encoded(QSampleArray*)), mOutputBuffer, SLOT(enqueue(QSampleArray*)));
+		QObject::disconnect(mCoder, SIGNAL(encoded(QSampleArray*)));
 		return true;
 	}
-	return false;
+	return false;*/
 }
-
+/*
 void QCodingChainEncoder::run()
 {
 	QSampleArray *array;
@@ -205,11 +242,13 @@ void QCodingChainEncoder::run()
 	{
 		--mChunksToRead;
 		array = mInputBuffer->dequeue();
+cout<<array->samples()<<" pop"l<<endl;
 		mCoder->encode(array->data(), array->samples());
+cout<<"**pop"<<endl;
 		delete array;
 	}
 }
-
+*/
 /**********************************************************
 QCodingChainOutput
 **********************************************************/
@@ -239,23 +278,23 @@ void QCodingChainFileOutput::setFilePath(QString filePath)
 	mFilePath = filePath;
 }
 
-bool QCodingChainFileOutput::initialize()
-{
+void QCodingChainFileOutput::initializeComponent()
+{/*
 	mFile.setFileName(mFilePath);
 	if(!mFile.open(QIODevice::WriteOnly))
 	{
 		return false;
 	}
 	mFile.write(mHeader);
-	return true;
+	return true;*/
 }
 
-bool QCodingChainFileOutput::finalize()
-{
+void QCodingChainFileOutput::finalizeComponent()
+{/*
 	mFile.close();
-	return true;
+	return true;*/
 }
-
+/*
 void QCodingChainFileOutput::run()
 {
 	QSampleArray *array;
@@ -265,4 +304,4 @@ void QCodingChainFileOutput::run()
 		mFile.write(array->charData(), array->size());
 		delete array;
 	}
-}
+}*/

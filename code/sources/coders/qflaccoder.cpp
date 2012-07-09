@@ -22,6 +22,11 @@ QFlacCoder::~QFlacCoder()
 	}
 }
 
+QAudioCodec* QFlacCoder::detectCodec(const QByteArray &data)
+{
+	return NULL;
+}
+
 bool QFlacCoder::initializeEncode()
 {
 mError = QAbstractCoder::NoError;
@@ -127,16 +132,6 @@ FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallback(const FLAC__StreamE
 {
 	ExtendedFlacStreamEncoder *extended = (ExtendedFlacStreamEncoder*) encoder;
 	emit extended->coder->encoded(new QSampleArray((qbyte*) buffer, numberOfBytes, numberOfSamples));
-}
-
-QAbstractCoder::Header QFlacCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content)
-{
-
-}
-
-void QFlacCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
-{
-
 }
 
 QAbstractCoder::Error QFlacCoder::initializeLibrary()

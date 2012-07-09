@@ -4,8 +4,8 @@
 #include <qflaccoder.h>
 #include <QDir>
 
-#define DEFAUL_HEADER_SIZE 4096
-#define MAXIMUM_HEADER_REQUESTS 100
+#define DEFAUL_HEADER_SIZE 8192
+#define MAXIMUM_HEADER_TESTS 50
 
 QAudioManager::QAudioManager()
 {
@@ -47,6 +47,48 @@ void QAudioManager::addSearchPath(const QString searchPath)
 {
 	mSearchPaths.append(searchPath);
 	testLibraries();
+}
+
+QAudioCodec* QAudioManager::codec(const QString name, const QAudioManager::Mode mode) const
+{
+	QString newName = name.trimmed().toLower();
+	if(mode == QAudioManager::Available)
+	{
+		for(int i = 0; i < mAvailableCodecs.size(); ++i)
+		{
+			if(mAvailableCodecs[i]->longName().toLower() == newName || mAvailableCodecs[i]->shortName().toLower() == newName)
+			{
+				return mAvailableCodecs[i];
+			}
+			QStringList abbreviations = mAvailableCodecs[i]->abbreviations();
+			for(int k = 0; k < abbreviations.size(); ++k)
+			{
+				if(abbreviations[k].toLower() == newName)
+				{
+					return mAvailableCodecs[i];
+				}
+			}
+		}
+	}
+	else
+	{
+		for(int i = 0; i < mSupportedCodecs.size(); ++i)
+		{
+			if(mSupportedCodecs[i]->longName().toLower() == newName || mSupportedCodecs[i]->shortName().toLower() == newName)
+			{
+				return mSupportedCodecs[i];
+			}
+			QStringList abbreviations = mSupportedCodecs[i]->abbreviations();
+			for(int k = 0; k < abbreviations.size(); ++k)
+			{
+				if(abbreviations[k].toLower() == newName)
+				{
+					return mSupportedCodecs[i];
+				}
+			}
+		}
+	}
+	return NULL;
 }
 
 QAbstractCoder* QAudioManager::coder(const QString name, const QAudioManager::Mode mode) const
@@ -118,7 +160,7 @@ QAbstractCoder* QAudioManager::coder(const QAudioCodec *codec, const QAudioManag
 				QList<QAudioCodec*> codecs = mAvailableCoders[i]->supportedCodecs();
 				for(int j = 0; j < codecs.size(); ++j)
 				{
-					if((*codecs[i]) == (*codec))
+					if((*codecs[j]) == (*codec))
 					{
 						return mAvailableCoders[i];
 					}
@@ -132,7 +174,7 @@ QAbstractCoder* QAudioManager::coder(const QAudioCodec *codec, const QAudioManag
 				QList<QAudioCodec*> codecs = mSupportedCoders[i]->supportedCodecs();
 				for(int j = 0; j < codecs.size(); ++j)
 				{
-					if((*codecs[i]) == (*codec))
+					if((*codecs[j]) == (*codec))
 					{
 						return mSupportedCoders[i];
 					}
@@ -148,7 +190,7 @@ QAbstractCoder* QAudioManager::coder(const QExtendedAudioFormat &format, const Q
 	return coder(format.codec(), mode);
 }
 
-QAbstractCoder* QAudioManager::detect(const QString filePath, QAudioInfo &content, const QAudioManager::Mode mode)
+QAbstractCoder* QAudioManager::detect(const QString filePath, const QAudioManager::Mode mode)
 {
 	QFile file(filePath);
 	if(!file.open(QIODevice::ReadOnly))
@@ -166,30 +208,17 @@ QAbstractCoder* QAudioManager::detect(const QString filePath, QAudioInfo &conten
 		coders = &mSupportedCoders;
 	} 
 
-	QByteArray data = file.read(DEFAUL_HEADER_SIZE);
-	QAbstractCoder::Header result;
-	int requests;
-
-	for(int i = 0; i < coders->size(); ++i)
+	QByteArray data;
+	for(int i = 0; i < MAXIMUM_HEADER_TESTS; ++i)
 	{
-		requests = 0;
-		result = coders->at(i)->inspectHeader(data, content);
-		while(result == QAbstractCoder::NeedMoreData && requests < MAXIMUM_HEADER_REQUESTS)
+		data.append(file.read(DEFAUL_HEADER_SIZE));
+		for(int j = 0; j < coders->size(); ++j)
 		{
-			++requests;
-			data.append(file.read(DEFAUL_HEADER_SIZE));
-			result = coders->at(i)->inspectHeader(data, content);
-		}
-		if(result == QAbstractCoder::ValidHeader)
-		{
-			file.close();
-			return coders->at(i);
-		}
-		else if(requests != 0)
-		{
-			file.seek(0);
-			data.clear();
-			data = file.read(DEFAUL_HEADER_SIZE);
+			if(coders->at(j)->detectCodec(data) != NULL)
+			{
+				file.close();
+				return coders->at(j);
+			}
 		}
 	}
 
@@ -197,7 +226,7 @@ QAbstractCoder* QAudioManager::detect(const QString filePath, QAudioInfo &conten
 	return NULL;
 }
 
-QAbstractCoder* QAudioManager::detect(const QByteArray data, QAudioInfo &content, const QAudioManager::Mode mode)
+QAbstractCoder* QAudioManager::detect(const QByteArray data, const QAudioManager::Mode mode)
 {
 	QCoderList coders;
 	if(mode == QAudioManager::Available)
@@ -210,7 +239,7 @@ QAbstractCoder* QAudioManager::detect(const QByteArray data, QAudioInfo &content
 	}
 	for(int i = 0; i < coders.size(); ++i)
 	{
-		if(coders[i]->inspectHeader(data, content) == QAbstractCoder::ValidHeader)
+		if(coders[i]->detectCodec(data) != NULL)
 		{
 			return coders[i];
 		}

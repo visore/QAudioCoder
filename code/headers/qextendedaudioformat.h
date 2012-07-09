@@ -79,6 +79,7 @@ class QExtendedAudioFormat
 		void setChannelCount(const int channels);
 		void setChannels(const int channels);
 		void setCodec(QAudioCodec *codec);
+		bool setCodec(QString codecName);
 
 	private:
 

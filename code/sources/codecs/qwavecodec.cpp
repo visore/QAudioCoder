@@ -11,7 +11,7 @@ void QWaveCodec::initialize()
 
 	//Abbreviations
 	addAbbreviation("WAVE");
-	addAbbreviation("WAVE");
+	addAbbreviation("WAV");
 	addAbbreviation("RIFF");
 	addAbbreviation("RIFFWAV");
 	addAbbreviation("RIFFWAVE");

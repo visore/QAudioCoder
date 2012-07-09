@@ -1,4 +1,5 @@
 #include <qextendedaudioformat.h>
+#include <qaudiomanager.h>
 
 QExtendedAudioFormat::QExtendedAudioFormat()
 {
@@ -27,7 +28,7 @@ QExtendedAudioFormat::QExtendedAudioFormat(const QExtendedAudioFormat &other)
 	mSampleSize = other.mSampleSize;
 	mSampleRate = other.mSampleRate;
 	mChannelCount = other.mChannelCount;
-	mCodec = NULL;
+	mCodec = other.mCodec;
 }
 
 QExtendedAudioFormat::QExtendedAudioFormat(const QAudioFormat &other)
@@ -197,4 +198,10 @@ void QExtendedAudioFormat::setChannels(const int channels)
 void QExtendedAudioFormat::setCodec(QAudioCodec *codec)
 {
 	mCodec = codec;
+}
+
+bool QExtendedAudioFormat::setCodec(QString codecName)
+{
+	mCodec = QAudioManager::instance().codec(codecName, QAudioManager::Supported);
+	return mCodec != NULL;
 }

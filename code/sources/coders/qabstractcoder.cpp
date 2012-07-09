@@ -36,22 +36,6 @@ const QList<QAudioCodec*> QAbstractCoder::supportedCodecs() const
 	return mSupportedCodecs;
 }
 
-QAbstractCoder::Header QAbstractCoder::inspectHeader(const QByteArray &header, QAudioInfo &content)
-{
-	return inspectHeader(header, mInputFormat, content);
-}
-
-void QAbstractCoder::createHeader(QByteArray &header, QAudioInfo &content)
-{
-	qreal sizeRatio = (mOutputFormat.sampleSize() + mOutputFormat.channelCount() + mOutputFormat.sampleRate()) / qreal(mInputFormat.sampleSize() + mInputFormat.channelCount() + mInputFormat.sampleRate());
-	qreal sampleRatio = (mOutputFormat.channelCount() + mOutputFormat.sampleRate()) / qreal(mInputFormat.channelCount() + mInputFormat.sampleRate());
-	content.setDataSize(content.dataSize() * sizeRatio);
-	content.setSize(content.dataSize() + content.headerSize() + content.trailerSize());
-	content.setSamples(content.samples() * sampleRatio);
-
-	createHeader(header, mOutputFormat, content);
-}
-
 QAbstractCoder::Error QAbstractCoder::load()
 {
 	if(!mLibrary.isLoaded())

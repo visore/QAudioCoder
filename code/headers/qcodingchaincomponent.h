@@ -16,25 +16,43 @@ class QCodingChainComponent : public QThread
 
 	Q_OBJECT
 
+	signals:
+
+		void wasFinished();
+
 	public slots:
 
-		virtual bool initialize() = 0;
-		virtual bool finalize() = 0;
 		virtual void dataAvailable();
 		virtual void processData(int size);
+
+		void finish();
 
 	public:
 
 		QCodingChainComponent();
+		~QCodingChainComponent();
 		void setInputBuffer(QSharedBuffer *buffer);
 		void setOutputBuffer(QSharedBuffer *buffer);
-		virtual void run() = 0;
+
+		void setNext(QCodingChainComponent *next);
+
+		void initialize();
+		void run();
+		void finalize();
+
+		virtual void initializeComponent() = 0;
+		virtual void executeComponent() = 0;
+		virtual void finalizeComponent() = 0;
 
 	protected:
 
+		void (QCodingChainComponent::*runPointer)();
+
+		QCodingChainComponent *mNext;
 		QSharedBuffer *mInputBuffer;
 		QSharedBuffer *mOutputBuffer;
 		int mChunksToRead;
+		bool mFinishUp;
 
 };
 
@@ -47,19 +65,9 @@ class QCodingChainInput : public QCodingChainComponent
 
 	Q_OBJECT
 
-	signals:
-
-		void atEnd();
-
 	public:
 
 		QCodingChainInput();
-		void skipHeader(int bytes);
-
-	protected:
-
-		int mHeaderSize;
-		bool mAtEnd;
 
 };
 
@@ -74,14 +82,14 @@ class QCodingChainFileInput : public QCodingChainInput
 
 	public slots:
 
-		bool initialize();
-		bool finalize();
+		void initializeComponent();
+		void executeComponent();
+		void finalizeComponent();
 
 	public:
 
 		QCodingChainFileInput();
 		void setFilePath(QString filePath);
-		void run();
 
 	protected:
 
@@ -121,13 +129,13 @@ class QCodingChainDecoder : public QCodingChainCoder
 
 	public slots:
 
-		bool initialize();
-		bool finalize();
+		void initializeComponent();
+		void finalizeComponent();
 
 	public:
 
 		QCodingChainDecoder();
-		void run();
+		void executeComponent();
 
 };
 
@@ -142,13 +150,13 @@ class QCodingChainEncoder : public QCodingChainCoder
 
 	public slots:
 
-		bool initialize();
-		bool finalize();
+		void initializeComponent();
+		void finalizeComponent();
 
 	public:
 
 		QCodingChainEncoder();
-		void run();
+		void executeComponent(){}
 
 };
 
@@ -183,14 +191,14 @@ class QCodingChainFileOutput : public QCodingChainOutput
 
 	public slots:
 
-		bool initialize();
-		bool finalize();
+		void initializeComponent();
+		void finalizeComponent();
 
 	public:
 
 		QCodingChainFileOutput();
 		void setFilePath(QString filePath);
-		void run();
+		void executeComponent(){}
 
 	protected:
 

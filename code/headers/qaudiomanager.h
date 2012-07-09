@@ -24,12 +24,14 @@ class QAudioManager
 		void addFileName(const QString coderName, const QString name);
 		void addFileExtension(const QString coderName, const QString extension);
 
+		QAudioCodec* codec(const QString name, const QAudioManager::Mode mode = QAudioManager::Available) const;
+
 		QAbstractCoder* coder(const QString name, const QAudioManager::Mode mode = QAudioManager::Available) const;
 		QAbstractCoder* coder(const QAudioCodec *codec, const QAudioManager::Mode mode = QAudioManager::Available) const;
 		QAbstractCoder* coder(const QExtendedAudioFormat &format, const QAudioManager::Mode mode = QAudioManager::Available) const;
 
-		QAbstractCoder* detect(const QString filePath, QAudioInfo &content, const QAudioManager::Mode mode = QAudioManager::Available);
-		QAbstractCoder* detect(const QByteArray data, QAudioInfo &content, const QAudioManager::Mode mode = QAudioManager::Available);
+		QAbstractCoder* detect(const QString filePath, const QAudioManager::Mode mode = QAudioManager::Available);
+		QAbstractCoder* detect(const QByteArray data, const QAudioManager::Mode mode = QAudioManager::Available);
 
 		bool isAvailable(const QAbstractCoder *coder) const;
 		bool isAvailable(const QAudioCodec *codec) const;

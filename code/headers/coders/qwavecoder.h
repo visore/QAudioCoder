@@ -15,6 +15,9 @@ class QWaveCoder : public QAbstractCoder
 		QAbstractCoder::Error load(QString filePath);
 		bool unload();
 
+		QAudioCodec* detectCodec(const QByteArray &data);
+		QByteArray& header();
+
 		bool initializeEncode();
 		bool finalizeEncode();
 		void encode(const void *input, int samples);
@@ -25,8 +28,8 @@ class QWaveCoder : public QAbstractCoder
 
 	protected:
 
-		QAbstractCoder::Header inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content);
-		void createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content);
+		void decodeHeader(const void *input, int size);
+		void decodeData(const void *input, int size);
 
 		QAbstractCoder::Error initializeLibrary();
 		short toShort(char data[]);
@@ -34,7 +37,10 @@ class QWaveCoder : public QAbstractCoder
 
 	private:
 
+		void (QWaveCoder::*decodePointer)(const void *input, int size);
+
 		QSampleConverter mConverter;
+		qint64 mSamples;
 
 };
 
