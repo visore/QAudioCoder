@@ -1,5 +1,6 @@
 #include <qcodingchain.h>
 #include <QFile>
+#include <qaudiomanager.h>
 
 QCodingChain::QCodingChain()
 	: QThread()
@@ -10,7 +11,6 @@ QCodingChain::QCodingChain()
 	mOutput = NULL;
 	mInputAtEnd = false;
 	mIsFinished = false;
-t=0;
 	QObject::connect(&mFileInput, SIGNAL(finished()), this, SLOT(checkFinished()));
 	QObject::connect(&mFileOutput, SIGNAL(finished()), this, SLOT(checkFinished()));
 	QObject::connect(&mDecoder, SIGNAL(finished()), this, SLOT(checkFinished()));
@@ -31,14 +31,20 @@ void QCodingChain::setOutputFilePath(QString filePath)
 	mOutput = &mFileOutput;
 }
 
+void QCodingChain::setOutputFormat(QExtendedFormat format)
+{
+	mOutputFormat = format;
+}
+
 void QCodingChain::run()
 {
 	if(mInput != NULL && mOutput != NULL)
 	{
-		QAudioInfo content;
-		mInputCoder = mManager.detect(mInputFilePath, content);
+		QAudioManager manager = QAudioManager::instance();
 
-mOutputCoder = mManager.coder("MP3");
+		QAudioInfo content;
+		mInputCoder = manager.detect(mInputFilePath, content);
+		mOutputCoder = manager.coder(mOutputFormat);
 
 		if(mInputCoder == NULL)
 		{
@@ -60,26 +66,8 @@ mOutputCoder = mManager.coder("MP3");
 
 			QObject::connect(mInput, SIGNAL(atEnd()), this, SLOT(inputFinished()));
 
-			//QObject::connect(mInput, SIGNAL(available(QSampleArray*)), &mDecoder, SLOT(addChunk(QSampleArray*)));
-			//QObject::connect(&mDecoder, SIGNAL(requestChunks(int)), mInput, SLOT(readChunks(int)));
-			//QObject::connect(&mDecoder, SIGNAL(available(QSampleArray*)), &mEncoder, SLOT(addChunk(QSampleArray*)));
-			//QObject::connect(&mEncoder, SIGNAL(available(QSampleArray*)), mOutput, SLOT(addChunk(QSampleArray*)));
-
-//QObject::connect(s, SIGNAL(signal()), &mDecoder, SLOT(dataAvailable()));
-
-
-
-
-			QExtendedAudioFormat format;
-			format.setSampleSize(16);
-			format.setSampleType(QExtendedAudioFormat::SignedInt);
-			format.setSampleRate(44100);
-			format.setChannelCount(2);
-			format.setBitrateMode(QExtendedAudioFormat::VariableBitrate);
-			format.setBitrate(256);
-
 			mOutputCoder->setFormat(QAudio::AudioInput, mInputCoder->format(QAudio::AudioInput));
-			mOutputCoder->setFormat(QAudio::AudioOutput, format);
+			mOutputCoder->setFormat(QAudio::AudioOutput, mOutputFormat);
 
 			mDecoder.setCoder(mInputCoder);
 			mEncoder.setCoder(mOutputCoder);
@@ -137,6 +125,5 @@ void QCodingChain::checkFinished()
 		
 		emit finished();
 //start();
-//if(t<20){++t;start();cout<<"counter: "<<t<<endl;}
 	}
 }

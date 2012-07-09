@@ -2,7 +2,6 @@
 #define QCODINGCHAIN_H
 
 #include <qcodingchaincomponent.h>
-#include <qaudiomanager.h>
 
 class QCodingChain : public QThread
 {
@@ -24,6 +23,7 @@ class QCodingChain : public QThread
 
 		void setInputFilePath(QString filePath);
 		void setOutputFilePath(QString filePath);
+		void setOutputFormat(QExtendedFormat format);
 
 		void run();
 
@@ -31,8 +31,8 @@ class QCodingChain : public QThread
 
 		QString mInputFilePath;
 		QString mOutputFilePath;
+		QExtendedFormat mOutputFormat
 
-		QAudioManager mManager;
 		QAbstractCoder *mInputCoder;
 		QAbstractCoder *mOutputCoder;
 
@@ -51,8 +51,6 @@ class QCodingChain : public QThread
 
 		bool mInputAtEnd;
 		bool mIsFinished;
-
-int t;
 
 };
 

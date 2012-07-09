@@ -17,6 +17,12 @@ QAudioManager::QAudioManager()
 	testLibraries();
 }
 
+QAudioManager& QAudioManager::instance()
+{
+	static QAudioManager instance;
+	return instance;
+}
+
 void QAudioManager::addFileName(const QString coderName, const QString name)
 {
 	QAbstractCoder *theCoder = coder(coderName, QAudioManager::Available);

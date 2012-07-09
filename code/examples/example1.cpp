@@ -15,11 +15,13 @@ int main(int argc, char *argv[])
 {
 	QApplication application(argc, argv);
 
-QExtendedAudioFormat format;
-format.setChannelCount(2);
-format.setSampleRate(44100);
-format.setSampleSize(16);
-format.setBitrate(128);
+			QExtendedAudioFormat format;
+			format.setSampleSize(16);
+			format.setSampleType(QExtendedAudioFormat::SignedInt);
+			format.setSampleRate(44100);
+			format.setChannelCount(2);
+			format.setBitrateMode(QExtendedAudioFormat::VariableBitrate);
+			format.setBitrate(256);
 
 QAudioCoder coder;
 coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);

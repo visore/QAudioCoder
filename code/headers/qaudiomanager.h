@@ -18,7 +18,7 @@ class QAudioManager
 			Available = 1	
 		};
 
-		QAudioManager();
+		static QAudioManager& instance();
 
 		void addSearchPath(const QString searchPath);
 		void addFileName(const QString coderName, const QString name);
@@ -40,6 +40,8 @@ class QAudioManager
 		QCodecList codecs(const QAudioManager::Mode mode = QAudioManager::Available);
 
 	protected:
+
+		QAudioManager();
 
 		void initializeSearchPaths();
 		void testLibraries();
