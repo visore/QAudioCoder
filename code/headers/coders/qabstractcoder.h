@@ -93,7 +93,6 @@ class QAbstractCoder : public QObject
 		QString mVersion;
 		QStringList mFileNames;
 		QStringList mFileExtensions;
-		int mHeaderSize;
 
 		QByteArray mHeader;
 

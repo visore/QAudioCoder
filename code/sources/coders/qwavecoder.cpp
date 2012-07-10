@@ -57,6 +57,7 @@ QAudioCodec* QWaveCoder::detectCodec(const QByteArray &data)
 
 QByteArray& QWaveCoder::header()
 {
+	mHeader.clear();
 	QDataStream stream((QByteArray*) &mHeader, QIODevice::WriteOnly);
 
 	if(mOutputFormat.byteOrder() == QExtendedAudioFormat::LittleEndian)
