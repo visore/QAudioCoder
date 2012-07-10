@@ -7,52 +7,37 @@
 #include <qabstractcoder.h>
 #include <qsharedbuffer.h>
 
+#include<iostream>
+using namespace std;
+
 /**********************************************************
 QCodingChainComponent
 **********************************************************/
 
-class QCodingChainComponent : public QThread
+class QCodingChainComponent : public QObject
 {
 
 	Q_OBJECT
 
-	signals:
-
-		void wasFinished();
-
 	public slots:
 
-		virtual void dataAvailable();
-		virtual void processData(int size);
-
-		void finish();
+		virtual void changeFormat(QExtendedAudioFormat format);
+		void addData(QSampleArray *data);
 
 	public:
 
 		QCodingChainComponent();
-		~QCodingChainComponent();
-		void setInputBuffer(QSharedBuffer *buffer);
-		void setOutputBuffer(QSharedBuffer *buffer);
 
 		void setNext(QCodingChainComponent *next);
 
-		void initialize();
-		void run();
-		void finalize();
-
-		virtual void initializeComponent() = 0;
-		virtual void executeComponent() = 0;
-		virtual void finalizeComponent() = 0;
+		virtual void initialize() = 0;
+		virtual void execute() = 0;
+		virtual void finalize() = 0;
 
 	protected:
 
-		void (QCodingChainComponent::*runPointer)();
-
+		QQueue<QSampleArray*> mData;
 		QCodingChainComponent *mNext;
-		QSharedBuffer *mInputBuffer;
-		QSharedBuffer *mOutputBuffer;
-		int mChunksToRead;
-		bool mFinishUp;
 
 };
 
@@ -68,6 +53,7 @@ class QCodingChainInput : public QCodingChainComponent
 	public:
 
 		QCodingChainInput();
+		virtual bool hasData() = 0;
 
 };
 
@@ -80,16 +66,14 @@ class QCodingChainFileInput : public QCodingChainInput
 
 	Q_OBJECT
 
-	public slots:
-
-		void initializeComponent();
-		void executeComponent();
-		void finalizeComponent();
-
 	public:
 
 		QCodingChainFileInput();
 		void setFilePath(QString filePath);
+		bool hasData();
+		void initialize();
+		void execute();
+		void finalize();
 
 	protected:
 
@@ -110,7 +94,7 @@ class QCodingChainCoder : public QCodingChainComponent
 	public:
 
 		QCodingChainCoder();
-		void setCoder(QAbstractCoder *coder);
+		virtual void setCoder(QAbstractCoder *coder);
 
 	protected:
 
@@ -127,15 +111,13 @@ class QCodingChainDecoder : public QCodingChainCoder
 
 	Q_OBJECT
 
-	public slots:
-
-		void initializeComponent();
-		void finalizeComponent();
-
 	public:
 
 		QCodingChainDecoder();
-		void executeComponent();
+		void setCoder(QAbstractCoder *coder);
+		void initialize();
+		void execute();
+		void finalize();
 
 };
 
@@ -150,13 +132,14 @@ class QCodingChainEncoder : public QCodingChainCoder
 
 	public slots:
 
-		void initializeComponent();
-		void finalizeComponent();
+		void changeFormat(QExtendedAudioFormat format);
 
 	public:
 
 		QCodingChainEncoder();
-		void executeComponent(){}
+		void initialize();
+		void execute();
+		void finalize();
 
 };
 
@@ -172,7 +155,7 @@ class QCodingChainOutput : public QCodingChainComponent
 	public:
 
 		QCodingChainOutput();
-		void setHeader(QByteArray header);
+		void setHeader(QByteArray data);
 
 	protected:
 
@@ -189,16 +172,13 @@ class QCodingChainFileOutput : public QCodingChainOutput
 
 	Q_OBJECT
 
-	public slots:
-
-		void initializeComponent();
-		void finalizeComponent();
-
 	public:
 
 		QCodingChainFileOutput();
 		void setFilePath(QString filePath);
-		void executeComponent(){}
+		void initialize();
+		void execute();
+		void finalize();
 
 	protected:
 

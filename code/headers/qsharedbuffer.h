@@ -5,20 +5,10 @@
 #include <QQueue>
 #include <qsamplearray.h>
 
-#include <iostream>
-using namespace std;
-
-class QCodingChainComponent;
-
 class QSharedBuffer : public QObject
 {
 
 	Q_OBJECT
-
-	signals:
-
-		void dataAdded();
-		void almostEmpty(int size);
 
 	public slots:
 
@@ -28,8 +18,8 @@ class QSharedBuffer : public QObject
 
 		QSharedBuffer();
 		~QSharedBuffer();
-		void connect(QCodingChainComponent *sender, QCodingChainComponent *receiver);
 		QSampleArray* dequeue();
+		QSampleArray* dequeue(int &size);
 		bool isEmpty();
 		int size();
 		void clear();

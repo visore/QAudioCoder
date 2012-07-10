@@ -2,6 +2,7 @@
 #include <qwavecoder.h>
 #include <qlamecoder.h>
 #include <qflaccoder.h>
+#include <QSharedPointer>
 #include <QDir>
 
 #define DEFAUL_HEADER_SIZE 8192
@@ -9,12 +10,20 @@
 
 QAudioManager::QAudioManager()
 {
+	qRegisterMetaType<QExtendedAudioFormat>("QExtendedAudioFormat");
+
 	add(QAudioManager::Supported, new QWaveCoder);
 	add(QAudioManager::Supported, new QLameCoder);
 	add(QAudioManager::Supported, new QFlacCoder);
 
 	initializeSearchPaths();
 	testLibraries();
+}
+
+QAudioManager::~QAudioManager()
+{
+	qDeleteAll(mSupportedCoders);
+	mSupportedCoders.clear();
 }
 
 QAudioManager& QAudioManager::instance()

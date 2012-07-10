@@ -18,6 +18,7 @@ class QAudioManager
 			Available = 1	
 		};
 
+		~QAudioManager();
 		static QAudioManager& instance();
 
 		void addSearchPath(const QString searchPath);

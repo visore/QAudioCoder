@@ -24,7 +24,7 @@ class QAudioCoder : public QObject
 
 	private:
 
-		QCodingChain *mChain;
+		QCodingChain mChain;
 
 };
 

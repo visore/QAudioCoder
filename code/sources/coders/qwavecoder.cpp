@@ -83,6 +83,8 @@ QByteArray& QWaveCoder::header()
 
 	stream << qint8('d') << qint8('a') << qint8('t') << qint8('a');
 	stream << int(mSamples * mOutputFormat.sampleSize() / 8);
+
+	return mHeader;
 }
 /*
 

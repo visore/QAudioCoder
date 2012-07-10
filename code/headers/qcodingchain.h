@@ -2,20 +2,12 @@
 #define QCODINGCHAIN_H
 
 #include <qcodingchaincomponent.h>
+#include <qaudiomanager.h>
 
 class QCodingChain : public QThread
 {
 
 	Q_OBJECT
-
-	signals:
-
-		void finished();
-
-	private slots:
-
-		void inputFinished();
-		void checkFinished();
 
 	public:
 
@@ -33,6 +25,8 @@ class QCodingChain : public QThread
 		QString mOutputFilePath;
 		QExtendedAudioFormat mOutputFormat;
 
+		QAudioManager *mManager; //If not here, will automatically destruct coders
+
 		QAbstractCoder *mInputCoder;
 		QAbstractCoder *mOutputCoder;
 
@@ -44,13 +38,6 @@ class QCodingChain : public QThread
 
 		QCodingChainDecoder mDecoder;
 		QCodingChainEncoder mEncoder;
-
-		QSharedBuffer mBuffer1;
-		QSharedBuffer mBuffer2;
-		QSharedBuffer mBuffer3;
-
-		bool mInputAtEnd;
-		bool mIsFinished;
 
 };
 

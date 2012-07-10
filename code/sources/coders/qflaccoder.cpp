@@ -1,6 +1,9 @@
 #include <qflaccoder.h>
 #include <qflaccodec.h>
 
+#include<iostream>
+using namespace std;
+
 QFlacCoder::QFlacCoder()
 	: QAbstractCoder()
 {
