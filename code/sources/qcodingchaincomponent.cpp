@@ -1,7 +1,6 @@
 #include <qcodingchaincomponent.h>
 
 #define CHUNK_SIZE 8192
-#define REQUEST_THRESHOLD 5
 
 /**********************************************************
 QCodingChainComponent
@@ -16,6 +15,11 @@ QCodingChainComponent::QCodingChainComponent()
 void QCodingChainComponent::setNext(QCodingChainComponent *next)
 {
 	mNext = next;
+}
+
+int QCodingChainComponent::chunkSize()
+{
+	return CHUNK_SIZE;
 }
 
 void QCodingChainComponent::changeFormat(QExtendedAudioFormat format)
@@ -54,11 +58,12 @@ void QCodingChainFileInput::setFilePath(QString filePath)
 
 bool QCodingChainFileInput::hasData()
 {
-	if(!mFile.isOpen())
-	{
-		execute();
-	}
 	return !mFile.atEnd();
+}
+
+int QCodingChainFileInput::size()
+{
+	return mFile.size();
 }
 
 void QCodingChainFileInput::initialize()

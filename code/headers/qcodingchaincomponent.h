@@ -29,6 +29,7 @@ class QCodingChainComponent : public QObject
 		QCodingChainComponent();
 
 		void setNext(QCodingChainComponent *next);
+		int chunkSize();
 
 		virtual void initialize() = 0;
 		virtual void execute() = 0;
@@ -54,6 +55,7 @@ class QCodingChainInput : public QCodingChainComponent
 
 		QCodingChainInput();
 		virtual bool hasData() = 0;
+		virtual int size() = 0;
 
 };
 
@@ -71,6 +73,7 @@ class QCodingChainFileInput : public QCodingChainInput
 		QCodingChainFileInput();
 		void setFilePath(QString filePath);
 		bool hasData();
+		int size();
 		void initialize();
 		void execute();
 		void finalize();

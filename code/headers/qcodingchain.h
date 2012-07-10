@@ -9,6 +9,10 @@ class QCodingChain : public QThread
 
 	Q_OBJECT
 
+	signals:
+
+		void progressed(qint16 percentage);
+
 	public:
 
 		QCodingChain();
