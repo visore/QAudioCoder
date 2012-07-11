@@ -5,13 +5,6 @@
 #include <qsamplesizeconverter.h>
 #include <all.h>
 
-class QFlacCoder;
-
-struct ExtendedFlacStreamEncoder : FLAC__StreamEncoder
-{
-    QFlacCoder *coder;
-};
-
 class QFlacCoder : public QAbstractCoder
 {
 
@@ -41,11 +34,15 @@ class QFlacCoder : public QAbstractCoder
 		void encode16Normal(const void *input, int samples);
 		void encode32Normal(const void *input, int samples);
 
-		ExtendedFlacStreamEncoder* createExtendedEncoder();
+		FLAC__StreamEncoderWriteStatus (*flacWriteEncode)(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
+		static FLAC__StreamEncoderWriteStatus flacWriteEncodeHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
+		static FLAC__StreamEncoderWriteStatus flacWriteEncodeData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
 
-		FLAC__StreamEncoderWriteStatus (*flacWriteCallback)(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
-		static FLAC__StreamEncoderWriteStatus flacWriteCallbackHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
-		static FLAC__StreamEncoderWriteStatus flacWriteCallbackData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
+		static FLAC__StreamDecoderReadStatus flacReadDecode(const FLAC__StreamDecoder *decoder, FLAC__byte buffer[], size_t *bytes, void *client);
+		static FLAC__StreamDecoderWriteStatus flacWriteDecode(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
+		static FLAC__StreamDecoderWriteStatus flacWriteDecode8(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
+		static FLAC__StreamDecoderWriteStatus flacWriteDecode16(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
+		static FLAC__StreamDecoderWriteStatus flacWriteDecode32(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
 
 		QAbstractCoder::Error initializeLibrary();
 
@@ -64,16 +61,28 @@ class QFlacCoder : public QAbstractCoder
 
 		FLAC__bool (*m_FLAC__stream_encoder_process_interleaved)(FLAC__StreamEncoder*, const FLAC__int32[], unsigned);
 
+		
+		FLAC_API FLAC__StreamDecoder* (*m_FLAC__stream_decoder_new)();
+		void (*m_FLAC__stream_decoder_delete)(FLAC__StreamDecoder*);
+		FLAC__bool (*m_FLAC__stream_decoder_finish)(FLAC__StreamDecoder*);
+		FLAC__StreamDecoderInitStatus (*m_FLAC__stream_decoder_init_stream)(FLAC__StreamDecoder*, FLAC__StreamDecoderReadCallback, FLAC__StreamDecoderSeekCallback, FLAC__StreamDecoderTellCallback, FLAC__StreamDecoderLengthCallback, FLAC__StreamDecoderEofCallback, FLAC__StreamDecoderWriteCallback, FLAC__StreamDecoderMetadataCallback, FLAC__StreamDecoderErrorCallback, void*);
 
-
-FLAC__StreamEncoderState (*m_FLAC__stream_encoder_get_state)(const FLAC__StreamEncoder*);
+		unsigned (*m_FLAC__stream_decoder_get_channels)(const FLAC__StreamDecoder*);
+		unsigned (*m_FLAC__stream_decoder_get_bits_per_sample)(const FLAC__StreamDecoder*);
+		unsigned (*m_FLAC__stream_decoder_get_sample_rate)(const FLAC__StreamDecoder*);
+		
+		FLAC__bool (*m_FLAC__stream_decoder_process_until_end_of_stream)(FLAC__StreamDecoder*);
 
 	private:
 
 		void (QFlacCoder::*encodePointer)(const void *input, int samples);
 
 		QSampleSizeConverter mConverter;
-		ExtendedFlacStreamEncoder *mEncoder;
+		FLAC__StreamEncoder *mEncoder;
+		FLAC__StreamDecoder *mDecoder;
+
+		int mBufferSize;
+		qbyte *mBuffer;
 
 };
 
