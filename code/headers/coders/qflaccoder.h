@@ -2,6 +2,7 @@
 #define QFLACCODER_H
 
 #include <qabstractcoder.h>
+#include <qsamplesizeconverter.h>
 #include <all.h>
 
 class QFlacCoder;
@@ -33,11 +34,17 @@ class QFlacCoder : public QAbstractCoder
 
 	protected:
 
+		void encode8Convert(const void *input, int samples);
+		void encode16Convert(const void *input, int samples);
+		void encode32Convert(const void *input, int samples);
+		void encode8Normal(const void *input, int samples);
+		void encode16Normal(const void *input, int samples);
+		void encode32Normal(const void *input, int samples);
+
 		ExtendedFlacStreamEncoder* createExtendedEncoder();
 		static FLAC__StreamEncoderWriteStatus flacWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
 
 		QAbstractCoder::Error initializeLibrary();
-
 
 	private:
 
@@ -54,8 +61,15 @@ class QFlacCoder : public QAbstractCoder
 
 		FLAC__bool (*m_FLAC__stream_encoder_process_interleaved)(FLAC__StreamEncoder*, const FLAC__int32[], unsigned);
 
+
+
+FLAC__StreamEncoderState (*m_FLAC__stream_encoder_get_state)(const FLAC__StreamEncoder*);
+
 	private:
 
+		void (QFlacCoder::*encodePointer)(const void *input, int samples);
+
+		QSampleSizeConverter mConverter;
 		ExtendedFlacStreamEncoder *mEncoder;
 
 };

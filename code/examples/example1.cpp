@@ -23,10 +23,10 @@ int main(int argc, char *argv[])
 			format.setBitrate(320, QExtendedAudioFormat::MinimumBitrate);
 			format.setBitrate(320, QExtendedAudioFormat::MaximumBitrate);
 			format.setQuality(QExtendedAudioFormat::InsaneHigh);
-			format.setCodec("MP3");
+			format.setCodec("FLAC");
 
 QAudioCoder coder;
-coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);
+coder.convert("/home/visore/a.wav", "/home/visore/meee.flac", format);
 //coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.mp3", format);
 
 

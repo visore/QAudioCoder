@@ -131,7 +131,6 @@ cout<<mOutputFormat.bitrate(QExtendedAudioFormat::NormalBitrate) <<" "<< mOutput
 
 	m_lame_init_params(mLameEncoder);
 
-
 	int inputSampleSize = mInputFormat.sampleSize();
 	int outputSampleSize = mOutputFormat.sampleSize();
 	QExtendedAudioFormat::SampleType sampleType = mInputFormat.sampleType();

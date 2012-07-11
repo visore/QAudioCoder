@@ -168,7 +168,6 @@ void QCodingChainEncoder::changeFormat(QExtendedAudioFormat format)
 		{
 			int size = mCoder->headerSize();
 			qbyte *data = new qbyte[size];
-cout<<size<<"+++++++"<<endl;
 			mNext->addData(new QSampleArray(data, size));
 			QObject::connect(mCoder, SIGNAL(encoded(QSampleArray*)), mNext, SLOT(addData(QSampleArray*)), Qt::DirectConnection);
 		}

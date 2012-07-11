@@ -42,7 +42,45 @@ int QFlacCoder::headerSize()
 
 bool QFlacCoder::initializeEncode()
 {
-mError = QAbstractCoder::NoError;
+	mError = QAbstractCoder::NoError;
+
+	int inputSampleSize = mInputFormat.sampleSize();
+	int outputSampleSize = mOutputFormat.sampleSize();
+	QExtendedAudioFormat::SampleType sampleType = mInputFormat.sampleType();
+
+	if(sampleType == QExtendedAudioFormat::SignedInt)
+	{
+		if(inputSampleSize == outputSampleSize)
+		{
+			if(inputSampleSize == 8) encodePointer = &QFlacCoder::encode8Normal;
+			else if(inputSampleSize == 16) encodePointer = &QFlacCoder::encode16Normal;
+			else if(inputSampleSize == 32) encodePointer = &QFlacCoder::encode32Normal;
+			else
+			{
+				mError = QAbstractCoder::SampleSizeError;
+				return false;
+			}
+		}
+	}
+	else
+	{
+		if(mConverter.initialize(inputSampleSize, sampleType, outputSampleSize, QExtendedAudioFormat::SignedInt))
+		{
+			if(outputSampleSize == 8) encodePointer = &QFlacCoder::encode8Convert;
+			else if(outputSampleSize == 16) encodePointer = &QFlacCoder::encode16Convert;
+			else if(outputSampleSize == 32) encodePointer = &QFlacCoder::encode32Convert;
+			else
+			{
+				mError = QAbstractCoder::SampleSizeError;
+				return false;
+			}
+		}
+		else
+		{
+			mError = QAbstractCoder::SampleSizeError;
+			return false;
+		}
+	}
 
 	if(mEncoder != NULL)
 	{
@@ -52,8 +90,6 @@ mError = QAbstractCoder::NoError;
 	{
 		return false;
 	}
-
-
 
 	FLAC__bool ok = true;
 	ok &= m_FLAC__stream_encoder_set_verify(mEncoder, true);
@@ -109,10 +145,83 @@ bool QFlacCoder::finalizeEncode()
 
 void QFlacCoder::encode(const void *input, int samples)
 {
-	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, (FLAC__int32*) input, samples/2)) ////////////////// Change conversion
+	/*if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, (FLAC__int32*) input, samples/2)) ////////////////// Change conversion
 	{
 		cout<<"fail"<<endl;
+	}*/
+	(this->*encodePointer)(input, samples);
+}
+
+void QFlacCoder::encode8Convert(const void *input, int samples)
+{
+	qbyte8s data[samples];
+	mConverter.convert(input, data, samples);
+	FLAC__int32 inputData[samples];
+	for(int i = 0; i < samples; ++i)
+	{
+		inputData[i] = data[i];
 	}
+	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+}
+
+void QFlacCoder::encode16Convert(const void *input, int samples)
+{
+	qbyte16s data[samples];
+	mConverter.convert(input, data, samples);
+	FLAC__int32 inputData[samples];
+	for(int i = 0; i < samples; ++i)
+	{
+		inputData[i] = data[i];
+	}
+	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+}
+
+void QFlacCoder::encode32Convert(const void *input, int samples)
+{
+	qbyte32s data[samples];
+	mConverter.convert(input, data, samples);
+	FLAC__int32 inputData[samples];
+	for(int i = 0; i < samples; ++i)
+	{
+		inputData[i] = data[i];
+	}
+	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+}
+
+void QFlacCoder::encode8Normal(const void *input, int samples)
+{
+	qbyte8s *data = (qbyte8s*) input;
+	FLAC__int32 inputData[samples];
+	for(int i = 0; i < samples; ++i)
+	{
+		inputData[i] = data[i];
+	}
+	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+}
+
+void QFlacCoder::encode16Normal(const void *input, int samples)
+{
+	qbyte16s *data = (qbyte16s*) input;
+	FLAC__int32 inputData[samples];
+	for(int i = 0; i < samples; ++i)
+	{
+		inputData[i] = data[i];
+	}
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		cout<<m_FLAC__stream_encoder_get_state(mEncoder)<<endl;
+	}
+}
+
+void QFlacCoder::encode32Normal(const void *input, int samples)
+{
+	qbyte32s *data = (qbyte32s*) input;
+	FLAC__int32 inputData[samples];
+	for(int i = 0; i < samples; ++i)
+	{
+		inputData[i] = data[i];
+	}
+	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
 }
 
 bool QFlacCoder::initializeDecode()
@@ -144,7 +253,10 @@ ExtendedFlacStreamEncoder* QFlacCoder::createExtendedEncoder()
 FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData)
 {
 	ExtendedFlacStreamEncoder *extended = (ExtendedFlacStreamEncoder*) encoder;
-	emit extended->coder->encoded(new QSampleArray((qbyte*) buffer, numberOfBytes, numberOfSamples));
+	qbyte *data = new qbyte[numberOfBytes];
+	memcpy(data, buffer, numberOfBytes);
+	emit extended->coder->encoded(new QSampleArray(data, numberOfBytes, numberOfSamples));
+	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
 }
 
 QAbstractCoder::Error QFlacCoder::initializeLibrary()
@@ -174,6 +286,14 @@ QAbstractCoder::Error QFlacCoder::initializeLibrary()
 	loaded.append((m_FLAC__stream_encoder_set_sample_rate = (FLAC__bool (*)(FLAC__StreamEncoder*, unsigned)) mLibrary.resolve("FLAC__stream_encoder_set_sample_rate")) != NULL);
 
 	loaded.append((m_FLAC__stream_encoder_process_interleaved = (FLAC__bool (*)(FLAC__StreamEncoder*, const FLAC__int32[], unsigned)) mLibrary.resolve("FLAC__stream_encoder_process_interleaved")) != NULL);
+
+
+
+
+loaded.append((m_FLAC__stream_encoder_get_state = (FLAC__StreamEncoderState (*)(const FLAC__StreamEncoder*)) mLibrary.resolve("FLAC__stream_encoder_get_state")) != NULL);
+
+
+
 
 	for(int i = 0; i < loaded.size(); ++i)
 	{
