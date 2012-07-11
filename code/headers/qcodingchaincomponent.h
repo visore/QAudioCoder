@@ -15,9 +15,11 @@ QCodingChainComponent
 **********************************************************/
 
 class QCodingChainFileInput;
+class QCodingChainDataInput;
 class QCodingChainDecoder;
 class QCodingChainEncoder;
 class QCodingChainFileOutput;
+class QCodingChainDataOutput;
 
 class QCodingChainComponent : public QObject
 {
@@ -25,10 +27,11 @@ class QCodingChainComponent : public QObject
 	Q_OBJECT
 
 	friend class QCodingChainFileInput;
+	friend class QCodingChainDataInput;
 	friend class QCodingChainDecoder;
 	friend class QCodingChainEncoder;
 	friend class QCodingChainFileOutput;
-	friend class QAbstractCoder;
+	friend class QCodingChainDataOutput;
 
 	protected slots:
 
@@ -98,6 +101,33 @@ class QCodingChainFileInput : public QCodingChainInput
 
 		QString mFilePath;
 		QFile mFile;
+
+};
+
+/**********************************************************
+QCodingChainDataInput
+**********************************************************/
+
+class QCodingChainDataInput : public QCodingChainInput
+{
+
+	Q_OBJECT
+
+	public:
+
+		QCodingChainDataInput();
+		~QCodingChainDataInput();
+		void setData(QByteArray &data);
+		bool hasData();
+		int size();
+		void initialize();
+		void execute();
+		void finalize();
+
+	protected:
+
+		QByteArray *mByteArray;
+		QDataStream *mStream;
 
 };
 
@@ -199,6 +229,32 @@ class QCodingChainFileOutput : public QCodingChainOutput
 
 		QString mFilePath;
 		QFile mFile;
+
+};
+
+/**********************************************************
+QCodingChainDataOutput
+**********************************************************/
+
+class QCodingChainDataOutput : public QCodingChainOutput
+{
+
+	Q_OBJECT
+
+	public:
+
+		QCodingChainDataOutput();
+		~QCodingChainDataOutput();
+		void setData(QByteArray &data);
+		void seek(qint64 position);
+		void initialize();
+		void execute();
+		void finalize();
+
+	protected:
+
+		QByteArray *mByteArray;
+		QDataStream *mStream;
 
 };
 

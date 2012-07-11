@@ -32,7 +32,7 @@ class QAudioManager
 		QAbstractCoder* coder(const QExtendedAudioFormat &format, const QAudioManager::Mode mode = QAudioManager::Available) const;
 
 		QAbstractCoder* detect(const QString filePath, const QAudioManager::Mode mode = QAudioManager::Available);
-		QAbstractCoder* detect(const QByteArray data, const QAudioManager::Mode mode = QAudioManager::Available);
+		QAbstractCoder* detect(const QByteArray &data, const QAudioManager::Mode mode = QAudioManager::Available);
 
 		bool isAvailable(const QAbstractCoder *coder) const;
 		bool isAvailable(const QAudioCodec *codec) const;

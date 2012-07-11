@@ -79,10 +79,7 @@ int QCodingChainFileInput::size()
 void QCodingChainFileInput::initialize()
 {
 	mFile.setFileName(mFilePath);
-	if(!mFile.open(QIODevice::ReadOnly))
-	{
-		return;
-	}
+	mFile.open(QIODevice::ReadOnly);
 }
 
 void QCodingChainFileInput::execute()
@@ -95,6 +92,69 @@ void QCodingChainFileInput::execute()
 void QCodingChainFileInput::finalize()
 {
 	mFile.close();
+}
+
+/**********************************************************
+QCodingChainDataInput
+**********************************************************/
+
+QCodingChainDataInput::QCodingChainDataInput()
+	: QCodingChainInput()
+{
+	mByteArray = NULL;
+	mStream = NULL;
+}
+
+QCodingChainDataInput::~QCodingChainDataInput()
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mByteArray = NULL;
+}
+
+void QCodingChainDataInput::setData(QByteArray &data)
+{
+	mByteArray = &data;
+}
+
+bool QCodingChainDataInput::hasData()
+{
+	return !mStream->atEnd();
+}
+
+int QCodingChainDataInput::size()
+{
+	return mByteArray->size();
+}
+
+void QCodingChainDataInput::initialize()
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mStream = new QDataStream(mByteArray, QIODevice::ReadOnly);
+}
+
+void QCodingChainDataInput::execute()
+{
+	char *data = new char[CHUNK_SIZE];
+	int size = mStream->readRawData(data, CHUNK_SIZE);
+	mNext->addData(new QSampleArray(data, size));
+}
+
+void QCodingChainDataInput::finalize()
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mByteArray = NULL;
 }
 
 /**********************************************************
@@ -238,5 +298,69 @@ void QCodingChainFileOutput::execute()
 {
 	QSampleArray *array = mData.dequeue();
 	mFile.write(array->charData(), array->size());
+	delete array;
+}
+
+/**********************************************************
+QCodingChainDataOutput
+**********************************************************/
+
+QCodingChainDataOutput::QCodingChainDataOutput()
+	: QCodingChainOutput()
+{
+	mByteArray = NULL;
+	mStream = NULL;
+}
+
+QCodingChainDataOutput::~QCodingChainDataOutput()
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mByteArray = NULL;
+}
+
+void QCodingChainDataOutput::setData(QByteArray &data)
+{
+	mByteArray = &data;
+}
+
+void QCodingChainDataOutput::seek(qint64 position)
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mStream = new QDataStream(mByteArray, QIODevice::WriteOnly);
+	mStream->skipRawData(position);
+}
+
+void QCodingChainDataOutput::initialize()
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mStream = new QDataStream(mByteArray, QIODevice::WriteOnly);
+}
+
+void QCodingChainDataOutput::finalize()
+{
+	if(mStream != NULL)
+	{
+		delete mStream;
+		mStream = NULL;
+	}
+	mByteArray = NULL;
+}
+
+void QCodingChainDataOutput::execute()
+{
+	QSampleArray *array = mData.dequeue();
+	mStream->writeRawData(array->charData(), array->size());
 	delete array;
 }

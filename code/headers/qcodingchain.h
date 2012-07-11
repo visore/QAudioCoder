@@ -15,18 +15,51 @@ class QCodingChain : public QThread
 
 	public:
 
+		enum Mode
+		{
+			Unknown = 0,
+			ConvertFileToFile = 1,
+			ConvertFileToData = 2,
+			ConvertDataToData = 3,
+			ConvertDataToFile = 4,
+			DecodeFile = 5,
+			DecodeData = 6,
+			EncodeFile = 7,
+			EncodeData = 8
+		};
+
 		QCodingChain();
 
-		void setInputFilePath(QString filePath);
-		void setOutputFilePath(QString filePath);
-		void setOutputFormat(QExtendedAudioFormat format);
+		void setMode(QCodingChain::Mode mode);
+
+		void setInput(QString filePath);
+		void setOutput(QString filePath);
+
+		void setInput(QByteArray &array);
+		void setOutput(QByteArray &array);
+
+		void setInput(QExtendedAudioFormat format);
+		void setOutput(QExtendedAudioFormat format);
 
 		void run();
 
+	protected:
+
+		void reset();
+
+		void detectCoderData();
+		void detectCoderFile();
+
 	private:
 
+		void (QCodingChain::*detectCoder)();
+
+		QCodingChain::Mode mMode;
+
 		QString mInputFilePath;
-		QString mOutputFilePath;
+		QByteArray *mInputData;
+
+		QExtendedAudioFormat mInputFormat;
 		QExtendedAudioFormat mOutputFormat;
 
 		QAudioManager *mManager; //If not here, will automatically destruct coders
@@ -39,6 +72,9 @@ class QCodingChain : public QThread
 
 		QCodingChainFileInput mFileInput;
 		QCodingChainFileOutput mFileOutput;
+
+		QCodingChainDataInput mDataInput;
+		QCodingChainDataOutput mDataOutput;
 
 		QCodingChainDecoder mDecoder;
 		QCodingChainEncoder mEncoder;

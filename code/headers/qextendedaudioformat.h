@@ -42,6 +42,8 @@ class QExtendedAudioFormat
 			Depended on codec:
 			 1. File size might be larger on higher quality, because samples were compressed less and therefore less information loss (typically lossy codecs).
 			 2. File size might be smaller on higher quality, because samples were compressed more without information loss - longer execution time (typcially lossless codecs).
+
+			Hence these values might indicate the quality of sound for lossy codecs, or the level of compression for lossless codecs (higher quality indicates higher compression).
 		*/
 		enum Quality
 		{

@@ -46,7 +46,6 @@ class QFlacCoder : public QAbstractCoder, public QThread
 		static FLAC__StreamEncoderWriteStatus flacWriteEncode(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
 		static FLAC__StreamEncoderWriteStatus flacWriteEncodeHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
 		static FLAC__StreamEncoderWriteStatus flacWriteEncodeData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
-		static void flacMetadataEncode(const FLAC__StreamEncoder *encoder, const FLAC__StreamMetadata *metadata, void *client);
 		static FLAC__StreamEncoderSeekStatus flacSeekEncode(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client);
 		static FLAC__StreamEncoderTellStatus flacTellEncode(const FLAC__StreamEncoder *encoder, FLAC__uint64 *absolute_byte_offset, void *client);
 

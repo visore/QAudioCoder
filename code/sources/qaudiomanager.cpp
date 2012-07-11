@@ -235,7 +235,7 @@ QAbstractCoder* QAudioManager::detect(const QString filePath, const QAudioManage
 	return NULL;
 }
 
-QAbstractCoder* QAudioManager::detect(const QByteArray data, const QAudioManager::Mode mode)
+QAbstractCoder* QAudioManager::detect(const QByteArray &data, const QAudioManager::Mode mode)
 {
 	QCoderList coders;
 	if(mode == QAudioManager::Available)

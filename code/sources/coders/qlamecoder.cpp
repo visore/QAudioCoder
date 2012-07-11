@@ -116,7 +116,6 @@ bool QLameCoder::initializeEncode()
 	m_lame_set_VBR_mean_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::NormalBitrate));
 	m_lame_set_VBR_min_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::MinimumBitrate));
 	m_lame_set_VBR_max_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::MaximumBitrate));
-cout<<mOutputFormat.bitrate(QExtendedAudioFormat::NormalBitrate) <<" "<< mOutputFormat.bitrate(QExtendedAudioFormat::MinimumBitrate)<< " "<< mOutputFormat.bitrate(QExtendedAudioFormat::MaximumBitrate)<<endl;
 
 	m_lame_set_quality(mLameEncoder, mOutputFormat.quality());
 	m_lame_set_out_samplerate(mLameEncoder, mOutputFormat.sampleRate());
@@ -355,6 +354,8 @@ bool QLameCoder::initializeDecode()
 	mMaximumBitrate = INT_MIN;
 	mBitrateCounter = 0;
 
+	mFormatWasDetected = false;
+
 	return true;
 }
 
@@ -377,98 +378,30 @@ void QLameCoder::decode(const void *input, int size)
 		if(mp3Header.bitrate < mMinimumBitrate)
 		{
 			mMinimumBitrate = mp3Header.bitrate;
+			mInputFormat.setBitrate(mMinimumBitrate, QExtendedAudioFormat::MinimumBitrate);
 		}
 		else if(mp3Header.bitrate > mMaximumBitrate)
 		{
 			mMaximumBitrate = mp3Header.bitrate;
+			mInputFormat.setBitrate(mMaximumBitrate, QExtendedAudioFormat::MaximumBitrate);
 		}
 		mInputFormat.setBitrate(mTotalBitrate / mBitrateCounter, QExtendedAudioFormat::NormalBitrate);
-		mInputFormat.setBitrate(mMinimumBitrate, QExtendedAudioFormat::MinimumBitrate);
-		mInputFormat.setBitrate(mMaximumBitrate, QExtendedAudioFormat::MaximumBitrate);
+		
+		if(!mFormatWasDetected)
+		{
+			mFormatWasDetected = true;
+			mInputFormat.setSampleRate(mp3Header.samplerate);
+			mInputFormat.setChannelCount(mp3Header.stereo);
+			mInputFormat.setSampleSize(16);
+			mInputFormat.setSampleType(QExtendedAudioFormat::SignedInt);
+			emit formatChanged(mInputFormat);
+		}
 
 		short *stereo = new short[samples * 2];
 		samples = QChannelConverter<short>::combineChannels(left, right, stereo, samples);
 		emit decoded(new QSampleArray(stereo, samples * sizeof(short), samples));
 	}
 }
-/*
-QAbstractCoder::Header QLameCoder::inspectHeader(const QByteArray &header, QExtendedAudioFormat &format, QAudioInfo &content)
-{
-	
-
-	Check for MP3 frame header
-	The following is in binary:
-	
-	MP3 sync word: 111111111111
-	Version (Mpeg): 1
-	Layer (3): 01
-	Error protection (yes or no): 0 or 1
-
-	Hence the total:
-	Binary: 1111111111111010 or 1111111111111011
-	Hex: FFFA or FFFB
-	Char: 255_250 or 255_251
-
-	
-
-	QList<int> syncPositions;
-	char sync1(255);
-	char sync2(250);
-	char sync3(251);
-
-	int end = header.size() - 1;
-
-	for(int i = 0; i < end; ++i)
-	{
-		if(header[i] == sync1 && (header[i + 1] == sync2 || header[i + 1] == sync3))
-		{
-			syncPositions.append(i);
-
-			if(sequentialFrames(syncPositions) >= MINIMUM_HEADER_FRAMES)
-			{
-				load();
-	
-				hip_t decoder = m_hip_decode_init();
-				mp3data_struct mp3Header;
-				short data[header.size() * 10]; //TODO: What (minimum) size should this array be?
-				m_hip_decode_headers(decoder, (unsigned char *) header.data(), header.size(), data, data, &mp3Header);
-				m_hip_decode_exit(decoder);
-
-				format.setChannels(mp3Header.stereo);
-				format.setSampleRate(mp3Header.samplerate);
-				format.setBitrate(mp3Header.bitrate);
-				format.setSampleType(QExtendedAudioFormat::SignedInt);
-
-				content.setSamples(mp3Header.nsamp);
-				content.setHeaderSize(0);
-				content.setTrailerSize(0);
-				content.setDataSize(mp3Header.nsamp * 2); // * 2 because 16bit data
-
-				return QAbstractCoder::ValidHeader;
-			}
-		}
-	}
-
-	return QAbstractCoder::NeedMoreData;
-}*/
-/*
-void QLameCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
-{
-	if(mLameEncoder != NULL)
-	{
-		int bytes = 4192;
-		char *data = new char[bytes];
-		int bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytes);
-		if(bytesWritten > bytes) //Buffer (data) too small
-		{
-			delete [] data;
-			data = new char[bytesWritten];
-			bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytesWritten);
-		}
-		header.append(data, bytesWritten);
-		delete [] data;
-	}
-}*/
 
 int QLameCoder::sequentialFrames(QList<int> positions)
 {

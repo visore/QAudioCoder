@@ -141,7 +141,7 @@ bool QFlacCoder::initializeEncode()
 	if(ok)
 	{
 		flacWriteEncodePointer = &QFlacCoder::flacWriteEncodeHeader;
-		FLAC__StreamEncoderInitStatus initStatus = m_FLAC__stream_encoder_init_stream(mEncoder, flacWriteEncode, flacSeekEncode, flacTellEncode, flacMetadataEncode, this);
+		FLAC__StreamEncoderInitStatus initStatus = m_FLAC__stream_encoder_init_stream(mEncoder, flacWriteEncode, flacSeekEncode, flacTellEncode, NULL, this);
 		if(initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_INVALID_NUMBER_OF_CHANNELS)
 		{
 			mError = QAbstractCoder::NumberOfChannelsError;
@@ -401,11 +401,6 @@ FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteEncodeData(const FLAC__Strea
 	memcpy(data, buffer, numberOfBytes);
 	emit coder->encoded(new QSampleArray(data, numberOfBytes, numberOfSamples));
 	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
-}
-
-void QFlacCoder::flacMetadataEncode(const FLAC__StreamEncoder *encoder, const FLAC__StreamMetadata *metadata, void *client)
-{
-cout<<metadata->data.stream_info.total_samples<<endl;
 }
 
 FLAC__StreamEncoderSeekStatus QFlacCoder::flacSeekEncode(const FLAC__StreamEncoder *encoder, FLAC__uint64 absolute_byte_offset, void *client)

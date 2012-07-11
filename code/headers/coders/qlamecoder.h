@@ -85,6 +85,8 @@ class QLameCoder : public QAbstractCoder
 		qint32 mMaximumBitrate;
 		qint32 mBitrateCounter;
 
+		bool mFormatWasDetected;
+
 };
 
 #endif
