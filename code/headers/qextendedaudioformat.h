@@ -38,6 +38,11 @@ class QExtendedAudioFormat
 			MaximumBitrate = 2
 		};
 
+		/*
+			Depended on codec:
+			 1. File size might be larger on higher quality, because samples were compressed less and therefore less information loss (typically lossy codecs).
+			 2. File size might be smaller on higher quality, because samples were compressed more without information loss - longer execution time (typcially lossless codecs).
+		*/
 		enum Quality
 		{
 			InsaneHigh = 0,
@@ -49,7 +54,10 @@ class QExtendedAudioFormat
 			BelowAverage = 6,
 			Low = 7,
 			VeryLow = 8,
-			ExtremeLow = 9
+			ExtremeLow = 9,
+
+			Maximum = InsaneHigh, //Internal use only
+			Minimum = ExtremeLow //Internal use only
 		};
 
 		QExtendedAudioFormat();

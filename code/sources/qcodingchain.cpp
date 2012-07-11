@@ -84,7 +84,7 @@ void QCodingChain::run()
 				{
 					progress = progressedData / totalSize * 99; // * 99 to first finalize everything before 100% is emitted
 				}
-				cout << "Progress: " << progress << "%" << endl;
+				//cout << "Progress: " << progress << "%" << endl;
 				emit progressed(progress);
 			}
 
