@@ -207,12 +207,10 @@ void QFlacCoder::encode16Normal(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-cout<<"enc1"<<endl;
-	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	/*if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
 	{
 		cout<<m_FLAC__stream_encoder_get_state(mEncoder)<<endl;
-	}
-cout<<"enc2"<<endl;
+	}*/
 }
 
 void QFlacCoder::encode32Normal(const void *input, int samples)
@@ -258,7 +256,6 @@ FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallback(const FLAC__StreamE
 	qbyte *data = new qbyte[numberOfBytes];
 	memcpy(data, buffer, numberOfBytes);
 	emit extended->coder->encoded(new QSampleArray(data, numberOfBytes, numberOfSamples));
-cout<<"enc99"<<endl;
 	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
 }
 
