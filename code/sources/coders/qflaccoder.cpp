@@ -37,12 +37,14 @@ QByteArray& QFlacCoder::header()
 
 int QFlacCoder::headerSize()
 {
-	return 0;
+	return mHeader.size();
 }
 
 bool QFlacCoder::initializeEncode()
 {
 	mError = QAbstractCoder::NoError;
+
+	mHeader.clear();
 
 	int inputSampleSize = mInputFormat.sampleSize();
 	int outputSampleSize = mOutputFormat.sampleSize();
@@ -102,6 +104,7 @@ bool QFlacCoder::initializeEncode()
 
 	if(ok)
 	{
+		flacWriteCallback = &QFlacCoder::flacWriteCallbackHeader;
 		FLAC__StreamEncoderInitStatus initStatus = m_FLAC__stream_encoder_init_stream(mEncoder, flacWriteCallback, NULL, NULL, NULL, NULL);
 		if(initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_INVALID_NUMBER_OF_CHANNELS)
 		{
@@ -119,6 +122,7 @@ bool QFlacCoder::initializeEncode()
 		{
 			ok = false;
 		}
+		flacWriteCallback = &QFlacCoder::flacWriteCallbackData;
 	}
 	if(ok)
 	{
@@ -207,10 +211,10 @@ void QFlacCoder::encode16Normal(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	/*if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
 	{
 		cout<<m_FLAC__stream_encoder_get_state(mEncoder)<<endl;
-	}*/
+	}
 }
 
 void QFlacCoder::encode32Normal(const void *input, int samples)
@@ -250,8 +254,16 @@ ExtendedFlacStreamEncoder* QFlacCoder::createExtendedEncoder()
 	return extended;
 }
 
-FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData)
+FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallbackHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData)
 {
+	ExtendedFlacStreamEncoder *extended = (ExtendedFlacStreamEncoder*) encoder;
+	extended->coder->mHeader.append((char*) buffer, numberOfBytes);
+	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
+}
+
+FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteCallbackData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData)
+{
+cout<<"++++: "<<"data"<<endl;
 	ExtendedFlacStreamEncoder *extended = (ExtendedFlacStreamEncoder*) encoder;
 	qbyte *data = new qbyte[numberOfBytes];
 	memcpy(data, buffer, numberOfBytes);

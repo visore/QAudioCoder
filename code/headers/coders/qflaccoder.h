@@ -42,7 +42,10 @@ class QFlacCoder : public QAbstractCoder
 		void encode32Normal(const void *input, int samples);
 
 		ExtendedFlacStreamEncoder* createExtendedEncoder();
-		static FLAC__StreamEncoderWriteStatus flacWriteCallback(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
+
+		FLAC__StreamEncoderWriteStatus (*flacWriteCallback)(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
+		static FLAC__StreamEncoderWriteStatus flacWriteCallbackHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
+		static FLAC__StreamEncoderWriteStatus flacWriteCallbackData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData);
 
 		QAbstractCoder::Error initializeLibrary();
 
