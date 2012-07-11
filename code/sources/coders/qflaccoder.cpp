@@ -5,8 +5,29 @@
 #include<iostream>
 using namespace std;
 
+/*void QFlacCoderThread::setDecoder(FLAC__StreamDecoder *decoder)
+{
+	mDecoder = decoder;
+}
+
+void QFlacCoderThread::addData(void *data, int size)
+{
+	mMutex.lock();
+	mData.append((char*) data, size);
+	mMutex.unlock();
+	if(!isRunning())
+	{
+		start();
+	}
+}
+
+void QFlacCoderThread::run()
+{
+	m_FLAC__stream_decoder_process_until_end_of_stream(mDecoder);
+}*/
+
 QFlacCoder::QFlacCoder()
-	: QAbstractCoder()
+	: QAbstractCoder(), QThread()
 {
 	mName = "Flac";
 	addFileName("FLAC");
@@ -239,6 +260,9 @@ void QFlacCoder::encode32Normal(const void *input, int samples)
 
 bool QFlacCoder::initializeDecode()
 {
+	mIsPaused = false;
+	mAtEnd = false;
+
 	if(mDecoder != NULL)
 	{
 		m_FLAC__stream_decoder_delete(mDecoder);
@@ -249,16 +273,36 @@ bool QFlacCoder::initializeDecode()
 		return false;
 	}
 
-	if(m_FLAC__stream_decoder_init_stream(mDecoder, flacReadDecode, NULL, NULL, NULL, NULL, flacWriteDecode, NULL, NULL, this) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
+	if(m_FLAC__stream_decoder_init_stream(mDecoder, flacReadDecode, NULL, NULL, NULL, NULL, flacWriteDecode, NULL, flacErrorDecode, this) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 	{
 		mError = QAbstractCoder::InitializationError;
 		return false;
 	}
+
+	QExtendedAudioFormat f;
+	f.setChannels(2);
+	f.setSampleSize(16);
+	f.setSampleRate(44100);
+	f.setSampleType(QExtendedAudioFormat::SignedInt);
+
+	emit formatChanged(f);
+
 	return true;
 }
 
 bool QFlacCoder::finalizeDecode()
 {
+	mAtEnd = true;
+	if(isPaused())
+	{
+		resume();
+	}
+	else if(!isRunning())
+	{
+		start();
+	}
+	while(isRunning());
+
 	if(mDecoder != NULL)
 	{
 		m_FLAC__stream_decoder_finish(mDecoder);
@@ -271,9 +315,71 @@ bool QFlacCoder::finalizeDecode()
 
 void QFlacCoder::decode(const void *input, int size)
 {
-	mBufferSize = size;
-	mBuffer = (qbyte*) input;
+	mMutex.lock();
+	mData.append((char*)input, size);
+	mMutex.unlock();
+
+	if(isPaused())
+	{
+		resume();
+	}
+	else if(!isRunning())
+	{
+		start();
+	}
+	if(isRunning())
+	{
+		mWaiter.lock();
+		mWaitCondition.wait(&mWaiter);
+		mWaiter.unlock();
+	}
+}
+
+void QFlacCoder::run()
+{
 	m_FLAC__stream_decoder_process_until_end_of_stream(mDecoder);
+}
+
+void QFlacCoder::pause()
+{
+	mPauser.lock();
+	mIsPaused = true;
+	mPauser.unlock();
+}
+
+void QFlacCoder::resume()
+{
+	mPauser.lock();
+	mIsPaused = false;
+	mPauser.unlock();
+	mPauseCondition.wakeAll();
+}
+
+void QFlacCoder::wait()
+{
+	mPauser.lock();
+	if(mIsPaused)
+	{
+		mWaitCondition.wakeAll();
+		mPauseCondition.wait(&mPauser);
+	}
+	mPauser.unlock();
+}
+
+int QFlacCoder::dataSize()
+{
+	mMutex.lock();
+	int size = mData.size();
+	mMutex.unlock();
+	return size;
+}
+
+bool QFlacCoder::isPaused()
+{
+	mMutex.lock();
+	bool paused = mIsPaused;
+	mMutex.unlock();
+	return paused;
 }
 
 FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteEncodeHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client)
@@ -292,18 +398,28 @@ FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteEncodeData(const FLAC__Strea
 	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
 }
 
+void QFlacCoder::flacErrorDecode(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client)
+{
+	QFlacCoder *coder = (QFlacCoder*) client;
+	coder->mError = QAbstractCoder::DecoderError;
+}
+
 FLAC__StreamDecoderReadStatus QFlacCoder::flacReadDecode(const FLAC__StreamDecoder *decoder, FLAC__byte buffer[], size_t *bytes, void *client)
 {
 	QFlacCoder *coder = (QFlacCoder*) client;
-	int size = qMin(int(*bytes), coder->mBufferSize);
-	if(size <= 0)
+	while(!coder->mAtEnd && *bytes > coder->dataSize())
 	{
-		return FLAC__STREAM_DECODER_READ_STATUS_END_OF_STREAM;
+		coder->pause();
+		coder->wait();
 	}
-	memcpy(buffer,coder->mBuffer, size);
-	*bytes = size;
-	coder->mBuffer += size;
-	coder->mBufferSize -= size;
+	if(!coder->mAtEnd && *bytes > coder->dataSize())
+	{
+		*bytes = coder->dataSize();
+	}
+	coder->mMutex.lock();
+	memcpy(buffer,coder->mData.data(), *bytes);
+	coder->mData.remove(0, *bytes);
+	coder->mMutex.unlock();
 	return FLAC__STREAM_DECODER_READ_STATUS_CONTINUE;
 }
 
@@ -438,7 +554,6 @@ QAbstractCoder::Error QFlacCoder::initializeLibrary()
 		mVersion = QString(versionString);
 	}
 	loaded.append(version);
-//cout<<"version: *"<<(const char*) mLibrary.resolve("FLAC__VENDOR_STRING")<<"*"<<endl;
 
 	loaded.append((m_FLAC__stream_encoder_new = (FLAC__StreamEncoder* (*)()) mLibrary.resolve("FLAC__stream_encoder_new")) != NULL);
 	loaded.append((m_FLAC__stream_encoder_delete = (void (*)(FLAC__StreamEncoder*)) mLibrary.resolve("FLAC__stream_encoder_delete")) != NULL);

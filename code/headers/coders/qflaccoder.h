@@ -4,8 +4,10 @@
 #include <qabstractcoder.h>
 #include <qsamplesizeconverter.h>
 #include <all.h>
+#include <QThread>
+#include <QWaitCondition>
 
-class QFlacCoder : public QAbstractCoder
+class QFlacCoder : public QAbstractCoder, public QThread
 {
 
 	public:
@@ -24,8 +26,15 @@ class QFlacCoder : public QAbstractCoder
 		bool initializeDecode();
 		bool finalizeDecode();
 		void decode(const void *input, int size);
+		void run();
 
 	protected:
+
+		void pause();
+		void resume();
+		void wait();
+		int dataSize();
+		bool isPaused();
 
 		void encode8Convert(const void *input, int samples);
 		void encode16Convert(const void *input, int samples);
@@ -38,6 +47,7 @@ class QFlacCoder : public QAbstractCoder
 		static FLAC__StreamEncoderWriteStatus flacWriteEncodeHeader(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
 		static FLAC__StreamEncoderWriteStatus flacWriteEncodeData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *client);
 
+		static void flacErrorDecode(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client);
 		static FLAC__StreamDecoderReadStatus flacReadDecode(const FLAC__StreamDecoder *decoder, FLAC__byte buffer[], size_t *bytes, void *client);
 		static FLAC__StreamDecoderWriteStatus flacWriteDecode(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
 		static FLAC__StreamDecoderWriteStatus flacWriteDecode8(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
@@ -81,8 +91,16 @@ class QFlacCoder : public QAbstractCoder
 		FLAC__StreamEncoder *mEncoder;
 		FLAC__StreamDecoder *mDecoder;
 
-		int mBufferSize;
-		qbyte *mBuffer;
+		QMutex mMutex;
+		QByteArray mData;
+
+		QMutex mPauser;
+		QWaitCondition mPauseCondition;
+		bool mIsPaused;
+		bool mAtEnd;
+
+		QMutex mWaiter;
+		QWaitCondition mWaitCondition;
 
 };
 
