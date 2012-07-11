@@ -17,6 +17,7 @@ class QWaveCoder : public QAbstractCoder
 
 		QAudioCodec* detectCodec(const QByteArray &data);
 		QByteArray& header();
+		int headerSize();
 
 		bool initializeEncode();
 		bool finalizeEncode();

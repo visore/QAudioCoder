@@ -32,6 +32,16 @@ void QCodingChainComponent::addData(QSampleArray *data)
 	execute();
 }
 
+void QCodingChainComponent::addData(QSampleArray *data, qint64 position)
+{
+	seek(position);
+	addData(data);
+}
+
+void QCodingChainComponent::seek(qint64 position)
+{
+}
+
 /**********************************************************
 QCodingChainInput
 **********************************************************/
@@ -156,6 +166,10 @@ void QCodingChainEncoder::changeFormat(QExtendedAudioFormat format)
 		mCoder->setFormat(QAudio::AudioInput, format);
 		if(mCoder->initializeEncode())
 		{
+			int size = mCoder->headerSize();
+			qbyte *data = new qbyte[size];
+cout<<size<<"+++++++"<<endl;
+			mNext->addData(new QSampleArray(data, size));
 			QObject::connect(mCoder, SIGNAL(encoded(QSampleArray*)), mNext, SLOT(addData(QSampleArray*)), Qt::DirectConnection);
 		}
 	}
@@ -167,6 +181,7 @@ void QCodingChainEncoder::initialize()
 
 void QCodingChainEncoder::finalize()
 {
+	mNext->addData(new QSampleArray(mCoder->header()), 0);
 	if(mCoder != NULL && mCoder->finalizeEncode())
 	{
 		QObject::disconnect(mCoder, SIGNAL(encoded(QSampleArray*)));
@@ -189,11 +204,6 @@ QCodingChainOutput::QCodingChainOutput()
 {
 }
 
-void QCodingChainOutput::setHeader(QByteArray data)
-{
-	mHeader = data;
-}
-
 /**********************************************************
 QCodingChainFileOutput
 **********************************************************/
@@ -209,6 +219,11 @@ void QCodingChainFileOutput::setFilePath(QString filePath)
 	mFilePath = filePath;
 }
 
+void QCodingChainFileOutput::seek(qint64 position)
+{
+	mFile.seek(position);
+}
+
 void QCodingChainFileOutput::initialize()
 {
 	mFile.setFileName(mFilePath);
@@ -217,11 +232,7 @@ void QCodingChainFileOutput::initialize()
 
 void QCodingChainFileOutput::finalize()
 {
-cout<<"size: "<<mFile.size()<<endl;
-	mFile.seek(0);
-	mFile.write(mHeader.data(), 44);
 	mFile.close();
-cout<<"size: "<<mFile.size()<<endl;
 }
 
 void QCodingChainFileOutput::execute()

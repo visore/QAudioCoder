@@ -30,6 +30,16 @@ QAudioCodec* QFlacCoder::detectCodec(const QByteArray &data)
 	return NULL;
 }
 
+QByteArray& QFlacCoder::header()
+{
+	return mHeader;
+}
+
+int QFlacCoder::headerSize()
+{
+	return 0;
+}
+
 bool QFlacCoder::initializeEncode()
 {
 mError = QAbstractCoder::NoError;

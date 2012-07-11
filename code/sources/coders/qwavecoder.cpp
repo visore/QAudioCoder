@@ -87,6 +87,12 @@ QByteArray& QWaveCoder::header()
 
 	return mHeader;
 }
+
+int QWaveCoder::headerSize()
+{
+	return 44;
+}
+
 /*
 
 void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)

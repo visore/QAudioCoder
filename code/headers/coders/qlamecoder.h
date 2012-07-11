@@ -13,6 +13,8 @@ class QLameCoder : public QAbstractCoder
 		QLameCoder();
 
 		QAudioCodec* detectCodec(const QByteArray &data);
+		QByteArray& header();
+		int headerSize();
 
 		bool initializeEncode();
 		bool finalizeEncode();

@@ -14,6 +14,14 @@ QSampleArray::QSampleArray(const QSampleArray &other)
 	memcpy(mData, other.mData, mSize);
 }
 
+QSampleArray::QSampleArray(const QByteArray &other)
+{
+	mSamples = 0;
+	mSize = other.size();
+	mData = new qbyte[mSize];
+	memcpy(mData, other.data(), mSize);
+}
+
 QSampleArray::QSampleArray(char *data, int size, int samples)
 {
 	mData = NULL;

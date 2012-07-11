@@ -14,15 +14,27 @@ using namespace std;
 QCodingChainComponent
 **********************************************************/
 
+class QCodingChainFileInput;
+class QCodingChainDecoder;
+class QCodingChainEncoder;
+class QCodingChainFileOutput;
+
 class QCodingChainComponent : public QObject
 {
 
 	Q_OBJECT
 
-	public slots:
+	friend class QCodingChainFileInput;
+	friend class QCodingChainDecoder;
+	friend class QCodingChainEncoder;
+	friend class QCodingChainFileOutput;
+	friend class QAbstractCoder;
+
+	protected slots:
 
 		virtual void changeFormat(QExtendedAudioFormat format);
 		void addData(QSampleArray *data);
+		void addData(QSampleArray *data, qint64 position);
 
 	public:
 
@@ -34,6 +46,10 @@ class QCodingChainComponent : public QObject
 		virtual void initialize() = 0;
 		virtual void execute() = 0;
 		virtual void finalize() = 0;
+
+	protected:
+
+		virtual void seek(qint64 position);
 
 	protected:
 
@@ -158,11 +174,6 @@ class QCodingChainOutput : public QCodingChainComponent
 	public:
 
 		QCodingChainOutput();
-		void setHeader(QByteArray data);
-
-	protected:
-
-		QByteArray mHeader;
 
 };
 
@@ -179,6 +190,7 @@ class QCodingChainFileOutput : public QCodingChainOutput
 
 		QCodingChainFileOutput();
 		void setFilePath(QString filePath);
+		void seek(qint64 position);
 		void initialize();
 		void execute();
 		void finalize();

@@ -10,6 +10,7 @@ class QSampleArray
 
 		QSampleArray();
 		QSampleArray(const QSampleArray &other);
+		QSampleArray(const QByteArray &other);
 		QSampleArray(char *data, int size, int samples = 0);
 		QSampleArray(qbyte8u *data, int size, int samples = 0);
 		QSampleArray(qbyte16u *data, int size, int samples = 0);

@@ -18,14 +18,15 @@ int main(int argc, char *argv[])
 			format.setSampleType(QExtendedAudioFormat::SignedInt);
 			format.setSampleRate(44100);
 			format.setChannelCount(2);
-			format.setBitrateMode(QExtendedAudioFormat::VariableBitrate);
-			format.setBitrate(256);
-			format.setBitrate(128, QExtendedAudioFormat::MinimumBitrate);
+			format.setBitrateMode(QExtendedAudioFormat::ConstantBitrate);
+			format.setBitrate(320);
+			format.setBitrate(320, QExtendedAudioFormat::MinimumBitrate);
 			format.setBitrate(320, QExtendedAudioFormat::MaximumBitrate);
-			format.setCodec("WAV");
+			format.setQuality(QExtendedAudioFormat::InsaneHigh);
+			format.setCodec("MP3");
 
 QAudioCoder coder;
-coder.convert("/home/visore/a.wav", "/home/visore/meee.wav", format);
+coder.convert("/home/visore/a.wav", "/home/visore/meee.mp3", format);
 //coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.mp3", format);
 
 

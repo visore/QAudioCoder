@@ -2,6 +2,9 @@
 #include <qchannelconverter.h>
 #include <qmp3codec.h>
 
+#include <iostream>
+using namespace std;
+
 #define MINIMUM_HEADER_FRAMES 5
 
 QLameCoder::QLameCoder()
@@ -57,6 +60,33 @@ QAudioCodec* QLameCoder::detectCodec(const QByteArray &data)
 	return NULL;
 }
 
+QByteArray& QLameCoder::header()
+{
+	mHeader.clear();
+	if(mLameEncoder != NULL)
+	{
+		int bytes = 4192;
+		char *data = new char[bytes];
+		int bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytes);
+		if(bytesWritten > bytes) //Buffer (data) too small
+		{
+			delete [] data;
+			data = new char[bytesWritten];
+			bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytesWritten);
+		}
+cout<<"Lame header size: "<<bytesWritten<<endl;
+		mHeader.append(data, bytesWritten);
+		delete [] data;
+	}
+	return mHeader;
+}
+
+int QLameCoder::headerSize()
+{
+cout<<mOutputFormat.sampleRate()<<" "<<mOutputFormat.bitrate()<<endl;
+	return 144 * (mOutputFormat.bitrate() * 1000.0) / (44100 * 44100 / mOutputFormat.sampleRate());
+}
+
 bool QLameCoder::initializeEncode()
 {
 	mError = QAbstractCoder::NoError;
@@ -86,6 +116,7 @@ bool QLameCoder::initializeEncode()
 	m_lame_set_VBR_mean_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::NormalBitrate));
 	m_lame_set_VBR_min_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::MinimumBitrate));
 	m_lame_set_VBR_max_bitrate_kbps(mLameEncoder, mOutputFormat.bitrate(QExtendedAudioFormat::MaximumBitrate));
+cout<<mOutputFormat.bitrate(QExtendedAudioFormat::NormalBitrate) <<" "<< mOutputFormat.bitrate(QExtendedAudioFormat::MinimumBitrate)<< " "<< mOutputFormat.bitrate(QExtendedAudioFormat::MaximumBitrate)<<endl;
 
 	m_lame_set_quality(mLameEncoder, mOutputFormat.quality());
 	m_lame_set_out_samplerate(mLameEncoder, mOutputFormat.sampleRate());

@@ -66,10 +66,12 @@ void QCodingChain::run()
 			mEncoder.initialize();
 			mOutput->initialize();
 
+
+
 			qreal progressedData = 0;
 			qint64 totalSize = mInput->size(); 
 			static qint32 chunkSize = mInput->chunkSize();
-			qint16 progress = 0;
+			qreal progress = 0;
 
 			while(mInput->hasData())
 			{
@@ -82,23 +84,20 @@ void QCodingChain::run()
 				}
 				else
 				{
-					progress = progressedData / totalSize * 100;
-					if(progress > 100)
-					{
-						progress = 100;
-					}
+					progress = progressedData / totalSize * 99; // * 99 to first finalize everything before 100% is emitted
 				}
-				cout << "Progress: " << progress << "%" << endl;
+				//cout << "Progress: " << progress << "%" << endl;
 				emit progressed(progress);
 			}
-			cout<<"lsat things"<<endl;
+
 			mInput->finalize();
 			mDecoder.finalize();
 			mEncoder.finalize();
-			mOutput->setHeader(mOutputCoder->header());
 			mOutput->finalize();
 
-			cout << "Finished"<<endl;
+			progress = 100;
+			cout << "Progress: " << progress << "%" << endl;
+			emit progressed(progress);
 		}
 	}
 }

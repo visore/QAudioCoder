@@ -11,7 +11,7 @@ class QCodingChain : public QThread
 
 	signals:
 
-		void progressed(qint16 percentage);
+		void progressed(qreal percentage);
 
 	public:
 

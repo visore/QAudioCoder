@@ -49,7 +49,8 @@ class QAbstractCoder : public QObject
 
 		const QList<QAudioCodec*> supportedCodecs() const;
 		virtual QAudioCodec* detectCodec(const QByteArray &data) = 0;
-		virtual QByteArray& header(){}
+		virtual QByteArray& header() = 0;
+		virtual int headerSize() = 0;
 
 		virtual bool initializeDecode() = 0;
 		virtual bool finalizeDecode() = 0;
