@@ -13,11 +13,11 @@ QExtendedAudioFormat format;
 
 int printProgress(qreal progress)
 {
-	cout<<"Progress: "<<progress<<"%"<<endl;
+	/*cout<<"Progress: "<<progress<<"%"<<endl;
 	if(progress==100)
 	{
 		cout<<format.bitrate()<<endl;
-	}
+	}*/
 }
 
 
@@ -26,7 +26,7 @@ int main(int argc, char *argv[])
 	QApplication application(argc, argv);
 
 			
-			format.setSampleSize(32);
+			format.setSampleSize(16);
 			format.setSampleType(QExtendedAudioFormat::SignedInt);
 			format.setSampleRate(44100);
 			format.setChannelCount(2);
@@ -41,9 +41,9 @@ QByteArray a;
 
 QAudioCoder coder;
 QObject::connect(&coder, &QAudioCoder::progressed, printProgress);
-//coder.convert("/home/visore/data/cold.flac", "/home/visore/meee.mp3", format);
+coder.convert("/home/visore/data/cold.flac", "/home/visore/meee.mp3", format);
 //coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.wav", format)
-coder.decode(QString("/home/visore/meee.mp3"), a, format);
+//coder.decode(QString("/home/visore/meee.mp3"), a, format);
 
 QMainWindow w;
 w.show();

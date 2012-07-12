@@ -5,7 +5,6 @@
 #include <QThread>
 #include <QFile>
 #include <qabstractcoder.h>
-#include <qsharedbuffer.h>
 
 #include<iostream>
 using namespace std;

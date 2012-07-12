@@ -39,6 +39,9 @@ class QLameCoder : public QAbstractCoder
 	private:
 
 		const char* (*m_get_lame_short_version)();
+		int (*m_lame_get_version)(lame_t);
+
+		int (*m_InitVbrTag)(lame_global_flags*);
 
 		//Decode
 

@@ -2,6 +2,7 @@
 #define QABSTRACTCODER_H
 
 #include <QQueue>
+#include <QMutex>
 #include <QByteArray>
 #include <QStringList>
 #include <QLibrary>
@@ -9,7 +10,6 @@
 #include <qextendedaudioformat.h>
 #include <qaudioinfo.h>
 #include <qsamplearray.h>
-#include <qsharedbuffer.h>
 
 class QAbstractCoder : public QObject
 {

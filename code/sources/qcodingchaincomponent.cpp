@@ -240,11 +240,11 @@ void QCodingChainEncoder::initialize()
 
 void QCodingChainEncoder::finalize()
 {
+	mNext->addData(new QSampleArray(mCoder->header()), 0);
 	if(mCoder != NULL && mCoder->finalizeEncode())
 	{
 		QObject::disconnect(mCoder, SIGNAL(encoded(QSampleArray*)));
 	}
-	mNext->addData(new QSampleArray(mCoder->header()), 0);
 }
 
 void QCodingChainEncoder::execute()

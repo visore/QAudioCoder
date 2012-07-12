@@ -7,6 +7,10 @@ using namespace std;
 
 #define MINIMUM_HEADER_FRAMES 5
 
+#define LAME_XING_BITRATE1 128
+#define LAME_XING_BITRATE2 64
+#define LAME_XING_BITRATE25 32
+
 QLameCoder::QLameCoder()
 	: QAbstractCoder()
 {
@@ -82,9 +86,8 @@ cout<<"Lame header size: "<<bytesWritten<<endl;
 }
 
 int QLameCoder::headerSize()
-{
-cout<<mOutputFormat.sampleRate()<<" "<<mOutputFormat.bitrate()<<endl;
-	return 144 * (mOutputFormat.bitrate() * 1000.0) / (44100 * 44100 / mOutputFormat.sampleRate());
+{cout<<"lame2: "<<mHeader.size()<<endl;
+	return mHeader.size();
 }
 
 bool QLameCoder::initializeEncode()
@@ -96,11 +99,7 @@ bool QLameCoder::initializeEncode()
 	m_lame_set_in_samplerate(mLameEncoder, mInputFormat.sampleRate());
 	m_lame_set_num_channels(mLameEncoder, mInputFormat.channelCount());
 
-	if(mOutputFormat.bitrateMode() == QExtendedAudioFormat::ConstantBitrate)
-	{
-		m_lame_set_VBR(mLameEncoder, vbr_off);
-	}
-	else if(mOutputFormat.bitrateMode() == QExtendedAudioFormat::VariableBitrate)
+	if(mOutputFormat.bitrateMode() == QExtendedAudioFormat::VariableBitrate)
 	{
 		m_lame_set_VBR(mLameEncoder, vbr_default);
 	}
@@ -129,6 +128,13 @@ bool QLameCoder::initializeEncode()
 	}
 
 	m_lame_init_params(mLameEncoder);
+
+	//Lame header is added to buffer in lame_init_params. We clear the buffer and add it to header
+	int lameHeaderSize = 7200;
+	unsigned char lameHeader[lameHeaderSize];
+	lameHeaderSize = m_lame_encode_flush(mLameEncoder, lameHeader, lameHeaderSize);
+	mHeader.clear();
+	mHeader.append((char*) lameHeader, lameHeaderSize);
 
 	int inputSampleSize = mInputFormat.sampleSize();
 	int outputSampleSize = mOutputFormat.sampleSize();
@@ -441,6 +447,10 @@ QAbstractCoder::Error QLameCoder::initializeLibrary()
 		mVersion = QString(m_get_lame_short_version());
 	}
 	loaded.append(version);
+
+	loaded.append((m_lame_get_version = (int (*)(lame_t)) mLibrary.resolve("lame_get_version")) != NULL);
+
+loaded.append((m_InitVbrTag = (int (*)(lame_global_flags*)) mLibrary.resolve("InitVbrTag")) != NULL);
 
 	//Decode
 
