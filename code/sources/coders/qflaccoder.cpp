@@ -430,6 +430,7 @@ void QFlacCoder::flacMetadataDecode(const FLAC__StreamDecoder *decoder, const FL
 	coder->mInputFormat.setSampleSize(metadata->data.stream_info.bits_per_sample);
 	coder->mInputFormat.setSampleRate(metadata->data.stream_info.sample_rate);
 	coder->mInputFormat.setSampleType(QExtendedAudioFormat::SignedInt);
+	coder->mInputFormat.setCodec(&QFlacCodec::instance());
 
 	emit coder->formatChanged(coder->mInputFormat);
 }

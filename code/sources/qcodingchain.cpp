@@ -22,6 +22,8 @@ void QCodingChain::reset()
 	mOutput = NULL;
 	mInputCoder = NULL;
 	mOutputCoder = NULL;
+	mInputFormat = NULL;
+	mOutputFormat = NULL;
 }
 
 void QCodingChain::setInput(QString filePath)
@@ -52,14 +54,14 @@ void QCodingChain::setOutput(QByteArray &array)
 	mOutput = &mDataOutput;
 }
 
-void QCodingChain::setInput(QExtendedAudioFormat format)
+void QCodingChain::setInput(QExtendedAudioFormat &format)
 {
-	mInputFormat = format;
+	mInputFormat = &format;
 }
 
-void QCodingChain::setOutput(QExtendedAudioFormat format)
+void QCodingChain::setOutput(QExtendedAudioFormat &format)
 {
-	mOutputFormat = format;
+	mOutputFormat = &format;
 }
 
 void QCodingChain::detectCoderData()
@@ -96,7 +98,7 @@ void QCodingChain::run()
 	}
 	if(mMode != QCodingChain::DecodeFile && mMode != QCodingChain::DecodeData)
 	{
-		mOutputCoder = mManager->coder(mOutputFormat);
+		mOutputCoder = mManager->coder(*mOutputFormat);
 		if(mOutputCoder == NULL)
 		{
 			cout<<"Output file format not supported!"<<endl;
@@ -115,10 +117,10 @@ void QCodingChain::run()
 		mInput->setNext(&mDecoder);
 		mDecoder.setNext(&mEncoder);
 		mEncoder.setNext(mOutput);
-		mOutputCoder->setFormat(QAudio::AudioOutput, mOutputFormat);
+		mOutputCoder->setFormat(QAudio::AudioOutput, *mOutputFormat);
 		if(mMode == QCodingChain::ConvertDataToFile || mMode == QCodingChain::ConvertDataToData)
 		{
-			mInputCoder->setFormat(QAudio::AudioInput, mInputFormat);
+			mInputCoder->setFormat(QAudio::AudioInput, *mInputFormat);
 		}
 	}
 	else if(mMode == QCodingChain::DecodeFile || mMode == QCodingChain::DecodeData)
@@ -127,14 +129,14 @@ void QCodingChain::run()
 		mDecoder.setNext(mOutput);
 		if(mMode == QCodingChain::DecodeData)
 		{
-			mInputCoder->setFormat(QAudio::AudioInput, mInputFormat);
+			mInputCoder->setFormat(QAudio::AudioInput, *mInputFormat);
 		}
 	}
 	else if(mMode == QCodingChain::EncodeFile || mMode == QCodingChain::EncodeData)
 	{
 		mInput->setNext(&mEncoder);
 		mEncoder.setNext(mOutput);
-		mOutputCoder->setFormat(QAudio::AudioOutput, mOutputFormat);
+		mOutputCoder->setFormat(QAudio::AudioOutput, *mOutputFormat);
 	}
 
 	mInput->initialize();
@@ -176,7 +178,6 @@ void QCodingChain::run()
 		{
 			progress = progressedData / totalSize * 99; // * 99 to first finalize everything before 100% is emitted
 		}
-		//cout << "Progress: " << progress << "%" << endl;
 		emit progressed(progress);
 	}
 
@@ -189,15 +190,20 @@ void QCodingChain::run()
 	mInput->finalize();
 	if(mMode != QCodingChain::EncodeFile && mMode != QCodingChain::EncodeData)
 	{
+		if(mMode == QCodingChain::DecodeFile || mMode == QCodingChain::DecodeData)
+		{
+			*mInputFormat = mInputCoder->format(QAudio::AudioInput);
+		}
 		mDecoder.finalize();
+		mInputCoder->unload();
 	}
 	if(mMode != QCodingChain::DecodeFile && mMode != QCodingChain::DecodeData)
 	{
 		mEncoder.finalize();
+		mOutputCoder->unload();
 	}
 	mOutput->finalize();
 
 	progress = 100;
-	cout << "Progress: " << progress << "%" << endl;
 	emit progressed(progress);
 }

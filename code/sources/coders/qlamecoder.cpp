@@ -394,12 +394,13 @@ void QLameCoder::decode(const void *input, int size)
 			mInputFormat.setChannelCount(mp3Header.stereo);
 			mInputFormat.setSampleSize(16);
 			mInputFormat.setSampleType(QExtendedAudioFormat::SignedInt);
+			mInputFormat.setCodec(&QMp3Codec::instance());
 			emit formatChanged(mInputFormat);
 		}
 
 		short *stereo = new short[samples * 2];
 		samples = QChannelConverter<short>::combineChannels(left, right, stereo, samples);
-		emit decoded(new QSampleArray(stereo, samples * sizeof(short), samples));
+		emit decoded(new QSampleArray(stereo, samples, samples));
 	}
 }
 

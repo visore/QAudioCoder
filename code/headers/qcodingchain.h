@@ -38,8 +38,8 @@ class QCodingChain : public QThread
 		void setInput(QByteArray &array);
 		void setOutput(QByteArray &array);
 
-		void setInput(QExtendedAudioFormat format);
-		void setOutput(QExtendedAudioFormat format);
+		void setInput(QExtendedAudioFormat &format);
+		void setOutput(QExtendedAudioFormat &format);
 
 		void run();
 
@@ -59,8 +59,8 @@ class QCodingChain : public QThread
 		QString mInputFilePath;
 		QByteArray *mInputData;
 
-		QExtendedAudioFormat mInputFormat;
-		QExtendedAudioFormat mOutputFormat;
+		QExtendedAudioFormat *mInputFormat;
+		QExtendedAudioFormat *mOutputFormat;
 
 		QAudioManager *mManager; //If not here, will automatically destruct coders
 

@@ -175,6 +175,7 @@ void QWaveCoder::decodeHeader(const void *input, int size)
 		mInputFormat.setSampleSize(toShort(string.toAscii().data()));
 
 		mInputFormat.setSampleType(QExtendedAudioFormat::SignedInt);
+		mInputFormat.setCodec(&QWaveCodec::instance());
 
 		emit formatChanged(mInputFormat);
 		decodeData(data + 44, size - 44);

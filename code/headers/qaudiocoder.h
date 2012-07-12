@@ -10,6 +10,7 @@ class QAudioCoder : public QObject
 
 	signals:
 
+		void progressed(qreal percentage);
 		void finished();
 
 	public:
@@ -25,8 +26,8 @@ class QAudioCoder : public QObject
 		void convert(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat outputFormat);
 		void convert(const QByteArray &input, QExtendedAudioFormat inputFormat, const QString outputFilePath, QExtendedAudioFormat outputFormat);
 
-		void decode(const QString inputFilePath, QByteArray &output);
-		void decode(const QByteArray &input, QByteArray &output);
+		void decode(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat &inputFormat);
+		void decode(const QByteArray &input, QByteArray &output, QExtendedAudioFormat &inputFormat);
 
 		void encode(const QByteArray &input, QExtendedAudioFormat inputFormat, const QString outputFilePath, QExtendedAudioFormat outputFormat);
 		void encode(const QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat);

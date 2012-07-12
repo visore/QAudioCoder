@@ -4,6 +4,7 @@ QAudioCoder::QAudioCoder()
 	: QObject()
 {
 	QObject::connect(&mChain, SIGNAL(finished()), this, SIGNAL(finished()));
+	QObject::connect(&mChain, SIGNAL(progressed(qreal)), this, SIGNAL(progressed(qreal)));
 }
 
 void QAudioCoder::convert(const QString inputFilePath, const QString outputFilePath, QExtendedAudioFormat outputFormat)
@@ -44,19 +45,21 @@ void QAudioCoder::convert(const QByteArray &input, QExtendedAudioFormat inputFor
 	mChain.start();
 }
 
-void QAudioCoder::decode(const QString inputFilePath, QByteArray &output)
+void QAudioCoder::decode(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat &inputFormat)
 {
 	mChain.setMode(QCodingChain::DecodeFile);
 	mChain.setInput(inputFilePath);
 	mChain.setOutput(output);
+	mChain.setInput(inputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::decode(const QByteArray &input, QByteArray &output)
+void QAudioCoder::decode(const QByteArray &input, QByteArray &output, QExtendedAudioFormat &inputFormat)
 {
 	mChain.setMode(QCodingChain::DecodeData);
 	mChain.setInput(input);
 	mChain.setOutput(output);
+	mChain.setInput(inputFormat);
 	mChain.start();
 }
 
