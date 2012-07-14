@@ -5,7 +5,23 @@ QCodingChain::QCodingChain()
 	: QThread()
 {
 	mManager = &QAudioManager::instance();
+	mInputFormat = NULL;
+	mOutputFormat = NULL;
 	setMode(QCodingChain::Unknown);
+}
+
+QCodingChain::~QCodingChain()
+{
+	if(!mReferenceInputFormat && mInputFormat != NULL)
+	{
+		delete mInputFormat;
+		mInputFormat = NULL;
+	}
+	if(mOutputFormat != NULL)
+	{
+		delete mOutputFormat;
+		mOutputFormat = NULL;
+	}
 }
 
 void QCodingChain::setMode(QCodingChain::Mode mode)
@@ -22,11 +38,21 @@ void QCodingChain::reset()
 	mOutput = NULL;
 	mInputCoder = NULL;
 	mOutputCoder = NULL;
+
+	if(!mReferenceInputFormat && mInputFormat != NULL)
+	{
+		delete mInputFormat;
+	}
+	if(mOutputFormat != NULL)
+	{
+		delete mOutputFormat;
+	}
 	mInputFormat = NULL;
 	mOutputFormat = NULL;
+	mReferenceInputFormat = false;
 }
 
-void QCodingChain::setInput(QString filePath)
+void QCodingChain::setInputPath(QString filePath)
 {
 	mInputFilePath = filePath;
 	mFileInput.setFilePath(filePath);
@@ -34,13 +60,13 @@ void QCodingChain::setInput(QString filePath)
 	detectCoder = &QCodingChain::detectCoderFile;
 }
 
-void QCodingChain::setOutput(QString filePath)
+void QCodingChain::setOutputPath(QString filePath)
 {
 	mFileOutput.setFilePath(filePath);
 	mOutput = &mFileOutput;
 }
 
-void QCodingChain::setInput(QByteArray &array)
+void QCodingChain::setInputData(QByteArray &array)
 {
 	mInputData = &array;
 	mDataInput.setData(array);
@@ -48,20 +74,42 @@ void QCodingChain::setInput(QByteArray &array)
 	detectCoder = &QCodingChain::detectCoderData;
 }
 
-void QCodingChain::setOutput(QByteArray &array)
+void QCodingChain::setOutputData(QByteArray &array)
 {
 	mDataOutput.setData(array);
 	mOutput = &mDataOutput;
 }
 
-void QCodingChain::setInput(QExtendedAudioFormat &format)
+void QCodingChain::setInputFormat(QExtendedAudioFormat *format)
 {
-	mInputFormat = &format;
+	if(!mReferenceInputFormat && mInputFormat != NULL)
+	{
+		delete mInputFormat;
+		mInputFormat = NULL;
+	}
+	mReferenceInputFormat = true;
+	mInputFormat = format;
 }
 
-void QCodingChain::setOutput(QExtendedAudioFormat &format)
+void QCodingChain::setInputFormat(QExtendedAudioFormat &format)
 {
-	mOutputFormat = &format;
+	if(!mReferenceInputFormat && mInputFormat != NULL)
+	{
+		delete mInputFormat;
+		mInputFormat = NULL;
+	}
+	mReferenceInputFormat = false;
+	mInputFormat = new QExtendedAudioFormat(format);
+}
+
+void QCodingChain::setOutputFormat(QExtendedAudioFormat &format)
+{
+	if(mOutputFormat != NULL)
+	{
+		delete mOutputFormat;
+		mOutputFormat = NULL;
+	}
+	mOutputFormat = new QExtendedAudioFormat(format);
 }
 
 void QCodingChain::detectCoderData()
@@ -151,6 +199,12 @@ void QCodingChain::run()
 		mEncoder.setCoder(mOutputCoder);
 		mOutputCoder->load();
 		mEncoder.initialize();
+		if(mMode == QCodingChain::EncodeFile || mMode == QCodingChain::EncodeData)
+		{
+			mOutputCoder->setFormat(QAudio::AudioInput, *mInputFormat);
+			mInput->setSampleSize(mInputFormat->sampleSize());
+			mEncoder.changeFormat(*mInputFormat);
+		}
 	}
 	mOutput->initialize();
 

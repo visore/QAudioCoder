@@ -1,8 +1,5 @@
 #include <qsampleconverter.h>
 
-#include<iostream>
-using namespace std;
-
 QSampleConverter::QSampleConverter()
 {
 	mFloatSampleSize = 1;

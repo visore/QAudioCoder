@@ -93,38 +93,6 @@ int QWaveCoder::headerSize()
 	return 44;
 }
 
-/*
-
-void QWaveCoder::createHeader(QByteArray &header, const QExtendedAudioFormat &format, QAudioInfo &content)
-{
-	QDataStream stream((QByteArray*) &header, QIODevice::WriteOnly);
-
-	if(format.byteOrder() == QExtendedAudioFormat::LittleEndian)
-	{
-		stream.setByteOrder(QDataStream::LittleEndian);
-		stream << qint8('R') << qint8('I') << qint8('F') << qint8('F');
-	}
-	else if(format.byteOrder() == QExtendedAudioFormat::BigEndian)
-	{
-		stream.setByteOrder(QDataStream::BigEndian);
-		stream << qint8('R') << qint8('I') << qint8('F') << qint8('X');
-	}
-	stream << int(content.size() - 8);
-	stream << qint8('W') << qint8('A') << qint8('V') << qint8('E');
-	
-	stream << qint8('f') << qint8('m') << qint8('t') << qint8(' ');
-	stream << int(16);
-	stream << short(1);
-	stream << short(format.channelCount());
-	stream << int(format.sampleRate());
-	stream << int(format.sampleRate() * format.channelCount() * format.sampleSize() / 8);
-	stream << short(format.channelCount() * format.sampleSize() / 8);
-	stream << short(format.sampleSize());
-
-	stream << qint8('d') << qint8('a') << qint8('t') << qint8('a');
-	stream << int(mSamples * format.sampleSize() / 8);
-}
-*/
 bool QWaveCoder::initializeDecode()
 {
 	mError = QAbstractCoder::NoError;

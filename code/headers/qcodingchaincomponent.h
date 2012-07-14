@@ -74,6 +74,11 @@ class QCodingChainInput : public QCodingChainComponent
 		QCodingChainInput();
 		virtual bool hasData() = 0;
 		virtual int size() = 0;
+		void setSampleSize(int size);
+
+	protected:
+
+		int mSampleSize;
 
 };
 

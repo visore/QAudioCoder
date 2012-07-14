@@ -309,7 +309,12 @@ void QFlacCoder::decode(const void *input, int size)
 	mMutex.lock();
 	mData.append((char*)input, size);
 	mMutex.unlock();
-
+	if(isRunning() && !isPaused())
+	{
+		mWaiter.lock();
+		mWaitCondition.wait(&mWaiter);
+		mWaiter.unlock();
+	}
 	if(isPaused())
 	{
 		resume();
@@ -318,17 +323,12 @@ void QFlacCoder::decode(const void *input, int size)
 	{
 		start();
 	}
-	if(isRunning())
-	{
-		mWaiter.lock();
-		mWaitCondition.wait(&mWaiter);
-		mWaiter.unlock();
-	}
 }
 
 void QFlacCoder::run()
 {
 	m_FLAC__stream_decoder_process_until_end_of_stream(mDecoder);
+	mWaitCondition.wakeAll();
 }
 
 void QFlacCoder::pause()
@@ -443,7 +443,7 @@ FLAC__StreamDecoderReadStatus QFlacCoder::flacReadDecode(const FLAC__StreamDecod
 		coder->pause();
 		coder->wait();
 	}
-	if(!coder->mAtEnd && *bytes > coder->dataSize())
+	if(coder->mAtEnd && *bytes > coder->dataSize())
 	{
 		*bytes = coder->dataSize();
 	}

@@ -91,6 +91,8 @@ class QExtendedAudioFormat
 		void setCodec(QAudioCodec *codec);
 		bool setCodec(QString codecName);
 
+		QAudioFormat toQAudioFormat();
+
 	private:
 
 		QExtendedAudioFormat::SampleType mSampleType;

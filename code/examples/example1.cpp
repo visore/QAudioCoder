@@ -35,13 +35,13 @@ int main(int argc, char *argv[])
 			format.setBitrate(128, QExtendedAudioFormat::MinimumBitrate);
 			format.setBitrate(320, QExtendedAudioFormat::MaximumBitrate);
 			format.setQuality(QExtendedAudioFormat::Average);
-			format.setCodec("MP3");
+			format.setCodec("FLAC");
 
 QByteArray a;
 
 QAudioCoder coder;
 QObject::connect(&coder, &QAudioCoder::progressed, printProgress);
-coder.convert("/home/visore/data/cold.flac", "/home/visore/meee.mp3", format);
+coder.convert("/home/visore/a.wav", "/home/visore/meee.flac", format);
 //coder.convert("/home/visore/data/ev.mp3", "/home/visore/meee.wav", format)
 //coder.decode(QString("/home/visore/meee.mp3"), a, format);
 

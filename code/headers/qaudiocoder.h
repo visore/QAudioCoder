@@ -21,16 +21,19 @@ class QAudioCoder : public QObject
 		void addFileName(QString coder, QString name);
 		void addFileExtension(QString coder, QString extension);
 
-		void convert(const QString inputFilePath, const QString outputFilePath, QExtendedAudioFormat outputFormat);
-		void convert(const QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat);
-		void convert(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat outputFormat);
-		void convert(const QByteArray &input, QExtendedAudioFormat inputFormat, const QString outputFilePath, QExtendedAudioFormat outputFormat);
+		void convert(QString inputFilePath, QString outputFilePath, QExtendedAudioFormat outputFormat);
+		void convert(QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat);
+		void convert(QString inputFilePath, QByteArray &output, QExtendedAudioFormat outputFormat);
+		void convert(QByteArray &input, QExtendedAudioFormat inputFormat, QString outputFilePath, QExtendedAudioFormat outputFormat);
 
-		void decode(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat &inputFormat);
-		void decode(const QByteArray &input, QByteArray &output, QExtendedAudioFormat &inputFormat);
+		void decode(QString inputFilePath, QByteArray &output, QExtendedAudioFormat &inputFormat);
+		void decode(QByteArray &input, QByteArray &output, QExtendedAudioFormat &inputFormat);
 
-		void encode(const QByteArray &input, QExtendedAudioFormat inputFormat, const QString outputFilePath, QExtendedAudioFormat outputFormat);
-		void encode(const QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat);
+		void encode(QByteArray &input, QExtendedAudioFormat inputFormat, QString outputFilePath, QExtendedAudioFormat outputFormat);
+		void encode(QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat);
+
+		static QCoderList coders(QAudioManager::Mode mode = QAudioManager::Available);
+		static QCodecList codecs(QAudioManager::Mode mode = QAudioManager::Available);
 
 	private:
 

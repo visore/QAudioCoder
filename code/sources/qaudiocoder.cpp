@@ -7,78 +7,88 @@ QAudioCoder::QAudioCoder()
 	QObject::connect(&mChain, SIGNAL(progressed(qreal)), this, SIGNAL(progressed(qreal)));
 }
 
-void QAudioCoder::convert(const QString inputFilePath, const QString outputFilePath, QExtendedAudioFormat outputFormat)
+void QAudioCoder::convert(QString inputFilePath, QString outputFilePath, QExtendedAudioFormat outputFormat)
 {
 	mChain.setMode(QCodingChain::ConvertFileToFile);
-	mChain.setInput(inputFilePath);
-	mChain.setOutput(outputFilePath);
-	mChain.setOutput(outputFormat);
+	mChain.setInputPath(inputFilePath);
+	mChain.setOutputPath(outputFilePath);
+	mChain.setOutputFormat(outputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::convert(const QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat)
+void QAudioCoder::convert(QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat)
 {
 	mChain.setMode(QCodingChain::ConvertDataToData);
-	mChain.setInput(input);
-	mChain.setOutput(output);
-	mChain.setInput(inputFormat);
-	mChain.setOutput(outputFormat);
+	mChain.setInputData(input);
+	mChain.setOutputData(output);
+	mChain.setInputFormat(inputFormat);
+	mChain.setOutputFormat(outputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::convert(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat outputFormat)
+void QAudioCoder::convert(QString inputFilePath, QByteArray &output, QExtendedAudioFormat outputFormat)
 {
 	mChain.setMode(QCodingChain::ConvertFileToData);
-	mChain.setInput(inputFilePath);
-	mChain.setOutput(output);
-	mChain.setOutput(outputFormat);
+	mChain.setInputPath(inputFilePath);
+	mChain.setOutputData(output);
+	mChain.setOutputFormat(outputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::convert(const QByteArray &input, QExtendedAudioFormat inputFormat, const QString outputFilePath, QExtendedAudioFormat outputFormat)
+void QAudioCoder::convert(QByteArray &input, QExtendedAudioFormat inputFormat, QString outputFilePath, QExtendedAudioFormat outputFormat)
 {
 	mChain.setMode(QCodingChain::ConvertDataToFile);
-	mChain.setInput(input);
-	mChain.setOutput(outputFilePath);
-	mChain.setInput(inputFormat);
-	mChain.setOutput(outputFormat);
+	mChain.setInputData(input);
+	mChain.setOutputPath(outputFilePath);
+	mChain.setInputFormat(inputFormat);
+	mChain.setOutputFormat(outputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::decode(const QString inputFilePath, QByteArray &output, QExtendedAudioFormat &inputFormat)
+void QAudioCoder::decode(QString inputFilePath, QByteArray &output, QExtendedAudioFormat &inputFormat)
 {
 	mChain.setMode(QCodingChain::DecodeFile);
-	mChain.setInput(inputFilePath);
-	mChain.setOutput(output);
-	mChain.setInput(inputFormat);
+	mChain.setInputPath(inputFilePath);
+	mChain.setOutputData(output);
+	mChain.setInputFormat(&inputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::decode(const QByteArray &input, QByteArray &output, QExtendedAudioFormat &inputFormat)
+void QAudioCoder::decode(QByteArray &input, QByteArray &output, QExtendedAudioFormat &inputFormat)
 {
 	mChain.setMode(QCodingChain::DecodeData);
-	mChain.setInput(input);
-	mChain.setOutput(output);
-	mChain.setInput(inputFormat);
+	mChain.setInputData(input);
+	mChain.setOutputData(output);
+	mChain.setInputFormat(&inputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::encode(const QByteArray &input, QExtendedAudioFormat inputFormat, const QString outputFilePath, QExtendedAudioFormat outputFormat)
+void QAudioCoder::encode(QByteArray &input, QExtendedAudioFormat inputFormat, QString outputFilePath, QExtendedAudioFormat outputFormat)
 {
 	mChain.setMode(QCodingChain::EncodeData);
-	mChain.setInput(input);
-	mChain.setOutput(outputFilePath);
-	mChain.setInput(inputFormat);
-	mChain.setOutput(outputFormat);
+	mChain.setInputData(input);
+	mChain.setOutputPath(outputFilePath);
+	mChain.setInputFormat(inputFormat);
+	mChain.setOutputFormat(outputFormat);
 	mChain.start();
 }
 
-void QAudioCoder::encode(const QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat)
+void QAudioCoder::encode(QByteArray &input, QExtendedAudioFormat inputFormat, QByteArray &output, QExtendedAudioFormat outputFormat)
 {
 	mChain.setMode(QCodingChain::EncodeData);
-	mChain.setInput(input);
-	mChain.setOutput(output);
-	mChain.setInput(inputFormat);
-	mChain.setOutput(outputFormat);
+	mChain.setInputData(input);
+	mChain.setOutputData(output);
+	mChain.setInputFormat(inputFormat);
+	mChain.setOutputFormat(outputFormat);
 	mChain.start();
+}
+
+QCoderList QAudioCoder::coders(QAudioManager::Mode mode)
+{
+	return QAudioManager::instance().coders(mode);
+}
+
+QCodecList QAudioCoder::codecs(QAudioManager::Mode mode)
+{
+	return QAudioManager::instance().codecs(mode);
 }

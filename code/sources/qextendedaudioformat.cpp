@@ -33,8 +33,32 @@ QExtendedAudioFormat::QExtendedAudioFormat(const QExtendedAudioFormat &other)
 
 QExtendedAudioFormat::QExtendedAudioFormat(const QAudioFormat &other)
 {
-	setSampleSize(other.sampleType());
-	setByteOrder(other.byteOrder());
+	if(other.sampleType() == QAudioFormat::SignedInt)
+	{
+		setSampleType(QExtendedAudioFormat::SignedInt);
+	}
+	else if(other.sampleType() == QAudioFormat::UnSignedInt)
+	{
+		setSampleType(QExtendedAudioFormat::UnSignedInt);
+	}
+	else if(other.sampleType() == QAudioFormat::Float)
+	{
+		setSampleType(QExtendedAudioFormat::Float);
+	}
+	else
+	{
+		setSampleSize(QExtendedAudioFormat::Unknown);
+	}
+
+	if(other.byteOrder() == QAudioFormat::BigEndian)
+	{
+		setByteOrder(QExtendedAudioFormat::BigEndian);
+	}
+	else
+	{
+		setByteOrder(QExtendedAudioFormat::LittleEndian);
+	}
+	
 	mQuality = QExtendedAudioFormat::Average;
 	mBitrateMode = QExtendedAudioFormat::ConstantBitrate;
 	mNormalBitrate = 256;
@@ -204,4 +228,40 @@ bool QExtendedAudioFormat::setCodec(QString codecName)
 {
 	mCodec = QAudioManager::instance().codec(codecName, QAudioManager::Supported);
 	return mCodec != NULL;
+}
+
+QAudioFormat QExtendedAudioFormat::toQAudioFormat()
+{
+	QAudioFormat format;
+	format.setSampleSize(mSampleSize);
+	format.setSampleRate(mSampleRate);
+	format.setChannelCount(mChannelCount);
+
+	if(mSampleType == SignedInt)
+	{
+		format.setSampleType(QAudioFormat::SignedInt);
+	}
+	else if(mSampleType == UnSignedInt)
+	{
+		format.setSampleType(QAudioFormat::UnSignedInt);
+	}
+	else if(mSampleType == Float)
+	{
+		format.setSampleType(QAudioFormat::Float);
+	}
+	else
+	{
+		format.setSampleType(QAudioFormat::Unknown);
+	}
+	
+	if(mByteOrder == QExtendedAudioFormat::BigEndian)
+	{
+		format.setByteOrder(QAudioFormat::BigEndian);
+	}
+	else
+	{
+		format.setByteOrder(QAudioFormat::LittleEndian);
+	}
+	
+	return format;
 }

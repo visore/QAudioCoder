@@ -89,6 +89,12 @@ INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 ADD_EXECUTABLE(example1 ${EXAMPLES}/example1.cpp)
 TARGET_LINK_LIBRARIES(example1 qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
 
+ADD_EXECUTABLE(decode_and_play ${EXAMPLES}/decode_and_play.cpp)
+TARGET_LINK_LIBRARIES(decode_and_play qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+
+ADD_EXECUTABLE(record_and_save ${EXAMPLES}/record_and_save.cpp)
+TARGET_LINK_LIBRARIES(record_and_save qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+
 #Packaging
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	INCLUDE(Packaging)

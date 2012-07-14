@@ -17,5 +17,5 @@ void QMp3Codec::initialize()
 
 	//Extensions
 	addExtension("mp3");
-	addExtension("bitl");
+	addExtension("bit");
 }
