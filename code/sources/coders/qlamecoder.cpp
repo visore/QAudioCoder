@@ -42,6 +42,16 @@ QAudioCodec* QLameCoder::detectCodec(const QByteArray &data)
 
 	*/
 
+	//First check if file contains Xing header
+
+	for(int i = 0; i < data.size() - 4; ++i)
+	{
+		if((data[i] == 'X' || data[i] == 'x') && (data[i + 1] == 'I' || data[i + 1] == 'i') && (data[i + 2] == 'N' || data[i + 2] == 'n') && (data[i + 3] == 'G' || data[i + 3] == 'g'))
+		{
+			return &QMp3Codec::instance();
+		}
+	}
+
 	QList<int> syncPositions;
 	char sync1(255);
 	char sync2(250);
@@ -66,33 +76,17 @@ QAudioCodec* QLameCoder::detectCodec(const QByteArray &data)
 
 QByteArray& QLameCoder::header()
 {
-	mHeader.clear();
-	if(mLameEncoder != NULL)
-	{
-		int bytes = 4192;
-		char *data = new char[bytes];
-		int bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytes);
-		if(bytesWritten > bytes) //Buffer (data) too small
-		{
-			delete [] data;
-			data = new char[bytesWritten];
-			bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytesWritten);
-		}
-cout<<"Lame header size: "<<bytesWritten<<endl;
-		mHeader.append(data, bytesWritten);
-		delete [] data;
-	}
 	return mHeader;
 }
 
 int QLameCoder::headerSize()
-{cout<<"lame2: "<<mHeader.size()<<endl;
+{
 	return mHeader.size();
 }
 
 bool QLameCoder::initializeEncode()
 {
-	mError = QAbstractCoder::NoError;
+	setError(QCoder::NoError);
 
 	mLameEncoder = m_lame_init();
 
@@ -127,7 +121,10 @@ bool QLameCoder::initializeEncode()
 		m_lame_set_mode(mLameEncoder, STEREO);
 	}
 
-	m_lame_init_params(mLameEncoder);
+	if(m_lame_init_params(mLameEncoder) == -1)
+	{
+		setError(QCoder::EncoderInitializationError);
+	}
 
 	//Lame header is added to buffer in lame_init_params. We clear the buffer and add it to header
 	int lameHeaderSize = 7200;
@@ -155,7 +152,7 @@ bool QLameCoder::initializeEncode()
 		}
 		else
 		{
-			mError = QAbstractCoder::SampleSizeError;
+			setError(QCoder::OutputSampleSizeError);
 			return false;
 		}
 	}
@@ -168,7 +165,7 @@ bool QLameCoder::initializeEncode()
 		}
 		else
 		{
-			mError = QAbstractCoder::SampleSizeError;
+			setError(QCoder::OutputSampleSizeError);
 			return false;
 		}
 	}
@@ -183,7 +180,7 @@ bool QLameCoder::initializeEncode()
 			}
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -199,7 +196,7 @@ bool QLameCoder::initializeEncode()
 			}
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -215,7 +212,7 @@ bool QLameCoder::initializeEncode()
 			}
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -231,7 +228,7 @@ bool QLameCoder::initializeEncode()
 			}
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -244,7 +241,7 @@ bool QLameCoder::initializeEncode()
 			}
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -257,7 +254,7 @@ bool QLameCoder::initializeEncode()
 			}
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -268,7 +265,25 @@ bool QLameCoder::initializeEncode()
 
 bool QLameCoder::finalizeEncode()
 {
-	m_lame_close(mLameEncoder);
+	mHeader.clear();
+	if(mLameEncoder != NULL)
+	{
+		int bytes = 4192;
+		char *data = new char[bytes];
+		int bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytes);
+		if(bytesWritten > bytes) //Buffer (data) too small
+		{
+			delete [] data;
+			data = new char[bytesWritten];
+			bytesWritten = m_lame_get_lametag_frame(mLameEncoder, (unsigned char*) data, bytesWritten);
+		}
+		mHeader.append(data, bytesWritten);
+		delete [] data;
+	}
+	if(m_lame_close(mLameEncoder) < 0)
+	{
+		setError(QCoder::EncoderFinalizationError);
+	}
 	return true;
 }
 
@@ -291,7 +306,14 @@ void QLameCoder::encode16Convert(const void *input, int samples)
 		int bytes = samples * 2;
 		qbyte *output = new qbyte[bytes];
 		bytes = m_lame_encode_buffer_interleaved(mLameEncoder, data, samples / 2, output, bytes);
-		emit encoded(new QSampleArray(output, bytes, samples));
+		if(bytes < 0)
+		{
+			setError(QCoder::EncodingError);
+		}
+		else
+		{
+			emit encoded(new QSampleArray(output, bytes, samples));
+		}
 	}
 }
 
@@ -312,7 +334,14 @@ void QLameCoder::encode32Convert(const void *input, int samples)
 		int bytes = samples * 4;
 		qbyte *output = new qbyte[bytes];
 		bytes = m_lame_encode_buffer_int(mLameEncoder, left, right, samples / 2, output, bytes);
-		emit encoded(new QSampleArray(output, bytes, samples));
+		if(bytes < 0)
+		{
+			setError(QCoder::EncodingError);
+		}
+		else
+		{
+			emit encoded(new QSampleArray(output, bytes, samples));
+		}
 	}
 }
 
@@ -327,7 +356,14 @@ void QLameCoder::encode16Normal(const void *input, int samples)
 		int bytes = samples * 2;
 		qbyte *output = new qbyte[bytes];
 		bytes = m_lame_encode_buffer_interleaved(mLameEncoder, (short int*) input, samples / 2, output, bytes);
-		emit encoded(new QSampleArray(output, bytes, samples));
+		if(bytes < 0)
+		{
+			setError(QCoder::EncodingError);
+		}
+		else
+		{
+			emit encoded(new QSampleArray(output, bytes, samples));
+		}
 	}
 }
 
@@ -346,13 +382,20 @@ void QLameCoder::encode32Normal(const void *input, int samples)
 		int bytes = samples * 4;
 		qbyte *output = new qbyte[bytes];
 		bytes = m_lame_encode_buffer_int(mLameEncoder, left, right, samples / 2, output, bytes);
-		emit encoded(new QSampleArray(output, bytes, samples));
+		if(bytes < 0)
+		{
+			setError(QCoder::EncodingError);
+		}
+		else
+		{
+			emit encoded(new QSampleArray(output, bytes, samples));
+		}
 	}
 }
 
 bool QLameCoder::initializeDecode()
 {
-	mError = QAbstractCoder::NoError;
+	setError(QCoder::NoError);
 
 	mLameDecoder = m_hip_decode_init();
 	mTotalBitrate = 0;
@@ -435,7 +478,7 @@ int QLameCoder::sequentialFrames(QList<int> positions)
 	return sequential;
 }
 
-QAbstractCoder::Error QLameCoder::initializeLibrary()
+QCoder::Error QLameCoder::initializeLibrary()
 {
 	QList<bool> loaded;
 	int success = 0;
@@ -498,11 +541,11 @@ loaded.append((m_InitVbrTag = (int (*)(lame_global_flags*)) mLibrary.resolve("In
 
 	if(success == loaded.size())
 	{
-		return QAbstractCoder::NoError;
+		return QCoder::NoError;
 	}
 	else if(failure == loaded.size())
 	{
-		return QAbstractCoder::LibraryError;
+		return QCoder::LibraryFileError;
 	}
-	return QAbstractCoder::VersionError;
+	return QCoder::LibraryVersionError;
 }

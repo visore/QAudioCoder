@@ -18,31 +18,12 @@ class QAbstractCoder : public QObject
 
 	signals:
 
+		void failed(QCoder::Error error);
 		void decoded(QSampleArray *array);
 		void encoded(QSampleArray *array);
 		void formatChanged(QExtendedAudioFormat format);
 
 	public:
-
-		enum Error
-		{
-			NoError = 0,
-
-			PathError = 1,	//File does not exist
-			FileError = 2,	//File exists, but is not a library
-			LibraryError = 3,	//File exists and is a library, but not the required library
-			VersionError = 4,	//File exists and is the required library, but the version is not supported
-
-			InitializationError = 5,
-			EncoderError = 6,
-			DecoderError = 7,
-			BufferError = 8,
-
-			SampleSizeError = 9,
-			SampleTypeError = 10,
-			SampleRateError = 11,
-			NumberOfChannelsError = 12
-		};
 
 		QAbstractCoder();
 		~QAbstractCoder();
@@ -60,8 +41,8 @@ class QAbstractCoder : public QObject
 		virtual bool finalizeEncode() = 0;
 		virtual void encode(const void *input, int samples) = 0;
 		
-		virtual QAbstractCoder::Error load();
-		virtual QAbstractCoder::Error load(QString filePath);
+		virtual QCoder::Error load();
+		virtual QCoder::Error load(QString filePath);
 		virtual bool unload();
 
 		QString filePath() const;
@@ -77,14 +58,15 @@ class QAbstractCoder : public QObject
 		void addFileName(QString name);
 		void addFileExtension(QString extension);
 
-		QAbstractCoder::Error error() const;
+		QCoder::Error error() const;
 
 		bool operator == (const QAbstractCoder &other) const;
 		bool operator != (const QAbstractCoder &other) const;
 
 	protected:
 
-		virtual QAbstractCoder::Error initializeLibrary() = 0;
+		virtual QCoder::Error initializeLibrary() = 0;
+		void setError(QCoder::Error error);
 
 	protected:
 
@@ -99,10 +81,12 @@ class QAbstractCoder : public QObject
 
 		QList<QAudioCodec*> mSupportedCodecs;
 
-		QAbstractCoder::Error mError;
-
 		QExtendedAudioFormat mInputFormat;
 		QExtendedAudioFormat mOutputFormat;
+
+	private:
+
+		QCoder::Error mError;
 
 };
 

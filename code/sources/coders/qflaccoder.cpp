@@ -2,30 +2,6 @@
 #include <qflaccodec.h>
 #include <qchannelconverter.h>
 
-#include<iostream>
-using namespace std;
-
-/*void QFlacCoderThread::setDecoder(FLAC__StreamDecoder *decoder)
-{
-	mDecoder = decoder;
-}
-
-void QFlacCoderThread::addData(void *data, int size)
-{
-	mMutex.lock();
-	mData.append((char*) data, size);
-	mMutex.unlock();
-	if(!isRunning())
-	{
-		start();
-	}
-}
-
-void QFlacCoderThread::run()
-{
-	m_FLAC__stream_decoder_process_until_end_of_stream(mDecoder);
-}*/
-
 QFlacCoder::QFlacCoder()
 	: QAbstractCoder(), QThread()
 {
@@ -78,7 +54,7 @@ int QFlacCoder::headerSize()
 
 bool QFlacCoder::initializeEncode()
 {
-	mError = QAbstractCoder::NoError;
+	setError(QCoder::NoError);
 
 	mHeader.clear();
 	mHeaderPosition = 0;
@@ -96,7 +72,7 @@ bool QFlacCoder::initializeEncode()
 			else if(inputSampleSize == 32) encodePointer = &QFlacCoder::encode32Normal;
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
@@ -110,13 +86,13 @@ bool QFlacCoder::initializeEncode()
 			else if(outputSampleSize == 32) encodePointer = &QFlacCoder::encode32Convert;
 			else
 			{
-				mError = QAbstractCoder::SampleSizeError;
+				setError(QCoder::OutputSampleSizeError);
 				return false;
 			}
 		}
 		else
 		{
-			mError = QAbstractCoder::SampleSizeError;
+			setError(QCoder::OutputSampleSizeError);
 			return false;
 		}
 	}
@@ -127,7 +103,7 @@ bool QFlacCoder::initializeEncode()
 	}
 	if((mEncoder = m_FLAC__stream_encoder_new()) == NULL)
 	{
-		mError = QAbstractCoder::InitializationError;
+		setError(QCoder::EncoderInitializationError);
 		return false;
 	}
 
@@ -144,15 +120,15 @@ bool QFlacCoder::initializeEncode()
 		FLAC__StreamEncoderInitStatus initStatus = m_FLAC__stream_encoder_init_stream(mEncoder, flacWriteEncode, flacSeekEncode, flacTellEncode, NULL, this);
 		if(initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_INVALID_NUMBER_OF_CHANNELS)
 		{
-			mError = QAbstractCoder::NumberOfChannelsError;
+			setError(QCoder::OutputChannelError);
 		}
 		else if(initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_INVALID_BITS_PER_SAMPLE)
 		{
-			mError = QAbstractCoder::SampleSizeError;
+			setError(QCoder::OutputSampleSizeError);
 		}
 		else if(initStatus == FLAC__STREAM_ENCODER_INIT_STATUS_INVALID_SAMPLE_RATE)
 		{
-			mError = QAbstractCoder::SampleRateError;
+			setError(QCoder::OutputSampleRateError);
 		}
 		else if(initStatus != FLAC__STREAM_ENCODER_INIT_STATUS_OK)
 		{
@@ -164,10 +140,6 @@ bool QFlacCoder::initializeEncode()
 	{
 		return true;
 	}
-	else if(mError = QAbstractCoder::NoError) //Only if there isn't another error
-	{
-		mError = QAbstractCoder::InitializationError;
-	}
 	return false;
 }
 
@@ -175,7 +147,10 @@ bool QFlacCoder::finalizeEncode()
 {
 	if(mEncoder != NULL)
 	{
-		m_FLAC__stream_encoder_finish(mEncoder);
+		if(!m_FLAC__stream_encoder_finish(mEncoder))
+		{
+			setError(QCoder::EncoderFinalizationError);
+		}
 		m_FLAC__stream_encoder_delete(mEncoder);
 		mEncoder = NULL;
 		return true;
@@ -197,7 +172,10 @@ void QFlacCoder::encode8Convert(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		setError(QCoder::EncodingError);
+	}
 }
 
 void QFlacCoder::encode16Convert(const void *input, int samples)
@@ -209,7 +187,10 @@ void QFlacCoder::encode16Convert(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		setError(QCoder::EncodingError);
+	}
 }
 
 void QFlacCoder::encode32Convert(const void *input, int samples)
@@ -221,7 +202,10 @@ void QFlacCoder::encode32Convert(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		setError(QCoder::EncodingError);
+	}
 }
 
 void QFlacCoder::encode8Normal(const void *input, int samples)
@@ -232,7 +216,10 @@ void QFlacCoder::encode8Normal(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		setError(QCoder::EncodingError);
+	}
 }
 
 void QFlacCoder::encode16Normal(const void *input, int samples)
@@ -243,7 +230,10 @@ void QFlacCoder::encode16Normal(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		setError(QCoder::EncodingError);
+	}
 }
 
 void QFlacCoder::encode32Normal(const void *input, int samples)
@@ -254,7 +244,10 @@ void QFlacCoder::encode32Normal(const void *input, int samples)
 	{
 		inputData[i] = data[i];
 	}
-	m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels());
+	if(!m_FLAC__stream_encoder_process_interleaved(mEncoder, inputData, samples / mInputFormat.channels()))
+	{
+		setError(QCoder::EncodingError);
+	}
 }
 
 bool QFlacCoder::initializeDecode()
@@ -268,13 +261,13 @@ bool QFlacCoder::initializeDecode()
 	}
 	if((mDecoder = m_FLAC__stream_decoder_new()) == NULL)
 	{
-		mError = QAbstractCoder::InitializationError;
+		setError(QCoder::DecoderInitializationError);
 		return false;
 	}
 
 	if(m_FLAC__stream_decoder_init_stream(mDecoder, flacReadDecode, NULL, NULL, NULL, NULL, flacWriteDecode, flacMetadataDecode, flacErrorDecode, this) != FLAC__STREAM_DECODER_INIT_STATUS_OK)
 	{
-		mError = QAbstractCoder::InitializationError;
+		setError(QCoder::DecoderInitializationError);
 		return false;
 	}
 
@@ -296,7 +289,10 @@ bool QFlacCoder::finalizeDecode()
 
 	if(mDecoder != NULL)
 	{
-		m_FLAC__stream_decoder_finish(mDecoder);
+		if(!m_FLAC__stream_decoder_finish(mDecoder))
+		{
+			setError(QCoder::DecoderFinalizationError);
+		}
 		m_FLAC__stream_decoder_delete(mDecoder);
 		mDecoder = NULL;
 		return true;
@@ -327,7 +323,10 @@ void QFlacCoder::decode(const void *input, int size)
 
 void QFlacCoder::run()
 {
-	m_FLAC__stream_decoder_process_until_end_of_stream(mDecoder);
+	if(!m_FLAC__stream_decoder_process_until_end_of_stream(mDecoder))
+	{
+		setError(QCoder::DecodingError);
+	}
 	mWaitCondition.wakeAll();
 }
 
@@ -419,7 +418,7 @@ FLAC__StreamEncoderTellStatus QFlacCoder::flacTellEncode(const FLAC__StreamEncod
 void QFlacCoder::flacErrorDecode(const FLAC__StreamDecoder *decoder, FLAC__StreamDecoderErrorStatus status, void *client)
 {
 	QFlacCoder *coder = (QFlacCoder*) client;
-	coder->mError = QAbstractCoder::DecoderError;
+	coder->setError(QCoder::DecodingError);
 }
 
 void QFlacCoder::flacMetadataDecode(const FLAC__StreamDecoder *decoder, const FLAC__StreamMetadata *metadata, void *client)
@@ -572,7 +571,7 @@ FLAC__StreamDecoderWriteStatus QFlacCoder::flacWriteDecode32(const FLAC__StreamD
 	return FLAC__STREAM_DECODER_WRITE_STATUS_CONTINUE;
 }
 
-QAbstractCoder::Error QFlacCoder::initializeLibrary()
+QCoder::Error QFlacCoder::initializeLibrary()
 {
 	QList<bool> loaded;
 	int success = 0;
@@ -620,23 +619,11 @@ QAbstractCoder::Error QFlacCoder::initializeLibrary()
 
 	if(success == loaded.size())
 	{
-		return QAbstractCoder::NoError;
+		return QCoder::NoError;
 	}
 	else if(failure == loaded.size())
 	{
-		return QAbstractCoder::LibraryError;
+		return QCoder::LibraryFileError;
 	}
-	return QAbstractCoder::VersionError;
+	return QCoder::LibraryVersionError;
 }
-
-/*
-FLAC__StreamEncoderWriteStatus QFlacCoder::flacWriteData(const FLAC__StreamEncoder *encoder, const FLAC__byte buffer[], size_t numberOfBytes, unsigned numberOfSamples, unsigned currentFrame, void *clientData)
-{
-	if(mCurrentBuffer == NULL)
-	{
-		mError = QAbstractCoder::BufferError;
-		return FLAC__STREAM_ENCODER_WRITE_STATUS_FATAL_ERROR;
-	}
-	memcpy(mCurrentBuffer, buffer, numberOfBytes);
-	return FLAC__STREAM_ENCODER_WRITE_STATUS_OK;
-}*/

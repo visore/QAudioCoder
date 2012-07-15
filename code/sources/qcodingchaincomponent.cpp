@@ -10,6 +10,18 @@ QCodingChainComponent::QCodingChainComponent()
 	: QObject()
 {
 	mNext = NULL;
+	mError = QCoder::NoError;
+}
+
+QCoder::Error QCodingChainComponent::error()
+{
+	return mError;
+}
+
+void QCodingChainComponent::setError(QCoder::Error error)
+{
+	mError = error;
+	emit failed(mError);
 }
 
 void QCodingChainComponent::setNext(QCodingChainComponent *next)
@@ -85,8 +97,16 @@ int QCodingChainFileInput::size()
 void QCodingChainFileInput::initialize()
 {
 	mData.clear();
+	if(mFilePath == "")
+	{
+		setError(QCoder::InputFileError);
+		return;
+	}
 	mFile.setFileName(mFilePath);
-	mFile.open(QIODevice::ReadOnly);
+	if(!mFile.open(QIODevice::ReadOnly))
+	{
+		setError(QCoder::InputFileError);
+	}
 }
 
 void QCodingChainFileInput::execute()
@@ -199,10 +219,17 @@ void QCodingChainDecoder::setCoder(QAbstractCoder *coder)
 void QCodingChainDecoder::initialize()
 {
 	mData.clear();
-	if(mCoder != NULL && mCoder->initializeDecode())
+	if(mCoder != NULL)
 	{
-		mCoder->disconnect(mCoder, SIGNAL(decoded(QSampleArray*)));
-		QObject::connect(mCoder, SIGNAL(decoded(QSampleArray*)), mNext, SLOT(addData(QSampleArray*)), Qt::DirectConnection);
+		if(mCoder->initializeDecode())
+		{
+			mCoder->disconnect(mCoder, SIGNAL(decoded(QSampleArray*)));
+			QObject::connect(mCoder, SIGNAL(decoded(QSampleArray*)), mNext, SLOT(addData(QSampleArray*)), Qt::DirectConnection);
+		}
+		else
+		{
+			setError(QCoder::DecoderInitializationError);
+		}
 	}
 }
 
@@ -210,7 +237,10 @@ void QCodingChainDecoder::finalize()
 {
 	if(mCoder != NULL)
 	{
-		mCoder->finalizeDecode();
+		if(!mCoder->finalizeDecode())
+		{
+			setError(QCoder::DecoderFinalizationError);
+		}
 		mCoder->disconnect();
 	}
 }
@@ -244,6 +274,10 @@ void QCodingChainEncoder::changeFormat(QExtendedAudioFormat format)
 			mCoder->disconnect(mCoder, SIGNAL(encoded(QSampleArray*)));
 			QObject::connect(mCoder, SIGNAL(encoded(QSampleArray*)), mNext, SLOT(addData(QSampleArray*)), Qt::DirectConnection);
 		}
+		else
+		{
+			setError(QCoder::EncoderInitializationError);
+		}
 	}
 }
 
@@ -254,12 +288,15 @@ void QCodingChainEncoder::initialize()
 
 void QCodingChainEncoder::finalize()
 {
-	mNext->addData(new QSampleArray(mCoder->header()), 0);
 	if(mCoder != NULL)
 	{
-		mCoder->finalizeEncode();
+		if(!mCoder->finalizeEncode())
+		{
+			setError(QCoder::EncoderFinalizationError);
+		}
 		mCoder->disconnect();
 	}
+	mNext->addData(new QSampleArray(mCoder->header()), 0);
 }
 
 void QCodingChainEncoder::execute()
@@ -301,8 +338,16 @@ void QCodingChainFileOutput::seek(qint64 position)
 void QCodingChainFileOutput::initialize()
 {
 	mData.clear();
+	if(mFilePath == "")
+	{
+		setError(QCoder::OutputFileError);
+		return;
+	}
 	mFile.setFileName(mFilePath);
-	mFile.open(QIODevice::WriteOnly);
+	if(!mFile.open(QIODevice::WriteOnly))
+	{
+		setError(QCoder::OutputFileError);
+	}
 }
 
 void QCodingChainFileOutput::finalize()

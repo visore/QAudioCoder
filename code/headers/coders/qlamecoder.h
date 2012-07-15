@@ -34,7 +34,7 @@ class QLameCoder : public QAbstractCoder
 
 		int sequentialFrames(QList<int> positions);
 
-		QAbstractCoder::Error initializeLibrary();
+		QCoder::Error initializeLibrary();
 
 	private:
 

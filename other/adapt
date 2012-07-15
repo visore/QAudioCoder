@@ -3,15 +3,9 @@
 for i in {1..100}
 do
 
-	sed -i 's/QCodecContent/QAudioInfo/' ../code/headers/*/*.h
-	sed -i 's/qcodeccontent/qaudioinfo/' ../code/headers/*/*.h
-	sed -i 's/QCodecContent/QAudioInfo/' ../code/headers/*.h
-	sed -i 's/qcodeccontent/qaudioinfo/' ../code/headers/*.h
-
-	sed -i 's/QCodecContent/QAudioInfo/' ../code/sources/*/*.cpp
-	sed -i 's/qcodeccontent/qaudioinfo/' ../code/sources/*/*.cpp
-	sed -i 's/QCodecContent/QAudioInfo/' ../code/sources/*.cpp
-	sed -i 's/qcodeccontent/qaudioinfo/' ../code/sources/*.cpp
-
+	sed -i 's/QAudioCoder::/QCoder::/' ../code/headers/*/*.h
+	sed -i 's/QAudioCoder::/QCoder::/' ../code/headers/*.h
+	sed -i 's/QAudioCoder::/QCoder::/' ../code/sources/*/*.cpp
+	sed -i 's/QAudioCoder::/QCoder::/' ../code/sources/*.cpp
 
 done

@@ -1,8 +1,9 @@
 #ifndef QAUDIOMANAGER_H
 #define QAUDIOMANAGER_H
 
+#include <QStringList>
 #include <qabstractcoder.h>
-#include <qaudiocodec.h>
+#include <qcommon.h>
 
 typedef QList<QAbstractCoder*> QCoderList;
 typedef QList<QAudioCodec*> QCodecList;
@@ -20,24 +21,25 @@ class QAudioManager
 
 		~QAudioManager();
 		static QAudioManager& instance();
+		QCoder::Error error();
 
 		void addSearchPath(const QString searchPath);
 		void addFileName(const QString coderName, const QString name);
 		void addFileExtension(const QString coderName, const QString extension);
 
-		QAudioCodec* codec(const QString name, const QAudioManager::Mode mode = QAudioManager::Available) const;
+		QAudioCodec* codec(const QString name, const QAudioManager::Mode mode = QAudioManager::Available);
 
-		QAbstractCoder* coder(const QString name, const QAudioManager::Mode mode = QAudioManager::Available) const;
-		QAbstractCoder* coder(const QAudioCodec *codec, const QAudioManager::Mode mode = QAudioManager::Available) const;
-		QAbstractCoder* coder(const QExtendedAudioFormat &format, const QAudioManager::Mode mode = QAudioManager::Available) const;
+		QAbstractCoder* coder(const QString name, const QAudioManager::Mode mode = QAudioManager::Available);
+		QAbstractCoder* coder(const QAudioCodec *codec, const QAudioManager::Mode mode = QAudioManager::Available);
+		QAbstractCoder* coder(const QExtendedAudioFormat &format, const QAudioManager::Mode mode = QAudioManager::Available);
 
 		QAbstractCoder* detect(const QString filePath, const QAudioManager::Mode mode = QAudioManager::Available);
 		QAbstractCoder* detect(const QByteArray &data, const QAudioManager::Mode mode = QAudioManager::Available);
 
-		bool isAvailable(const QAbstractCoder *coder) const;
-		bool isAvailable(const QAudioCodec *codec) const;
-		bool isSupported(const QAbstractCoder *coder) const;
-		bool isSupported(const QAudioCodec *codec) const;
+		bool isAvailable(const QAbstractCoder *coder);
+		bool isAvailable(const QAudioCodec *codec);
+		bool isSupported(const QAbstractCoder *coder);
+		bool isSupported(const QAudioCodec *codec);
 
 		QCoderList coders(const QAudioManager::Mode mode = QAudioManager::Available);
 		QCodecList codecs(const QAudioManager::Mode mode = QAudioManager::Available);
@@ -45,6 +47,7 @@ class QAudioManager
 	protected:
 
 		QAudioManager();
+		void setError(QCoder::Error error);
 
 		void initializeSearchPaths();
 		void testLibraries();
@@ -55,6 +58,7 @@ class QAudioManager
 
 	private:
 
+		QCoder::Error mError;
 		QCoderList mSupportedCoders;
 		QCoderList mAvailableCoders;
 		QCodecList mSupportedCodecs;

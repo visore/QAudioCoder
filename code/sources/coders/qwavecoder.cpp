@@ -12,14 +12,16 @@ QWaveCoder::QWaveCoder()
 	mSupportedCodecs.append(&QWaveCodec::instance());
 }
 
-QAbstractCoder::Error QWaveCoder::load()
+QCoder::Error QWaveCoder::load()
 {
-	return QAbstractCoder::NoError;
+	setError(QCoder::NoError);
+	return error();
 }
 
-QAbstractCoder::Error QWaveCoder::load(QString filePath)
+QCoder::Error QWaveCoder::load(QString filePath)
 {
-	return QAbstractCoder::NoError;
+	setError(QCoder::NoError);
+	return error();
 }
 
 bool QWaveCoder::unload()
@@ -95,7 +97,7 @@ int QWaveCoder::headerSize()
 
 bool QWaveCoder::initializeDecode()
 {
-	mError = QAbstractCoder::NoError;
+	setError(QCoder::NoError);
 	decodePointer = &QWaveCoder::decodeHeader;
 	return true;
 }
@@ -164,26 +166,49 @@ bool QWaveCoder::initializeEncode()
 	int outSize = mOutputFormat.sampleSize();
 	QExtendedAudioFormat::SampleType inType = mInputFormat.sampleType();
 	QExtendedAudioFormat::SampleType outType = mOutputFormat.sampleType();
+	int inputChannels = mInputFormat.channelCount();
+	int outputChannels = mOutputFormat.channelCount();
 
-	if(!(inSize == 8 || inSize == 16 || inSize == 32) && !(outSize == 8 || outSize == 16 || outSize == 32))
+	if(!(inSize == 8 || inSize == 16 || inSize == 32))
 	{
-		mError = QAbstractCoder::SampleSizeError;
+		setError(QCoder::InputSampleSizeError);
+		return false;
+	}
+	if(!(outSize == 8 || outSize == 16 || outSize == 32))
+	{
+		setError(QCoder::OutputSampleSizeError);
 		return false;
 	}
 
-	if(inType == QExtendedAudioFormat::Unknown || outType == QExtendedAudioFormat::Unknown)
+	if(inType == QExtendedAudioFormat::Unknown)
 	{
-		mError = QAbstractCoder::SampleTypeError;
+		setError(QCoder::InputSampleTypeError);
+		return false;
+	}
+	if(outType == QExtendedAudioFormat::Unknown)
+	{
+		setError(QCoder::OutputSampleTypeError);
+		return false;
+	}
+
+	if(!(inputChannels == 1 || inputChannels == 2))
+	{
+		setError(QCoder::InputChannelError);
+		return false;
+	}
+	if(!(outputChannels == 1 || outputChannels == 2))
+	{
+		setError(QCoder::OutputChannelError);
 		return false;
 	}
 
 	if(!mConverter.initialize(mInputFormat, mOutputFormat))
 	{
-		mError = QAbstractCoder::InitializationError;
+		setError(QCoder::EncoderInitializationError);
 		return false;
 	}
 
-	mError = QAbstractCoder::NoError;
+	setError(QCoder::NoError);
 	return true;
 }
 
@@ -200,9 +225,10 @@ void QWaveCoder::encode(const void *input, int samples)
 	emit encoded(new QSampleArray(output, bytes, samples));
 }
 
-QAbstractCoder::Error QWaveCoder::initializeLibrary()
+QCoder::Error QWaveCoder::initializeLibrary()
 {
-	return QAbstractCoder::NoError;
+	setError(QCoder::NoError);
+	return error();
 }
 
 short QWaveCoder::toShort(char data[])

@@ -57,7 +57,7 @@ class QFlacCoder : public QAbstractCoder, public QThread
 		static FLAC__StreamDecoderWriteStatus flacWriteDecode16(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
 		static FLAC__StreamDecoderWriteStatus flacWriteDecode32(const FLAC__StreamDecoder *decoder, const FLAC__Frame *frame, const FLAC__int32 * const buffer[], void *client);
 
-		QAbstractCoder::Error initializeLibrary();
+		QCoder::Error initializeLibrary();
 
 	private:
 
@@ -75,7 +75,7 @@ class QFlacCoder : public QAbstractCoder, public QThread
 		FLAC__bool (*m_FLAC__stream_encoder_process_interleaved)(FLAC__StreamEncoder*, const FLAC__int32[], unsigned);
 
 		
-		FLAC_API FLAC__StreamDecoder* (*m_FLAC__stream_decoder_new)();
+		FLAC__StreamDecoder* (*m_FLAC__stream_decoder_new)();
 		void (*m_FLAC__stream_decoder_delete)(FLAC__StreamDecoder*);
 		FLAC__bool (*m_FLAC__stream_decoder_finish)(FLAC__StreamDecoder*);
 		FLAC__StreamDecoderInitStatus (*m_FLAC__stream_decoder_init_stream)(FLAC__StreamDecoder*, FLAC__StreamDecoderReadCallback, FLAC__StreamDecoderSeekCallback, FLAC__StreamDecoderTellCallback, FLAC__StreamDecoderLengthCallback, FLAC__StreamDecoderEofCallback, FLAC__StreamDecoderWriteCallback, FLAC__StreamDecoderMetadataCallback, FLAC__StreamDecoderErrorCallback, void*);

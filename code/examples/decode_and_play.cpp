@@ -10,7 +10,6 @@
 #include <QAudioDeviceInfo>
 #include <QBuffer>
 #include <QString>
-#include <QFile>
 
 #define INTERVAL 0.2
 
@@ -29,28 +28,61 @@ QPushButton *openButton = NULL;
 QPushButton *playButton = NULL;
 QProgressBar *progressBar = NULL;
 
-QString fileTypes()
+void showError()
 {
-	QString types = "";
+	QMessageBox::critical(window, "Error", coder.errorString());
+	progressBar->setValue(0);
+	progressBar->setFormat("Error");
+}
+
+QString supportedFileTypes()
+{
+	QString types = "All Supported Files (";
+	QStringList allExtensions;
 	QCodecList codecs = QAudioCoder::codecs();
 	for(int i = 0; i < codecs.size(); ++i)
 	{
-		types += codecs[i]->abbreviations()[0] + " Files (";
+		QStringList extensions = codecs[i]->extensions("*.");
+		allExtensions.append(extensions);
+	}
+	for(int i = 0; i < allExtensions.size(); ++i)
+	{
+		types += allExtensions[i];
+		if(i != allExtensions.size() - 1)
+		{
+			types += " ";
+		}
+	}
+	types += ")";
+	return types;
+}
+
+QString fileTypes()
+{
+	QString types = "All Files (*.*);;";
+	QString otherTypes = "";
+	QCodecList codecs = QAudioCoder::codecs();
+
+	for(int i = 0; i < codecs.size(); ++i)
+	{
+		otherTypes += codecs[i]->abbreviations()[0] + " Files (";
 		QStringList extensions = codecs[i]->extensions("*.");
 		for(int j = 0; j < extensions.size(); ++j)
 		{
-			types += extensions[j];
+			otherTypes += extensions[j];
 			if(j != extensions.size() - 1)
 			{
-				types += " ";
+				otherTypes += " ";
 			}
 		}
-		types += ")";
+		otherTypes += ")";
 		if(i != codecs.size() - 1)
 		{
-			types += ";;";
+			otherTypes += ";;";
 		}
 	}
+
+	types += supportedFileTypes() + ";;" + otherTypes;
 	return types;
 }
 
@@ -74,7 +106,8 @@ QString timeString(int seconds)
 
 void openFile()
 {
-	QString filePath = QFileDialog::getOpenFileName(window, "Open Audio File", QDir::homePath(), fileTypes());
+	QString selectedFilter = supportedFileTypes();
+	QString filePath = QFileDialog::getOpenFileName(window, "Open Audio File", QDir::homePath(), fileTypes(), &selectedFilter);
 	lineEdit->setText(filePath);
 }
 
@@ -83,17 +116,6 @@ void progressPlay()
 	qreal seconds = (output->processedUSecs() / 1000000.0) - ((output->bufferSize() - output->bytesFree()) / (format.channelCount() * format.sampleSize() / 8) / format.sampleRate());
 	progressBar->setFormat(timeString(seconds) + songLengthString);
 	progressBar->setValue((seconds / songLength) * 100);
-}
-
-bool testFile()
-{
-	QFile file(lineEdit->text());
-	if(!file.exists())
-	{
-		QMessageBox::warning(window, "Invalid File", "The provided file does not exist.");
-		return false;
-	}
-	return true;
 }
 
 void playFile()
@@ -105,12 +127,12 @@ void playFile()
 	progressBar->setValue(0);
 	QAudioFormat audioFormat = format.toQAudioFormat();
 	audioFormat.setCodec("audio/pcm");
-	audioFormat.setSampleSize(32);
 
 	if(output != NULL)
 	{
 		delete output;
 	}
+
 	output = new QAudioOutput(QAudioDeviceInfo::defaultOutputDevice(), audioFormat);
 	output->setNotifyInterval(INTERVAL * 100);
 	QObject::connect(output, &QAudioOutput::notify, progressPlay);
@@ -131,11 +153,9 @@ void decodeFile()
 	}
 	buffer.close();
 	data.clear();
-	if(testFile())
-	{
-		progressBar->setFormat("Decoding");
-		coder.decode(lineEdit->text(), data, format);
-	}
+	progressBar->setTextVisible(true);
+	progressBar->setFormat("Decoding");
+	coder.decode(lineEdit->text(), data, format);
 }
 
 void initialize()
@@ -150,6 +170,7 @@ void initialize()
 	playButton = new QPushButton("Play", window);
 	progressBar = new QProgressBar(window);
 	progressBar->setRange(0, 100);
+	progressBar->setTextVisible(false);
 
 	layout->addWidget(lineEdit, 0, 0);
 	layout->addWidget(openButton, 0, 1);
@@ -160,6 +181,7 @@ void initialize()
 	QObject::connect(playButton, &QPushButton::clicked, decodeFile);
 	QObject::connect(&coder, &QAudioCoder::progressed, progressBar, &QProgressBar::setValue);
 	QObject::connect(&coder, &QAudioCoder::finished, playFile);
+	QObject::connect(&coder, &QAudioCoder::failed, showError);
 
 	window->show();
 }

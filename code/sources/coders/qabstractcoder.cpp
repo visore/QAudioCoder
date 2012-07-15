@@ -5,7 +5,7 @@ QAbstractCoder::QAbstractCoder()
 {
 	mName = "undefined";
 	mVersion = "undefined";
-	mError = QAbstractCoder::NoError;
+	setError(QCoder::NoError);
 
 	addFileExtension("");
 	addFileExtension(".a");
@@ -36,37 +36,36 @@ const QList<QAudioCodec*> QAbstractCoder::supportedCodecs() const
 	return mSupportedCodecs;
 }
 
-QAbstractCoder::Error QAbstractCoder::load()
+QCoder::Error QAbstractCoder::load()
 {
 	if(!mLibrary.isLoaded())
 	{
 		QFile file(filePath());
 		if(!file.exists())
 		{
-			mError = QAbstractCoder::PathError;
-			return mError;
+			setError(QCoder::LibraryFileError);
+			return error();
 		}
 		if(mLibrary.load())
 		{
-			QAbstractCoder::Error error = initializeLibrary();
-			if(error != QAbstractCoder::NoError)
+			setError(initializeLibrary());
+			if(error() != QCoder::NoError)
 			{
 				unload();
 			}
-			mError = error;
-			return mError;
+			return error();
 		}
 		else
 		{
-			mError = QAbstractCoder::FileError;
-			return mError;
+			setError(QCoder::LibraryFileError);
+			return error();
 		}
 	}
-	mError = QAbstractCoder::NoError;
-	return mError;
+	setError(QCoder::NoError);
+	return error();
 }
 
-QAbstractCoder::Error QAbstractCoder::load(QString filePath)
+QCoder::Error QAbstractCoder::load(QString filePath)
 {
 	setFilePath(filePath);
 	return load();
@@ -142,9 +141,18 @@ void QAbstractCoder::addFileExtension(QString extension)
 	mFileExtensions.append(extension);
 }
 
-QAbstractCoder::Error QAbstractCoder::error() const
+QCoder::Error QAbstractCoder::error() const
 {
 	return mError;
+}
+
+void QAbstractCoder::setError(QCoder::Error error)
+{
+	mError = error;
+	if(mError != QCoder::NoError)
+	{
+		emit failed(mError);
+	}
 }
 
 bool QAbstractCoder::operator == (const QAbstractCoder &other) const

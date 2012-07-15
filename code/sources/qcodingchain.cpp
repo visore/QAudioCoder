@@ -7,6 +7,8 @@ QCodingChain::QCodingChain()
 	mManager = &QAudioManager::instance();
 	mInputFormat = NULL;
 	mOutputFormat = NULL;
+	mInput = NULL;
+	mOutput = NULL;
 	setMode(QCodingChain::Unknown);
 }
 
@@ -32,6 +34,19 @@ void QCodingChain::setMode(QCodingChain::Mode mode)
 
 void QCodingChain::reset()
 {
+	mError = QCoder::NoError;
+
+	if(mInput != NULL)
+	{
+		mInput->disconnect();
+	}
+	mDecoder.disconnect();
+	mEncoder.disconnect();
+	if(mOutput != NULL)
+	{
+		mOutput->disconnect();
+	}
+
 	mInputFilePath = "";
 	mInputData = NULL;
 	mInput = NULL;
@@ -50,6 +65,40 @@ void QCodingChain::reset()
 	mInputFormat = NULL;
 	mOutputFormat = NULL;
 	mReferenceInputFormat = false;
+}
+
+void QCodingChain::setError(QCoder::Error error)
+{
+	mError = error;
+	if(mInput != NULL)
+	{
+		mInput->disconnect();
+	}
+	mDecoder.disconnect();
+	mEncoder.disconnect();
+	if(mOutput != NULL)
+	{
+		mOutput->disconnect();
+	}
+
+	if(isRunning())
+	{
+		exit(-1);
+	}
+
+	if(mInputCoder != NULL)
+	{
+		mInputCoder->unload();
+	}
+	if(mOutputCoder != NULL)
+	{
+		mOutputCoder->unload();
+	}
+
+	if(mError != QCoder::NoError)
+	{
+		emit failed(mError);
+	}
 }
 
 void QCodingChain::setInputPath(QString filePath)
@@ -140,25 +189,69 @@ void QCodingChain::run()
 		(this->*detectCoder)();
 		if(mInputCoder == NULL)
 		{
-			cout<<"Input file format not supported!"<<endl;
+			QCoder::Error error = mManager->error();
+			if(error == QCoder::UnsupportedCodecError)
+			{
+				setError(QCoder::UnsupportedInputCodecError);
+			}
+			else if(error == QCoder::UnavailableCodecError)
+			{
+				setError(QCoder::UnavailableInputCodecError);
+			}
+			else
+			{
+				setError(error);
+			}
 			return;
 		}
+		else
+		{
+			QObject::connect(mInputCoder, SIGNAL(failed(QCoder::Error)), this, SLOT(setError(QCoder::Error)), Qt::DirectConnection);
+		}
 	}
+	if(mError != QCoder::NoError) return;
+
 	if(mMode != QCodingChain::DecodeFile && mMode != QCodingChain::DecodeData)
 	{
 		mOutputCoder = mManager->coder(*mOutputFormat);
 		if(mOutputCoder == NULL)
 		{
-			cout<<"Output file format not supported!"<<endl;
+			QCoder::Error error = mManager->error();
+			if(error == QCoder::UnsupportedCodecError)
+			{
+				setError(QCoder::UnsupportedOutputCodecError);
+			}
+			else if(error == QCoder::UnavailableCodecError)
+			{
+				setError(QCoder::UnavailableOutputCodecError);
+			}
+			else
+			{
+				setError(error);
+			}
 			return;
 		}
+		else
+		{
+			QObject::connect(mOutputCoder, SIGNAL(failed(QCoder::Error)), this, SLOT(setError(QCoder::Error)), Qt::DirectConnection);
+		}
 	}
+	if(mError != QCoder::NoError) return;
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	//
 	// Initialize mode
 	//
 	//////////////////////////////////////////////////////////////////////////////////////////////
+
+	mInput->disconnect();
+	mDecoder.disconnect();
+	mEncoder.disconnect();
+	mOutput->disconnect();
+	QObject::connect(mInput, SIGNAL(failed(QCoder::Error)), this, SLOT(setError(QCoder::Error)), Qt::DirectConnection);
+	QObject::connect(&mDecoder, SIGNAL(failed(QCoder::Error)), this, SLOT(setError(QCoder::Error)), Qt::DirectConnection);
+	QObject::connect(&mEncoder, SIGNAL(failed(QCoder::Error)), this, SLOT(setError(QCoder::Error)), Qt::DirectConnection);
+	QObject::connect(mOutput, SIGNAL(failed(QCoder::Error)), this, SLOT(setError(QCoder::Error)), Qt::DirectConnection);
 
 	if(mMode == QCodingChain::ConvertFileToFile || mMode == QCodingChain::ConvertFileToData || mMode == QCodingChain::ConvertDataToFile || mMode == QCodingChain::ConvertDataToData)
 	{
@@ -188,17 +281,26 @@ void QCodingChain::run()
 	}
 
 	mInput->initialize();
+	if(mError != QCoder::NoError) return;
+
+	mOutput->initialize();
+	if(mError != QCoder::NoError) return;
+
 	if(mMode != QCodingChain::EncodeFile && mMode != QCodingChain::EncodeData)
 	{
 		mDecoder.setCoder(mInputCoder);
 		mInputCoder->load();
+		if(mError != QCoder::NoError) return;
 		mDecoder.initialize();
+		if(mError != QCoder::NoError) return;
 	}
 	if(mMode != QCodingChain::DecodeFile && mMode != QCodingChain::DecodeData)
 	{
 		mEncoder.setCoder(mOutputCoder);
 		mOutputCoder->load();
+		if(mError != QCoder::NoError) return;
 		mEncoder.initialize();
+		if(mError != QCoder::NoError) return;
 		if(mMode == QCodingChain::EncodeFile || mMode == QCodingChain::EncodeData)
 		{
 			mOutputCoder->setFormat(QAudio::AudioInput, *mInputFormat);
@@ -206,7 +308,6 @@ void QCodingChain::run()
 			mEncoder.changeFormat(*mInputFormat);
 		}
 	}
-	mOutput->initialize();
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
 	//
@@ -233,6 +334,7 @@ void QCodingChain::run()
 			progress = progressedData / totalSize * 99; // * 99 to first finalize everything before 100% is emitted
 		}
 		emit progressed(progress);
+		if(mError != QCoder::NoError) return;
 	}
 
 	//////////////////////////////////////////////////////////////////////////////////////////////
@@ -242,6 +344,7 @@ void QCodingChain::run()
 	//////////////////////////////////////////////////////////////////////////////////////////////
 
 	mInput->finalize();
+	if(mError != QCoder::NoError) return;
 	if(mMode != QCodingChain::EncodeFile && mMode != QCodingChain::EncodeData)
 	{
 		if(mMode == QCodingChain::DecodeFile || mMode == QCodingChain::DecodeData)
@@ -249,14 +352,23 @@ void QCodingChain::run()
 			*mInputFormat = mInputCoder->format(QAudio::AudioInput);
 		}
 		mDecoder.finalize();
-		mInputCoder->unload();
+		if(mError != QCoder::NoError) return;
 	}
 	if(mMode != QCodingChain::DecodeFile && mMode != QCodingChain::DecodeData)
 	{
 		mEncoder.finalize();
-		mOutputCoder->unload();
+		if(mError != QCoder::NoError) return;
 	}
 	mOutput->finalize();
+
+	if(mInputCoder != NULL)
+	{
+		mInputCoder->unload();
+	}
+	if(mOutputCoder != NULL)
+	{
+		mOutputCoder->unload();
+	}
 
 	progress = 100;
 	emit progressed(progress);

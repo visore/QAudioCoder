@@ -11,7 +11,12 @@ class QCodingChain : public QThread
 
 	signals:
 
+		void failed(QCoder::Error error);
 		void progressed(qreal percentage);
+
+	protected slots:
+
+		void setError(QCoder::Error error);
 
 	public:
 
@@ -56,6 +61,7 @@ class QCodingChain : public QThread
 
 		void (QCodingChain::*detectCoder)();
 
+		QCoder::Error mError;
 		QCodingChain::Mode mMode;
 
 		QString mInputFilePath;

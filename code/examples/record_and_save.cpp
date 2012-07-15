@@ -12,7 +12,6 @@
 #include <QAudioDeviceInfo>
 #include <QBuffer>
 #include <QString>
-#include <QFile>
 
 #define INTERVAL 0.2
 
@@ -30,6 +29,13 @@ QPushButton *saveButton = NULL;
 QProgressBar *progressBar = NULL;
 QComboBox *comboBox = NULL;
 QLabel *label = NULL;
+
+void showError()
+{
+	QMessageBox::critical(window, "Error", coder.errorString());
+	progressBar->setValue(0);
+	label->setText("Error");
+}
 
 QString fileTypes()
 {
@@ -58,13 +64,7 @@ void selectFile()
 
 void saveFile()
 {
-	if(lineEdit->text() == "")
-	{
-		QMessageBox::warning(window, "Invalid File", "Please provide a valid file path.");
-		return;
-	}
 	input->stop();
-	
 	label->setText("Encoding");
 	format.setCodec(comboBox->currentText());
 	progressBar->setRange(0, 100);
@@ -127,6 +127,7 @@ void initialize()
 	QObject::connect(saveButton, &QPushButton::clicked, saveFile);
 	QObject::connect(&coder, &QAudioCoder::progressed, progressBar, &QProgressBar::setValue);
 	QObject::connect(&coder, &QAudioCoder::finished, finish);
+	QObject::connect(&coder, &QAudioCoder::failed, showError);
 
 	window->show();
 }

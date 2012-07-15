@@ -10,12 +10,20 @@ class QAudioCoder : public QObject
 
 	signals:
 
+		void failed(QCoder::Error error);
 		void progressed(qreal percentage);
 		void finished();
+
+	private slots:
+
+		void setError(QCoder::Error error);
 
 	public:
 
 		QAudioCoder();
+		~QAudioCoder();
+		QCoder::Error error();
+		QString errorString();
 
 		void addSearchPath(QString path);
 		void addFileName(QString coder, QString name);
@@ -37,7 +45,8 @@ class QAudioCoder : public QObject
 
 	private:
 
-		QCodingChain mChain;
+		QCodingChain *mChain;
+		QCoder::Error mError;
 
 };
 

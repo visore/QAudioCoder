@@ -11,8 +11,8 @@ class QWaveCoder : public QAbstractCoder
 
 		QWaveCoder();
 
-		QAbstractCoder::Error load();
-		QAbstractCoder::Error load(QString filePath);
+		QCoder::Error load();
+		QCoder::Error load(QString filePath);
 		bool unload();
 
 		QAudioCodec* detectCodec(const QByteArray &data);
@@ -32,7 +32,7 @@ class QWaveCoder : public QAbstractCoder
 		void decodeHeader(const void *input, int size);
 		void decodeData(const void *input, int size);
 
-		QAbstractCoder::Error initializeLibrary();
+		QCoder::Error initializeLibrary();
 		short toShort(char data[]);
 		int toInt(char data[]);
 

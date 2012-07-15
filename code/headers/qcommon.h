@@ -26,4 +26,49 @@ typedef qbyte8 qbyte;
 
 typedef float qfloat;
 
+namespace QCoder
+{
+
+	enum Error
+	{
+		NoError,
+		UnknownError,
+
+		InputFileError,
+		OutputFileError,
+
+		DecoderInitializationError,
+		EncoderInitializationError,
+		DecoderFinalizationError,
+		EncoderFinalizationError,
+		DecodingError,
+		EncodingError,
+
+		LibraryFileError,
+		LibraryVersionError,
+
+		UnsupportedCodecError,
+		UnavailableCodecError,
+		UnsupportedInputCodecError,
+		UnavailableInputCodecError,
+		UnsupportedOutputCodecError,
+		UnavailableOutputCodecError,
+
+		InputSampleSizeError,
+		InputSampleTypeError,
+		InputSampleRateError,
+		InputBitrateError,
+		InputChannelError,
+		OutputSampleSizeError,
+		OutputSampleTypeError,
+		OutputSampleRateError,
+		OutputBitrateError,
+		OutputChannelError
+		
+	};
+
+	QString errorString(QCoder::Error error);
+
+};
+
 #endif

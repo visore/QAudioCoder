@@ -95,6 +95,9 @@ TARGET_LINK_LIBRARIES(decode_and_play qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5G
 ADD_EXECUTABLE(record_and_save ${EXAMPLES}/record_and_save.cpp)
 TARGET_LINK_LIBRARIES(record_and_save qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
 
+ADD_EXECUTABLE(convert ${EXAMPLES}/convert.cpp)
+TARGET_LINK_LIBRARIES(convert qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+
 #Packaging
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	INCLUDE(Packaging)

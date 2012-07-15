@@ -32,6 +32,10 @@ class QCodingChainComponent : public QObject
 	friend class QCodingChainFileOutput;
 	friend class QCodingChainDataOutput;
 
+	signals:
+
+		void failed(QCoder::Error error);
+
 	protected slots:
 
 		virtual void changeFormat(QExtendedAudioFormat format);
@@ -41,6 +45,8 @@ class QCodingChainComponent : public QObject
 	public:
 
 		QCodingChainComponent();
+
+		QCoder::Error error();
 
 		void setNext(QCodingChainComponent *next);
 		int chunkSize();
@@ -52,9 +58,11 @@ class QCodingChainComponent : public QObject
 	protected:
 
 		virtual void seek(qint64 position);
+		void setError(QCoder::Error error);
 
 	protected:
 
+		QCoder::Error mError;
 		QQueue<QSampleArray*> mData;
 		QCodingChainComponent *mNext;
 
