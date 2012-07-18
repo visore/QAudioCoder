@@ -426,15 +426,23 @@ void QAudioManager::initializeSearchPaths()
 	paths.append(QDir::currentPath() + QDir::separator() + "Libs");
 
 	#ifdef WINDOWS
-
+		paths.append("c:" + QDir::separator() + "program files (x86)");
+		paths.append("c:" + QDir::separator() + "program files");
 	#elif defined MACOSX
-
+		paths.append(QString("") + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "lib64");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib64");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib64");
 	#elif defined LINUX
 		paths.append(QString("") + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "lib64");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib");
-		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib64");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib" + QDir::separator() + "i386-linux-gnu");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib64");
 	#endif
 
 	for(int i = 0; i < paths.size(); ++i)
@@ -459,6 +467,11 @@ void QAudioManager::testLibraries()
 bool QAudioManager::testLibrary(QAbstractCoder *coder)
 {
 	setError(QCoder::NoError);
+	QStringList nameFilters;
+	QDir::Filters filters = QDir::Files | QDir::NoDotAndDotDot;
+	QDir dir;
+	QFileInfoList possibles;
+
 	QStringList fileNames = coder->fileNames();
 	QStringList fileExtensions = coder->fileExtensions();
 	for(int j = 0; j < mSearchPaths.size(); ++j)
@@ -467,15 +480,48 @@ bool QAudioManager::testLibrary(QAbstractCoder *coder)
 		for(int k = 0; k < fileNames.size(); ++k)
 		{
 			QString fileName = fileNames[k];
-			for(int i = 0; i < fileExtensions.size(); ++i)
+			for(int h = 0; h < fileNames.size(); ++h)
 			{
-				if(coder->load(path + fileName + fileExtensions[i]) == QCoder::NoError || coder->load(path + "lib" + fileName + fileExtensions[i]) == QCoder::NoError)
+				QString directoryName = fileNames[h];
+				for(int i = 0; i < fileExtensions.size(); ++i)
 				{
-					coder->unload();
-					add(QAudioManager::Available, coder);
-					return true;
+					if(	coder->load(path + fileName + fileExtensions[i]) == QCoder::NoError ||
+						coder->load(path + "lib" + fileName + fileExtensions[i]) == QCoder::NoError ||
+						coder->load(path + directoryName + QDir::separator() + fileName + fileExtensions[i]) == QCoder::NoError ||
+						coder->load(path + directoryName + QDir::separator() + "lib" + fileName + fileExtensions[i]) == QCoder::NoError ||
+						coder->load(path + "lib" + directoryName + QDir::separator() + fileName + fileExtensions[i]) == QCoder::NoError ||
+						coder->load(path + "lib" + directoryName + QDir::separator() + "lib" + fileName + fileExtensions[i]) == QCoder::NoError)
+					{
+						coder->unload();
+						add(QAudioManager::Available, coder);
+						return true;
+					}
+
+					//Check for libraries that end in version number. Eg: libflac.so.8
+
+					nameFilters.clear();
+					possibles.clear();
+
+					nameFilters << fileName + fileExtensions[i] + "*";
+					nameFilters << "lib" + fileName + fileExtensions[i] + "*";
+
+					dir.setPath(path);
+					possibles.append(dir.entryInfoList(nameFilters, filters, QDir::Name));
+					dir.setPath(path + directoryName);
+					possibles.append(dir.entryInfoList(nameFilters, filters, QDir::Name));
+					dir.setPath(path + "lib" + directoryName);
+					possibles.append(dir.entryInfoList(nameFilters, filters, QDir::Name));
+
+					for(int t = 0; t < possibles.size(); ++t)
+					{
+						if(coder->load(possibles[t].absoluteFilePath()) == QCoder::NoError)
+						{
+							coder->unload();
+							add(QAudioManager::Available, coder);
+							return true;
+						}
+					}
 				}
-				
 			}
 		}
 	}

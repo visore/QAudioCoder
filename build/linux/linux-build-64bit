@@ -32,12 +32,12 @@ if $configure; then
 	cd "$build_directory"
 	if [ -f /etc/debian_version ] || [ -f /etc/debian_release ] || [ -f /etc/debian-version ] || [ -f /etc/debian-release ];
 	then
-		cmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=64bit -DDISTRO=Debian
+		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=64bit -DDISTRO=Debian
 	elif [ -f /etc/redhat_version ] || [ -f /etc/redhat_release ] || [ -f /etc/redhat-version ] || [ -f /etc/redhat-release ];
 	then
-		cmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=64bit -DDISTRO=Redhat
+		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=64bit -DDISTRO=Redhat
 	else
-		cmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=64bit
+		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=64bit
 	fi
 fi
 

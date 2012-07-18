@@ -14,15 +14,9 @@ QAbstractCoder::QAbstractCoder()
 		addFileExtension(".dll");
 	#elif defined MACOSX
 		addFileExtension(".so");
-		addFileExtension(".so.0");
-		addFileExtension(".so.0.0");
-		addFileExtension(".so.0.0.0");
 		addFileExtension(".dylib");
 	#elif defined LINUX
 		addFileExtension(".so");
-		addFileExtension(".so.0");
-		addFileExtension(".so.0.0");
-		addFileExtension(".so.0.0.0");
 	#endif
 }
 

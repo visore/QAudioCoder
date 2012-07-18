@@ -1,17 +1,26 @@
-#Setup Visore
+#############################################################################
+# Setup and CMake
+#############################################################################
+
 PROJECT(QAudioCoder)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.8)
+CMAKE_POLICY(SET CMP0012 NEW) #Ensures that TRUE can be used as a boolean
+SET(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} -fPIC)
 
-#Setup CMake
-CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
+#############################################################################
+# Setup directory paths
+#############################################################################
 
-#Setup directory paths
 SET(ROOT ${CMAKE_CURRENT_SOURCE_DIR})
 SET(HEADERS ${ROOT}/headers)
 SET(SOURCES ${ROOT}/sources)
 SET(EXTERNAL ${ROOT}/external)
 SET(EXAMPLES ${ROOT}/examples)
 
-#Set System
+#############################################################################
+# Set System
+#############################################################################
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	SET(MACOSX 1)
 	ADD_DEFINITIONS(-DMACOSX)
@@ -26,7 +35,10 @@ ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
     SET(DISTRO " " CACHE INTERNAL "Linux distrobution")
 ENDIF()
 
-#Setup installation directory paths
+#############################################################################
+# Setup installation directory paths
+#############################################################################
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	SET(INSTALL_LIB_DIR lib)
 	SET(INSTALL_INCLUDE_DIR include)
@@ -35,70 +47,86 @@ ELSE()
 	SET(INSTALL_INCLUDE_DIR include)
 ENDIF()
 
-#Setup Packaging and Version
+#############################################################################
+# Setup Packaging and Version
+#############################################################################
+
 SET(CMAKE_MODULE_PATH ${ROOT}/cmake)
-include(ExternalProject) 
 INCLUDE(Version)
 INCLUDE(Macros)
 
-#External projects
-#EXTERNALPROJECT_ADD(RESAMPLE SOURCE_DIR "${EXTERNAL}/libresample" CONFIGURE_COMMAND ${EXTERNAL}/libresample/configure INSTALL_DIR "${INSTALL_LIB_DIR}" BUILD_IN_SOURCE 0)
-#SET(libsamplerate_LIBRARY "${CMAKE_INSTALL_PREFIX}/${CMAKE_STATIC_LIBRARY_PREFIX}samplerate")
-#message(error *${CMAKE_CURRENT_BINARY_DIR}/*)
+#############################################################################
+# Setup Qt
+#############################################################################
 
-#Setup Qt
-SET(QT5BASE /home/visore/Qt5/qt5/qtbase)
-FIND_PACKAGE(Qt5 COMPONENTS Core Multimedia Widgets Gui)
+SET(CMAKE_AUTOMOC ON)
+SET(QT5_DIR "/usr/local/Qt-5.0.0" CACHE PATH "Qt5 install location (containing the bin, include and lib directories - eg: /usr/local/Qt-5.0.0)")
+SET(CMAKE_PREFIX_PATH ${CMAKE_PREFIX_PATH} ${QT5_DIR})
+SET(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-#Include common headers
+FIND_PACKAGE(Qt5Core REQUIRED)
+FIND_PACKAGE(Qt5Multimedia REQUIRED)
+FIND_PACKAGE(Qt5Gui)
+FIND_PACKAGE(Qt5Widgets)
+
+ include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
+
+#############################################################################
+# Include common headers
+#############################################################################
+
 HEADER_DIRECTORIES(GLOBAL_HEADERS)
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${GLOBAL_HEADERS} /home/visore/Project/QAudioCoder/build/RESAMPLE-prefix/src/RESAMPLE-build/src)
+INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${GLOBAL_HEADERS})
 
-#Initiate source files
-FILE(GLOB SOURCES ${SOURCES}/*.cpp ${SOURCES}/*/*.cpp ${EXTERNAL}/libresample/*/*.c)
-FILE(GLOB ALL_HEADERS ${HEADERS}/*.h ${HEADERS}/*/*.h ${EXTERNAL}/libresample/*/*.h)
-SET(NORMAL_HEADERS)
-SET(MOC_HEADERS)
-FOREACH(HEADER ${ALL_HEADERS})
-    FILE(STRINGS "${HEADER}" lines REGEX "Q_OBJECT")
-    IF(lines)
-        LIST(APPEND MOC_HEADERS "${HEADER}")
-	ELSE()
-		LIST(APPEND NORMAL_HEADERS "${HEADER}")
-    ENDIF()
-ENDFOREACH()
+#############################################################################
+# Initiate source files
+#############################################################################
 
-#Wrap Qt files
-QT5_WRAP_CPP(WRAPPER_HEADERS ${MOC_HEADERS})
+FILE(GLOB SOURCES ${SOURCES}/*.cpp ${SOURCES}/*/*.cpp ${EXTERNAL}/resample/*/*.c)
+FILE(GLOB HEADERS ${HEADERS}/*.h ${HEADERS}/*/*.h ${EXTERNAL}/resample/*/*.h)
 
-#Create shared library
-ADD_LIBRARY(qaudiocoder SHARED ${WRAPPER_HEADERS} ${NORMAL_HEADERS} ${SOURCES})
+#############################################################################
+# Create shared library
+#############################################################################
+
+ADD_LIBRARY(qaudiocoder SHARED ${HEADERS} ${SOURCES})
+QT5_USE_MODULES(qaudiocoder Core Multimedia)
 SET_TARGET_PROPERTIES(qaudiocoder PROPERTIES LINKER_LANGUAGE CXX)
-TARGET_LINK_LIBRARIES(qaudiocoder ${Qt5Core_LIBRARIES} ${Qt5Multimedia_LIBRARIES})
 SET_TARGET_PROPERTIES(qaudiocoder PROPERTIES VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 SET_TARGET_PROPERTIES(qaudiocoder PROPERTIES SOVERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
 
-#Install library and header
+#############################################################################
+# Install library and header
+#############################################################################
+
 INSTALL(TARGETS qaudiocoder DESTINATION ${INSTALL_LIB_DIR})
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	INSTALL(FILES ${ROOT}/cmake/QAudioCoderConfig.cmake DESTINATION ${INSTALL_LIB_DIR})
 ENDIF()
 INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 
-#Create example cases
-ADD_EXECUTABLE(example1 ${EXAMPLES}/example1.cpp)
-TARGET_LINK_LIBRARIES(example1 qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+#############################################################################
+# Examples
+#############################################################################
 
-ADD_EXECUTABLE(decode_and_play ${EXAMPLES}/decode_and_play.cpp)
-TARGET_LINK_LIBRARIES(decode_and_play qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+IF(${Qt5Widgets_FOUND} AND ${Qt5Gui_FOUND})
+	ADD_EXECUTABLE(decode_and_play ${EXAMPLES}/decode_and_play.cpp)
+	TARGET_LINK_LIBRARIES(decode_and_play qaudiocoder)
+	QT5_USE_MODULES(decode_and_play Widgets Gui)
 
-ADD_EXECUTABLE(record_and_save ${EXAMPLES}/record_and_save.cpp)
-TARGET_LINK_LIBRARIES(record_and_save qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+	ADD_EXECUTABLE(record_and_save ${EXAMPLES}/record_and_save.cpp)
+	TARGET_LINK_LIBRARIES(record_and_save qaudiocoder)
+	QT5_USE_MODULES(record_and_save Widgets Gui)
 
-ADD_EXECUTABLE(convert ${EXAMPLES}/convert.cpp)
-TARGET_LINK_LIBRARIES(convert qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES})
+	ADD_EXECUTABLE(convert ${EXAMPLES}/convert.cpp)
+	TARGET_LINK_LIBRARIES(convert qaudiocoder)
+	QT5_USE_MODULES(convert Widgets Gui)
+ENDIF()
 
-#Packaging
+#############################################################################
+# Packaging
+#############################################################################
+
 IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	INCLUDE(Packaging)
 ENDIF()
