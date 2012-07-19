@@ -441,6 +441,7 @@ void QAudioManager::initializeSearchPaths()
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib64");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib" + QDir::separator() + "i386-linux-gnu");
+		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "lib" + QDir::separator() + "x86_64-linux-gnu");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib");
 		paths.append(QString("") + QDir::separator() + "usr" + QDir::separator() + "local" + QDir::separator() + "lib64");
 	#endif

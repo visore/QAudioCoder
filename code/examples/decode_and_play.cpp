@@ -159,7 +159,7 @@ void decodeFile()
 }
 
 void initialize()
-{cout<<"**"<<QAudioDeviceInfo::availableDevices(QAudio::AudioInput).size()<<endl;
+{
 	window = new QWidget();
 	window->resize(600, 50);
 	window->setWindowTitle("QAudioCoder - Decode and Play");

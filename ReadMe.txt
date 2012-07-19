@@ -146,6 +146,7 @@ Linux:
 5. /usr/local/lib
 6. /usr/local/lib64
 7. /usr/lib/i386-linux-gnu
+8. /usr/lib/x86_64-linux-gnu
 
 In every of these directories QAudioCoder will search for the library:
 <path> is all of the above directories
