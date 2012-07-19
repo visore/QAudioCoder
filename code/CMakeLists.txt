@@ -110,13 +110,13 @@ INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 #############################################################################
 
 IF(${Qt5Widgets_FOUND} AND ${Qt5Gui_FOUND})
-	ADD_EXECUTABLE(decode_and_play ${EXAMPLES}/decode_and_play.cpp)
-	TARGET_LINK_LIBRARIES(decode_and_play qaudiocoder)
-	QT5_USE_MODULES(decode_and_play Widgets Gui)
+	ADD_EXECUTABLE(play ${EXAMPLES}/play.cpp)
+	TARGET_LINK_LIBRARIES(play qaudiocoder)
+	QT5_USE_MODULES(play Widgets Gui)
 
-	ADD_EXECUTABLE(record_and_save ${EXAMPLES}/record_and_save.cpp)
-	TARGET_LINK_LIBRARIES(record_and_save qaudiocoder)
-	QT5_USE_MODULES(record_and_save Widgets Gui)
+	ADD_EXECUTABLE(record ${EXAMPLES}/record.cpp)
+	TARGET_LINK_LIBRARIES(record qaudiocoder)
+	QT5_USE_MODULES(record Widgets Gui)
 
 	ADD_EXECUTABLE(convert ${EXAMPLES}/convert.cpp)
 	TARGET_LINK_LIBRARIES(convert qaudiocoder)

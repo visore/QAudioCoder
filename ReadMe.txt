@@ -198,9 +198,9 @@ You can execute the examples from the directory by using the command:
 
 The following examples are available:
 
-1. decode_and_play: Open an audio file, decode it and play it to the default output
+1. play: Open an audio file, decode it and play it to the default output
    device.
-2. encode_and_save: Record audio from the default input device, encode it and save it to a
+2. record: Record audio from the default input device, encode it and save it to a
    file.
 3. convert: Convert and audio file to another format.
 

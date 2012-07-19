@@ -417,9 +417,10 @@ bool QLameCoder::finalizeDecode()
 void QLameCoder::decode(const void *input, int size)
 {
 	mp3data_struct mp3Header;
-	short left[size * 20];
-	short right[size * 20];
-	int samples = m_hip_decode_headers(mLameDecoder, (unsigned char*) input, 8192, left, right, &mp3Header);
+	//TODO: still don't know what size the buffers should actually be
+	short left[size * 100];
+	short right[size * 100];
+	int samples = m_hip_decode_headers(mLameDecoder, (unsigned char*) input, size, left, right, &mp3Header);
 	if(samples > 0)
 	{
 		mTotalBitrate += mp3Header.bitrate;
@@ -435,7 +436,7 @@ void QLameCoder::decode(const void *input, int size)
 			mInputFormat.setBitrate(mMaximumBitrate, QExtendedAudioFormat::MaximumBitrate);
 		}
 		mInputFormat.setBitrate(mTotalBitrate / mBitrateCounter, QExtendedAudioFormat::NormalBitrate);
-		
+
 		if(!mFormatWasDetected)
 		{
 			mFormatWasDetected = true;
@@ -446,7 +447,6 @@ void QLameCoder::decode(const void *input, int size)
 			mInputFormat.setCodec(&QMp3Codec::instance());
 			emit formatChanged(mInputFormat);
 		}
-
 		short *stereo = new short[samples * 2];
 		samples = QChannelConverter<short>::combineChannels(left, right, stereo, samples);
 		emit decoded(new QSampleArray(stereo, samples, samples));

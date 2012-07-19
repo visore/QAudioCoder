@@ -35,10 +35,10 @@ QAudioCodec* QWaveCoder::detectCodec(const QByteArray &data)
 	char data2[2];
 	char data4[4];
 
-	if(	stream.readRawData(data4, 4) < 4 || !(QString(data4).toLower() == "riff" || QString(data4).toLower() == "rifx") ||
+	if(	stream.readRawData(data4, 4) < 4 || !(QString::fromAscii(data4, 4).toLower() == "riff" || QString::fromAscii(data4, 4).toLower() == "rifx") ||
 		stream.readRawData(data4, 4) < 4 || toInt(data4) <= 0 ||
-		stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "wave" ||
-		stream.readRawData(data4, 4) < 4 || QString(data4).toLower() != "fmt ")
+		stream.readRawData(data4, 4) < 4 || QString::fromAscii(data4, 4).toLower() != "wave" ||
+		stream.readRawData(data4, 4) < 4 || QString::fromAscii(data4, 4).toLower() != "fmt ")
 	{
 		return NULL;
 	}
