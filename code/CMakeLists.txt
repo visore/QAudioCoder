@@ -72,7 +72,7 @@ FIND_PACKAGE(Qt5Multimedia REQUIRED)
 FIND_PACKAGE(Qt5Gui)
 FIND_PACKAGE(Qt5Widgets)
 
- include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
+INCLUDE_DIRECTORIES(${Qt5Multimedia_INCLUDE_DIRS}) # for qaudio.h
 
 #############################################################################
 # Include common headers
@@ -115,8 +115,8 @@ INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 IF(${Qt5Widgets_FOUND} AND ${Qt5Gui_FOUND})
 	ADD_EXECUTABLE(play ${EXAMPLES}/play.cpp)
-	TARGET_LINK_LIBRARIES(play qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Core_LIBRARIES})
-	#QT5_USE_MODULES(play Widgets Gui)
+	TARGET_LINK_LIBRARIES(play qaudiocoder)
+	QT5_USE_MODULES(play Widgets Gui)
 
 	ADD_EXECUTABLE(record ${EXAMPLES}/record.cpp)
 	TARGET_LINK_LIBRARIES(record qaudiocoder)
