@@ -1,51 +1,265 @@
 #!/bin/bash
 
-rename 's/q/vi/' ../code/headers/*
-sed -i 's/q/vi/g' ../code/headers/*
-sed -i 's/Q/Vi/g' ../code/headers/*
-sed -i 's/ViString/QString/g' ../code/headers/*
-sed -i 's/ViVector/QVector/g' ../code/headers/*
-sed -i 's/ViThread/QThread/g' ../code/headers/*
-sed -i 's/ViObject/QObject/g' ../code/headers/*
-sed -i 's/ViList/QList/g' ../code/headers/*
-sed -i 's/vimath/qmath/g' ../code/headers/*
-sed -i 's/Vi_OBJECT/Q_OBJECT/g' ../code/headers/*
-sed -i 's/VitGlobal/QtGlobal/g' ../code/headers/*
-sed -i 's/viPow/qPow/g' ../code/headers/*
-sed -i 's/viSqrt/qSqrt/g' ../code/headers/*
-sed -i 's/viCos/qCos/g' ../code/headers/*
-sed -i 's/viSin/qSin/g' ../code/headers/*
-sed -i 's/viTan/qTan/g' ../code/headers/*
-sed -i 's/viaCos/qAcos/g' ../code/headers/*
-sed -i 's/viAsin/qAsin/g' ../code/headers/*
-sed -i 's/viAtan/qAtan/g' ../code/headers/*
-sed -i 's/viDeleteAll/qDeleteAll/g' ../code/headers/*
-sed -i 's/#ifdef Vi/#ifdef VI/g' ../code/headers/*
-sed -i 's/#ifndef Vi/#ifndef VI/g' ../code/headers/*
-sed -i 's/#define Vi/#define VI/g' ../code/headers/*
+rename 's/qextendedaudioformat/viaudioformat/' ../code/headers/*.h
+rename 's/qcommon/vicoder/' ../code/headers/*.h
+rename 's/q/vi/' ../code/headers/*.h
+sed -i 's/QCOMMON/VICODER/g' ../code/headers/*.h
+sed -i 's/qcommon/vicoder/g' ../code/headers/*.h
+sed -i 's/QCommon/ViCoder/g' ../code/headers/*.h
+sed -i 's/q/vi/g' ../code/headers/*.h
+sed -i 's/Q/Vi/g' ../code/headers/*.h
+sed -i 's/ViString/QString/g' ../code/headers/*.h
+sed -i 's/ViVector/QVector/g' ../code/headers/*.h
+sed -i 's/ViThread/QThread/g' ../code/headers/*.h
+sed -i 's/ViObject/QObject/g' ../code/headers/*.h
+sed -i 's/ViByteArray/QByteArray/g' ../code/headers/*.h
+sed -i 's/ViList/QList/g' ../code/headers/*.h
+sed -i 's/ViMutex/QMutex/g' ../code/headers/*.h
+sed -i 's/ViViueue/QQueue/g' ../code/headers/*.h
+sed -i 's/ViLibrary/QLibrary/g' ../code/headers/*.h
+sed -i 's/ViFile/QFile/g' ../code/headers/*.h
+sed -i 's/ViDataStream/QDataStream/g' ../code/headers/*.h
+sed -i 's/ViIODevice/QIODevice/g' ../code/headers/*.h
+sed -i 's/vimath/qmath/g' ../code/headers/*.h
+sed -i 's/Vi_OBJECT/Q_OBJECT/g' ../code/headers/*.h
+sed -i 's/VitGlobal/QtGlobal/g' ../code/headers/*.h
+sed -i 's/viPow/qPow/g' ../code/headers/*.h
+sed -i 's/viSqrt/qSqrt/g' ../code/headers/*.h
+sed -i 's/viCos/qCos/g' ../code/headers/*.h
+sed -i 's/viSin/qSin/g' ../code/headers/*.h
+sed -i 's/viTan/qTan/g' ../code/headers/*.h
+sed -i 's/viaCos/qAcos/g' ../code/headers/*.h
+sed -i 's/viAsin/qAsin/g' ../code/headers/*.h
+sed -i 's/viAtan/qAtan/g' ../code/headers/*.h
+sed -i 's/viDeleteAll/qDeleteAll/g' ../code/headers/*.h
+sed -i 's/#ifdef Vi/#ifdef VI/g' ../code/headers/*.h
+sed -i 's/#ifndef Vi/#ifndef VI/g' ../code/headers/*.h
+sed -i 's/#define Vi/#define VI/g' ../code/headers/*.h
+sed -i 's/vibyte8s/qbyte8s/g' ../code/headers/*.h
+sed -i 's/vibyte8u/qbyte8u/g' ../code/headers/*.h
+sed -i 's/vibyte8/qbyte8/g' ../code/headers/*.h
+sed -i 's/vibyte16s/qbyte16s/g' ../code/headers/*.h
+sed -i 's/vibyte16u/qbyte16u/g' ../code/headers/*.h
+sed -i 's/vibyte16/qbyte16/g' ../code/headers/*.h
+sed -i 's/vibyte32s/qbyte32s/g' ../code/headers/*.h
+sed -i 's/vibyte32u/qbyte32u/g' ../code/headers/*.h
+sed -i 's/vibyte32/qbyte32/g' ../code/headers/*.h
+sed -i 's/vibyte/qbyte/g' ../code/headers/*.h
+sed -i 's/vibyteu/qbyteu/g' ../code/headers/*.h
+sed -i 's/vibytes/qbytes/g' ../code/headers/*.h
+sed -i 's/vifloat/qfloat/g' ../code/headers/*.h
+sed -i 's/vireal/qreal/g' ../code/headers/*.h
+sed -i 's/viint8/qint8/g' ../code/headers/*.h
+sed -i 's/viint16/qint16/g' ../code/headers/*.h
+sed -i 's/viint32/qint32/g' ../code/headers/*.h
+sed -i 's/viint64/qint64/g' ../code/headers/*.h
+sed -i 's/Vit/Qt/g' ../code/headers/*.h
+sed -i 's/viRegisterMetaType/qRegisterMetaType/g' ../code/headers/*.h
+sed -i 's/deviueue/dequeue/g' ../code/headers/*.h
+sed -i 's/enviueue/enqueue/g' ../code/headers/*.h
+sed -i 's/ViWaitCondition/QWaitCondition/g' ../code/headers/*.h
+sed -i 's/ViSharedPointer/QSharedPointer/g' ../code/headers/*.h
+sed -i 's/ViDir/QDir/g' ../code/headers/*.h
+sed -i 's/ViTextStream/QTextStream/g' ../code/headers/*.h
 
-rename 's/q/vi/' ../code/sources/*
-sed -i 's/q/vi/g' ../code/sources/*
+sed -i 's/ViAudioFormat/QAudioFormat/g' ../code/headers/viaudioformat.h
+sed -i 's/ViExtendedAudioFormat/ViAudioFormat/g' ../code/headers/*.h
+sed -i 's/viextendedaudioformat/viaudioformat/g' ../code/headers/*.h
+sed -i 's/VIEXTENDEDAUDIOFORMAT/VIAUDIOFORMAT/g' ../code/headers/viaudioformat.h
 
-sed -i 's/Q/Vi/g' ../code/sources/*
-sed -i 's/ViString/QString/g' ../code/sources/*
-sed -i 's/ViVector/QVector/g' ../code/sources/*
-sed -i 's/ViThread/QThread/g' ../code/sources/*
-sed -i 's/ViObject/QObject/g' ../code/sources/*
-sed -i 's/ViList/QList/g' ../code/sources/*
-sed -i 's/vimath/qmath/g' ../code/sources/*
-sed -i 's/Vi_OBJECT/Q_OBJECT/g' ../code/sources/*
-sed -i 's/VitGlobal/QtGlobal/g' ../code/sources/*
-sed -i 's/viPow/qPow/g' ../code/sources/*
-sed -i 's/viSqrt/qSqrt/g' ../code/sources/*
-sed -i 's/viCos/qCos/g' ../code/sources/*
-sed -i 's/viSin/qSin/g' ../code/sources/*
-sed -i 's/viTan/qTan/g' ../code/sources/*
-sed -i 's/viaCos/qAcos/g' ../code/sources/*
-sed -i 's/viAsin/qAsin/g' ../code/sources/*
-sed -i 's/viAtan/qAtan/g' ../code/sources/*
-sed -i 's/viDeleteAll/qDeleteAll/g' ../code/sources/*
-sed -i 's/#ifdef Vi/#ifdef VI/g' ../code/sources/*
-sed -i 's/#ifndef Vi/#ifndef VI/g' ../code/sources/*
-sed -i 's/#define Vi/#define VI/g' ../code/sources/*
+
+rename 's/q/vi/' ../code/headers/*/*.h
+sed -i 's/QCOMMON/VICODER/g' ../code/headers/*/*.h
+sed -i 's/qcommon/vicoder/g' ../code/headers/*/*.h
+sed -i 's/QCommon/ViCoder/g' ../code/headers/*/*.h
+sed -i 's/q/vi/g' ../code/headers/*/*.h
+sed -i 's/Q/Vi/g' ../code/headers/*/*.h
+sed -i 's/ViString/QString/g' ../code/headers/*/*.h
+sed -i 's/ViVector/QVector/g' ../code/headers/*/*.h
+sed -i 's/ViThread/QThread/g' ../code/headers/*/*.h
+sed -i 's/ViObject/QObject/g' ../code/headers/*/*.h
+sed -i 's/ViByteArray/QByteArray/g' ../code/headers/*/*.h
+sed -i 's/ViList/QList/g' ../code/headers/*/*.h
+sed -i 's/ViMutex/QMutex/g' ../code/headers/*/*.h
+sed -i 's/ViViueue/QQueue/g' ../code/headers/*/*.h
+sed -i 's/ViLibrary/QLibrary/g' ../code/headers/*/*.h
+sed -i 's/ViFile/QFile/g' ../code/headers/*/*.h
+sed -i 's/ViDataStream/QDataStream/g' ../code/headers/*/*.h
+sed -i 's/ViIODevice/QIODevice/g' ../code/headers/*/*.h
+sed -i 's/vimath/qmath/g' ../code/headers/*/*.h
+sed -i 's/Vi_OBJECT/Q_OBJECT/g' ../code/headers/*/*.h
+sed -i 's/VitGlobal/QtGlobal/g' ../code/headers/*/*.h
+sed -i 's/viPow/qPow/g' ../code/headers/*/*.h
+sed -i 's/viSqrt/qSqrt/g' ../code/headers/*/*.h
+sed -i 's/viCos/qCos/g' ../code/headers/*/*.h
+sed -i 's/viSin/qSin/g' ../code/headers/*/*.h
+sed -i 's/viTan/qTan/g' ../code/headers/*/*.h
+sed -i 's/viaCos/qAcos/g' ../code/headers/*/*.h
+sed -i 's/viAsin/qAsin/g' ../code/headers/*/*.h
+sed -i 's/viAtan/qAtan/g' ../code/headers/*/*.h
+sed -i 's/viDeleteAll/qDeleteAll/g' ../code/headers/*/*.h
+sed -i 's/#ifdef Vi/#ifdef VI/g' ../code/headers/*/*.h
+sed -i 's/#ifndef Vi/#ifndef VI/g' ../code/headers/*/*.h
+sed -i 's/#define Vi/#define VI/g' ../code/headers/*/*.h
+sed -i 's/vibyte8s/qbyte8s/g' ../code/headers/*/*.h
+sed -i 's/vibyte8u/qbyte8u/g' ../code/headers/*/*.h
+sed -i 's/vibyte8/qbyte8/g' ../code/headers/*/*.h
+sed -i 's/vibyte16s/qbyte16s/g' ../code/headers/*/*.h
+sed -i 's/vibyte16u/qbyte16u/g' ../code/headers/*/*.h
+sed -i 's/vibyte16/qbyte16/g' ../code/headers/*/*.h
+sed -i 's/vibyte32s/qbyte32s/g' ../code/headers/*/*.h
+sed -i 's/vibyte32u/qbyte32u/g' ../code/headers/*/*.h
+sed -i 's/vibyte32/qbyte32/g' ../code/headers/*/*.h
+sed -i 's/vibyte/qbyte/g' ../code/headers/*/*.h
+sed -i 's/vibyteu/qbyteu/g' ../code/headers/*/*.h
+sed -i 's/vibytes/qbytes/g' ../code/headers/*/*.h
+sed -i 's/vifloat/qfloat/g' ../code/headers/*/*.h
+sed -i 's/vireal/qreal/g' ../code/headers/*/*.h
+sed -i 's/viint8/qint8/g' ../code/headers/*/*.h
+sed -i 's/viint16/qint16/g' ../code/headers/*/*.h
+sed -i 's/viint32/qint32/g' ../code/headers/*/*.h
+sed -i 's/viint64/qint64/g' ../code/headers/*/*.h
+sed -i 's/Vit/Qt/g' ../code/headers/*/*.h
+sed -i 's/viRegisterMetaType/qRegisterMetaType/g' ../code/headers/*/*.h
+sed -i 's/deviueue/dequeue/g' ../code/headers/*/*.h
+sed -i 's/enviueue/enqueue/g' ../code/headers/*/*.h
+sed -i 's/ViWaitCondition/QWaitCondition/g' ../code/headers/*/*.h
+sed -i 's/ViSharedPointer/QSharedPointer/g' ../code/headers/*/*.h
+sed -i 's/ViDir/QDir/g' ../code/headers/*/*.h
+sed -i 's/ViTextStream/QTextStream/g' ../code/headers/*/*.h
+
+sed -i 's/ViExtendedAudioFormat/ViAudioFormat/g' ../code/headers/*/*.h
+sed -i 's/viextendedaudioformat/viaudioformat/g' ../code/headers/*/*.h
+
+
+
+rename 's/qextendedaudioformat/viaudioformat/' ../code/sources/*.cpp
+rename 's/qcommon/vicoder/' ../code/sources/*.cpp
+rename 's/q/vi/' ../code/sources/*.cpp
+sed -i 's/QCOMMON/VICODER/g' ../code/sources/*.cpp
+sed -i 's/qcommon/vicoder/g' ../code/sources/*.cpp
+sed -i 's/QCommon/ViCoder/g' ../code/sources/*.cpp
+sed -i 's/q/vi/g' ../code/sources/*.cpp
+sed -i 's/Q/Vi/g' ../code/sources/*.cpp
+sed -i 's/ViString/QString/g' ../code/sources/*.cpp
+sed -i 's/ViVector/QVector/g' ../code/sources/*.cpp
+sed -i 's/ViThread/QThread/g' ../code/sources/*.cpp
+sed -i 's/ViObject/QObject/g' ../code/sources/*.cpp
+sed -i 's/ViByteArray/QByteArray/g' ../code/sources/*.cpp
+sed -i 's/ViList/QList/g' ../code/sources/*.cpp
+sed -i 's/ViMutex/QMutex/g' ../code/sources/*.cpp
+sed -i 's/ViViueue/QQueue/g' ../code/sources/*.cpp
+sed -i 's/ViLibrary/QLibrary/g' ../code/sources/*.cpp
+sed -i 's/ViFile/QFile/g' ../code/sources/*.cpp
+sed -i 's/ViDataStream/QDataStream/g' ../code/sources/*.cpp
+sed -i 's/ViIODevice/QIODevice/g' ../code/sources/*.cpp
+sed -i 's/vimath/qmath/g' ../code/sources/*.cpp
+sed -i 's/Vi_OBJECT/Q_OBJECT/g' ../code/sources/*.cpp
+sed -i 's/VitGlobal/QtGlobal/g' ../code/sources/*.cpp
+sed -i 's/viPow/qPow/g' ../code/sources/*.cpp
+sed -i 's/viSqrt/qSqrt/g' ../code/sources/*.cpp
+sed -i 's/viCos/qCos/g' ../code/sources/*.cpp
+sed -i 's/viSin/qSin/g' ../code/sources/*.cpp
+sed -i 's/viTan/qTan/g' ../code/sources/*.cpp
+sed -i 's/viaCos/qAcos/g' ../code/sources/*.cpp
+sed -i 's/viAsin/qAsin/g' ../code/sources/*.cpp
+sed -i 's/viAtan/qAtan/g' ../code/sources/*.cpp
+sed -i 's/viDeleteAll/qDeleteAll/g' ../code/sources/*.cpp
+sed -i 's/#ifdef Vi/#ifdef VI/g' ../code/sources/*.cpp
+sed -i 's/#ifndef Vi/#ifndef VI/g' ../code/sources/*.cpp
+sed -i 's/#define Vi/#define VI/g' ../code/sources/*.cpp
+sed -i 's/vibyte8s/qbyte8s/g' ../code/sources/*.cpp
+sed -i 's/vibyte8u/qbyte8u/g' ../code/sources/*.cpp
+sed -i 's/vibyte8/qbyte8/g' ../code/sources/*.cpp
+sed -i 's/vibyte16s/qbyte16s/g' ../code/sources/*.cpp
+sed -i 's/vibyte16u/qbyte16u/g' ../code/sources/*.cpp
+sed -i 's/vibyte16/qbyte16/g' ../code/sources/*.cpp
+sed -i 's/vibyte32s/qbyte32s/g' ../code/sources/*.cpp
+sed -i 's/vibyte32u/qbyte32u/g' ../code/sources/*.cpp
+sed -i 's/vibyte32/qbyte32/g' ../code/sources/*.cpp
+sed -i 's/vibyte/qbyte/g' ../code/sources/*.cpp
+sed -i 's/vibyteu/qbyteu/g' ../code/sources/*.cpp
+sed -i 's/vibytes/qbytes/g' ../code/sources/*.cpp
+sed -i 's/vifloat/qfloat/g' ../code/sources/*.cpp
+sed -i 's/vireal/qreal/g' ../code/sources/*.cpp
+sed -i 's/viint8/qint8/g' ../code/sources/*.cpp
+sed -i 's/viint16/qint16/g' ../code/sources/*.cpp
+sed -i 's/viint32/qint32/g' ../code/sources/*.cpp
+sed -i 's/viint64/qint64/g' ../code/sources/*.cpp
+sed -i 's/Vit/Qt/g' ../code/sources/*.cpp
+sed -i 's/viRegisterMetaType/qRegisterMetaType/g' ../code/sources/*.cpp
+sed -i 's/deviueue/dequeue/g' ../code/sources/*.cpp
+sed -i 's/enviueue/enqueue/g' ../code/sources/*.cpp
+sed -i 's/ViWaitCondition/QWaitCondition/g' ../code/sources/*.cpp
+sed -i 's/ViSharedPointer/QSharedPointer/g' ../code/sources/*.cpp
+sed -i 's/ViDir/QDir/g' ../code/sources/*.cpp
+sed -i 's/ViTextStream/QTextStream/g' ../code/sources/*.cpp
+
+sed -i 's/ViAudioFormat/QAudioFormat/g' ../code/sources/viaudioformat.cpp
+sed -i 's/ViExtendedAudioFormat/ViAudioFormat/g' ../code/sources/*.cpp
+sed -i 's/viextendedaudioformat/viaudioformat/g' ../code/sources/*.cpp
+sed -i 's/VIEXTENDEDAUDIOFORMAT/VIAUDIOFORMAT/g' ../code/sources/viaudioformat.cpp
+
+rename 's/q/vi/' ../code/sources/*/*.cpp
+sed -i 's/QCOMMON/VICODER/g' ../code/sources/*/*.cpp
+sed -i 's/qcommon/vicoder/g' ../code/sources/*/*.cpp
+sed -i 's/QCommon/ViCoder/g' ../code/sources/*/*.cpp
+sed -i 's/q/vi/g' ../code/sources/*/*.cpp
+sed -i 's/Q/Vi/g' ../code/sources/*/*.cpp
+sed -i 's/ViString/QString/g' ../code/sources/*/*.cpp
+sed -i 's/ViVector/QVector/g' ../code/sources/*/*.cpp
+sed -i 's/ViThread/QThread/g' ../code/sources/*/*.cpp
+sed -i 's/ViObject/QObject/g' ../code/sources/*/*.cpp
+sed -i 's/ViByteArray/QByteArray/g' ../code/sources/*/*.cpp
+sed -i 's/ViList/QList/g' ../code/sources/*/*.cpp
+sed -i 's/ViMutex/QMutex/g' ../code/sources/*/*.cpp
+sed -i 's/ViViueue/QQueue/g' ../code/sources/*/*.cpp
+sed -i 's/ViLibrary/QLibrary/g' ../code/sources/*/*.cpp
+sed -i 's/ViFile/QFile/g' ../code/sources/*/*.cpp
+sed -i 's/ViDataStream/QDataStream/g' ../code/sources/*/*.cpp
+sed -i 's/ViIODevice/QIODevice/g' ../code/sources/*/*.cpp
+sed -i 's/vimath/qmath/g' ../code/sources/*/*.cpp
+sed -i 's/Vi_OBJECT/Q_OBJECT/g' ../code/sources/*/*.cpp
+sed -i 's/VitGlobal/QtGlobal/g' ../code/sources/*/*.cpp
+sed -i 's/viPow/qPow/g' ../code/sources/*/*.cpp
+sed -i 's/viSqrt/qSqrt/g' ../code/sources/*/*.cpp
+sed -i 's/viCos/qCos/g' ../code/sources/*/*.cpp
+sed -i 's/viSin/qSin/g' ../code/sources/*/*.cpp
+sed -i 's/viTan/qTan/g' ../code/sources/*/*.cpp
+sed -i 's/viaCos/qAcos/g' ../code/sources/*/*.cpp
+sed -i 's/viAsin/qAsin/g' ../code/sources/*/*.cpp
+sed -i 's/viAtan/qAtan/g' ../code/sources/*/*.cpp
+sed -i 's/viDeleteAll/qDeleteAll/g' ../code/sources/*/*.cpp
+sed -i 's/#ifdef Vi/#ifdef VI/g' ../code/sources/*/*.cpp
+sed -i 's/#ifndef Vi/#ifndef VI/g' ../code/sources/*/*.cpp
+sed -i 's/#define Vi/#define VI/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte8s/qbyte8s/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte8u/qbyte8u/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte8/qbyte8/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte16s/qbyte16s/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte16u/qbyte16u/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte16/qbyte16/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte32s/qbyte32s/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte32u/qbyte32u/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte32/qbyte32/g' ../code/sources/*/*.cpp
+sed -i 's/vibyte/qbyte/g' ../code/sources/*/*.cpp
+sed -i 's/vibyteu/qbyteu/g' ../code/sources/*/*.cpp
+sed -i 's/vibytes/qbytes/g' ../code/sources/*/*.cpp
+sed -i 's/vifloat/qfloat/g' ../code/sources/*/*.cpp
+sed -i 's/vireal/qreal/g' ../code/sources/*/*.cpp
+sed -i 's/viint8/qint8/g' ../code/sources/*/*.cpp
+sed -i 's/viint16/qint16/g' ../code/sources/*/*.cpp
+sed -i 's/viint32/qint32/g' ../code/sources/*/*.cpp
+sed -i 's/viint64/qint64/g' ../code/sources/*/*.cpp
+sed -i 's/Vit/Qt/g' ../code/sources/*/*.cpp
+sed -i 's/viRegisterMetaType/qRegisterMetaType/g' ../code/sources/*/*.cpp
+sed -i 's/deviueue/dequeue/g' ../code/sources/*/*.cpp
+sed -i 's/enviueue/enqueue/g' ../code/sources/*/*.cpp
+sed -i 's/ViWaitCondition/QWaitCondition/g' ../code/sources/*/*.cpp
+sed -i 's/ViSharedPointer/QSharedPointer/g' ../code/sources/*/*.cpp
+sed -i 's/ViDir/QDir/g' ../code/sources/*/*.cpp
+sed -i 's/ViTextStream/QTextStream/g' ../code/sources/*/*.cpp
+
+sed -i 's/ViExtendedAudioFormat/ViAudioFormat/g' ../code/sources/*/*.cpp
+sed -i 's/viextendedaudioformat/viaudioformat/g' ../code/sources/*/*.cpp
 

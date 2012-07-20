@@ -2,6 +2,7 @@
 #define QEXTENDEDAUDIOFORMAT_H
 
 #include <qaudiocodec.h>
+#include <QAudioFormat>
 
 class QExtendedAudioFormat
 {
