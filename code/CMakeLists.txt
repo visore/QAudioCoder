@@ -25,26 +25,29 @@ IF(${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
 	SET(MACOSX 1)
 	ADD_DEFINITIONS(-DMACOSX)
 	SET(SYSTEM "MACOSX" CACHE INTERNAL "Current system")
-    SET(DISTRO " " CACHE INTERNAL "Linux distrobution")    
+	SET(DISTRO "" CACHE INTERNAL "Linux distrobution")    
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
 	ADD_DEFINITIONS(-DLINUX)
 	SET(SYSTEM "LINUX" CACHE INTERNAL "Current system")
 ELSEIF(${CMAKE_SYSTEM_NAME} MATCHES "Windows")
 	ADD_DEFINITIONS(-DWINDOWS)
 	SET(SYSTEM "WINDOWS" CACHE INTERNAL "Current system")
-    SET(DISTRO " " CACHE INTERNAL "Linux distrobution")
+	SET(DISTRO "" CACHE INTERNAL "Linux distrobution")
 ENDIF()
 
 #############################################################################
 # Setup installation directory paths
 #############################################################################
 
-IF(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+IF(${SYSTEM} MATCHES "WINDOWS")
 	SET(INSTALL_LIB_DIR lib)
 	SET(INSTALL_INCLUDE_DIR include)
+ELSEIF(${SYSTEM} MATCHES "LINUX" AND ${DISTRO} MATCHES "Redhat" AND ${ARCHITECTURE} MATCHES "64bit")
+	SET(INSTALL_LIB_DIR lib64/qaudiocoder)
+	SET(INSTALL_INCLUDE_DIR include/qaudiocoder)
 ELSE()
-	SET(INSTALL_LIB_DIR lib)
-	SET(INSTALL_INCLUDE_DIR include)
+	SET(INSTALL_LIB_DIR lib/qaudiocoder)
+	SET(INSTALL_INCLUDE_DIR include/qaudiocoder)
 ENDIF()
 
 #############################################################################
@@ -69,7 +72,7 @@ FIND_PACKAGE(Qt5Multimedia REQUIRED)
 FIND_PACKAGE(Qt5Gui)
 FIND_PACKAGE(Qt5Widgets)
 
- include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS})
+ include_directories(${Qt5Core_INCLUDE_DIRS} ${Qt5Multimedia_INCLUDE_DIRS} ${Qt5Widgets_INCLUDE_DIRS} ${Qt5Gui_INCLUDE_DIRS})
 
 #############################################################################
 # Include common headers
@@ -82,14 +85,15 @@ INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR} ${GLOBAL_HEADERS})
 # Initiate source files
 #############################################################################
 
-FILE(GLOB SOURCES ${SOURCES}/*.cpp ${SOURCES}/*/*.cpp ${EXTERNAL}/resample/*/*.c)
-FILE(GLOB HEADERS ${HEADERS}/*.h ${HEADERS}/*/*.h ${EXTERNAL}/resample/*/*.h)
+FILE(GLOB BUILD_SOURCES ${SOURCES}/*.cpp ${SOURCES}/*/*.cpp ${EXTERNAL}/resample/*/*.c)
+FILE(GLOB BUILD_HEADERS ${HEADERS}/*.h ${HEADERS}/*/*.h ${EXTERNAL}/resample/*/*.h)
+FILE(GLOB INSTALL_HEADER_FILES ${HEADERS}/*.h ${HEADERS}/*/*.h)
 
 #############################################################################
 # Create shared library
 #############################################################################
 
-ADD_LIBRARY(qaudiocoder SHARED ${HEADERS} ${SOURCES})
+ADD_LIBRARY(qaudiocoder SHARED ${BUILD_HEADERS} ${BUILD_SOURCES})
 QT5_USE_MODULES(qaudiocoder Core Multimedia)
 SET_TARGET_PROPERTIES(qaudiocoder PROPERTIES LINKER_LANGUAGE CXX)
 SET_TARGET_PROPERTIES(qaudiocoder PROPERTIES VERSION "${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}")
@@ -111,8 +115,8 @@ INSTALL(FILES ${INSTALL_HEADER_FILES} DESTINATION ${INSTALL_INCLUDE_DIR})
 
 IF(${Qt5Widgets_FOUND} AND ${Qt5Gui_FOUND})
 	ADD_EXECUTABLE(play ${EXAMPLES}/play.cpp)
-	TARGET_LINK_LIBRARIES(play qaudiocoder)
-	QT5_USE_MODULES(play Widgets Gui)
+	TARGET_LINK_LIBRARIES(play qaudiocoder ${Qt5Widgets_LIBRARIES} ${Qt5Gui_LIBRARIES} ${Qt5Core_LIBRARIES})
+	#QT5_USE_MODULES(play Widgets Gui)
 
 	ADD_EXECUTABLE(record ${EXAMPLES}/record.cpp)
 	TARGET_LINK_LIBRARIES(record qaudiocoder)

@@ -11,7 +11,7 @@
 
 A Qt-based C++ library for audio decoding, encoding and audio file conversion.
 
-Last Release: 17 July 2012
+Last Release: 20 July 2012
 Latest version: 0.1.0
 Developer: Christoph Stallmann, University of Pretoria
 

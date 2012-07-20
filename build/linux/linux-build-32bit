@@ -6,7 +6,6 @@ current_directory=`cd $current_directory; pwd`
 code_directory="$current_directory"/../../code
 build_directory="$current_directory"/../../../build
 install_directory="$current_directory"/../../../install
-qt5base_directory=/home/visore/Qt5/qt5/qtbase
 
 configure=false;
 build=false;
@@ -33,12 +32,12 @@ if $configure; then
 	cd "$build_directory"
 	if [ -f /etc/debian_version ] || [ -f /etc/debian_release ] || [ -f /etc/debian-version ] || [ -f /etc/debian-release ];
 	then
-		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=32bit -DDISTRO=Debian #-DQT5BASE="$qt5base_directory"
+		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=32bit -DDISTRO=Debian
 	elif [ -f /etc/redhat_version ] || [ -f /etc/redhat_release ] || [ -f /etc/redhat-version ] || [ -f /etc/redhat-release ];
 	then
-		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=32bit -DDISTRO=Redhat #-DQT5BASE="$qt5base_directory"
+		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=32bit -DDISTRO=Redhat
 	else
-		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=32bit #-DQT5BASE="$qt5base_directory"
+		ccmake "$code_directory" -DCMAKE_INSTALL_PREFIX="$install_directory" -DCMAKE_BUILD_TYPE=Release -DARCHITECTURE=32bit
 	fi
 fi
 

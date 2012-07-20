@@ -2,12 +2,11 @@
 setlocal enableextensions enabledelayedexpansion
 
 set mingw_directory=C:\QtSDK\mingw\bin
-set qt_directory=C:\QtSDK\Desktop\Qt\4.7.4\mingw
 set code_directory=C:\Users\GOOmuckel\Documents\Uni\Masters\code\QRealFourier\QRealFourier\code
 set build_directory=%code_directory%\..\..\build
 set install_directory=%code_directory%\..\..\install
 
-set PATH=%PATH%;%mingw_directory%;%qt_directory%\include\QtCore
+set PATH=%PATH%;%mingw_directory%
 
 set configure=false;
 set build=false;
@@ -30,7 +29,7 @@ if %configure%==true (
 	rmdir /S /Q %install_directory%
 	mkdir %install_directory%
 
-	cmake -G "MinGW Makefiles" --build %build_directory% -D CMAKE_INSTALL_PREFIX=%install_directory% -DCMAKE_BUILD_TYPE=Release %code_directory%
+	cmake-gui -G "MinGW Makefiles" --build %build_directory% -D CMAKE_INSTALL_PREFIX=%install_directory% -DCMAKE_BUILD_TYPE=Release %code_directory%
 )
 
 if %build%==true (
