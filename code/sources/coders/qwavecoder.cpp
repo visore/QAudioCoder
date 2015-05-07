@@ -35,10 +35,10 @@ QAudioCodec* QWaveCoder::detectCodec(const QByteArray &data)
 	char data2[2];
 	char data4[4];
 
-	if(	stream.readRawData(data4, 4) < 4 || !(QString::fromAscii(data4, 4).toLower() == "riff" || QString::fromAscii(data4, 4).toLower() == "rifx") ||
+	if(	stream.readRawData(data4, 4) < 4 || !(QString::fromLatin1(data4, 4).toLower() == "riff" || QString::fromLatin1(data4, 4).toLower() == "rifx") ||
 		stream.readRawData(data4, 4) < 4 || toInt(data4) <= 0 ||
-		stream.readRawData(data4, 4) < 4 || QString::fromAscii(data4, 4).toLower() != "wave" ||
-		stream.readRawData(data4, 4) < 4 || QString::fromAscii(data4, 4).toLower() != "fmt ")
+		stream.readRawData(data4, 4) < 4 || QString::fromLatin1(data4, 4).toLower() != "wave" ||
+		stream.readRawData(data4, 4) < 4 || QString::fromLatin1(data4, 4).toLower() != "fmt ")
 	{
 		return NULL;
 	}
@@ -134,15 +134,15 @@ void QWaveCoder::decodeHeader(const void *input, int size)
 
 		string.clear();
 		stream << data[22] << data[23];
-		mInputFormat.setChannelCount(toShort(string.toAscii().data()));
+		mInputFormat.setChannelCount(toShort(string.toLatin1().data()));
 
 		string.clear();
 		stream << data[24] << data[25] << data[26] << data[27];
-		mInputFormat.setSampleRate(toInt(string.toAscii().data()));
+		mInputFormat.setSampleRate(toInt(string.toLatin1().data()));
 
 		string.clear();
 		stream << data[34] << data[35];
-		mInputFormat.setSampleSize(toShort(string.toAscii().data()));
+		mInputFormat.setSampleSize(toShort(string.toLatin1().data()));
 
 		mInputFormat.setSampleType(QExtendedAudioFormat::SignedInt);
 		mInputFormat.setCodec(&QWaveCodec::instance());
